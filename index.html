@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5B9A6E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="finale">
+<title>FINALE · 영어 기말 대비</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#FFFFFF;--soft:#F5F4FB;--soft2:#E6F1E9;--line:#E8E6F2;--ink:#1B1C24;--sub:#6E7080;--pri:#5B9A6E;--pri2:#7DB68C;--deep:#3E7350;--hl:#FFE38A;--hlink:#1B1C24;--good:#1F9D68;--bad:#E5484D;--badsoft:#FDECEC;--warn:#F4EEE5;--warnbar:#C58A2A;color-scheme:light;font-size:15px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111117;--soft:#1B1A24;--soft2:#1E3326;--line:#2C2A3B;--ink:#ECEBF4;--sub:#9C9AB0;--pri:#7FC290;--pri2:#A3D4AF;--deep:#2E5A3C;--hl:rgba(255,214,90,.32);--hlink:#ECEBF4;--good:#4CC995;--bad:#FF7B7F;--badsoft:#3A1E22;--warn:#2B2519;--warnbar:#E0A949;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111117;--soft:#1B1A24;--soft2:#1E3326;--line:#2C2A3B;--ink:#ECEBF4;--sub:#9C9AB0;--pri:#7FC290;--pri2:#A3D4AF;--deep:#2E5A3C;--hl:rgba(255,214,90,.32);--hlink:#ECEBF4;--good:#4CC995;--bad:#FF7B7F;--badsoft:#3A1E22;--warn:#2B2519;--warnbar:#E0A949;color-scheme:dark}
+:root[data-fs="l"]{font-size:16.5px} :root[data-fs="xl"]{font-size:18px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;font-size:1rem;line-height:1.6;letter-spacing:-.01em}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;padding:0}
+button:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+button:disabled{cursor:default}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:760px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:800;font-size:1.45rem;color:var(--pri);letter-spacing:-.03em}
+.pill{display:flex;align-items:center;gap:6px;background:var(--soft2);color:var(--pri);font-weight:800;border-radius:999px;padding:7px 14px;font-size:.95rem}
+main{max-width:760px;margin:0 auto;padding:22px 18px 120px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbar .in{max-width:760px;margin:0 auto;display:flex}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0 8px;color:var(--sub);font-size:.75rem}
+.tabbar button.on{color:var(--pri);font-weight:700}
+.tabbar svg{width:24px;height:24px}
+body.playing .tabbar,body.playing .top{display:none}
+h1.t{font-size:1.75rem;font-weight:800;letter-spacing:-.035em;margin:0}
+.st{color:var(--sub);margin:4px 0 22px}
+.crumb{color:var(--sub);font-size:.95rem;margin-bottom:12px;display:inline-block}
+.hero{background:var(--deep);color:#fff;border-radius:22px;padding:22px;margin-bottom:14px}
+.hero small{opacity:.75;font-size:.85rem}
+.hero .big{font-size:2.6rem;font-weight:800;letter-spacing:-.04em;line-height:1.15}
+.hero p{margin:2px 0 14px;opacity:.75}
+.hero button{background:rgba(255,255,255,.16);color:#fff;font-weight:700;border-radius:999px;padding:9px 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.tile{background:var(--soft);border-radius:18px;padding:16px;text-align:left;width:100%}
+.tile b{display:block;font-size:1.08rem;margin-bottom:2px}
+.tile span{color:var(--sub);font-size:.9rem}
+.tile.on{background:var(--soft2)}
+.tile.on b{color:var(--pri)}
+.sec{font-weight:800;margin:26px 0 10px;font-size:1rem}
+.seg{display:flex;background:var(--soft);border-radius:16px;padding:5px;gap:4px;margin-bottom:14px}
+.seg button{flex:1;padding:10px 0;border-radius:12px;font-weight:700;color:var(--sub)}
+.seg button.on{background:var(--bg);color:var(--ink);box-shadow:0 1px 4px rgba(30,60,40,.08)}
+.seg.p button.on{background:var(--soft2);color:var(--pri);box-shadow:none}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--soft);border-radius:999px;padding:7px 15px;font-weight:600;color:var(--sub);font-size:.93rem}
+.chip.on{background:var(--soft2);color:var(--pri)}
+.chip:disabled{opacity:.35}
+.card{background:var(--soft);border-radius:18px;padding:18px;margin-bottom:10px}
+.card.w{background:var(--bg);border:1px solid var(--line)}
+.prow{display:block;width:100%;text-align:left;background:var(--soft);border-radius:18px;padding:16px 18px;margin-bottom:10px}
+.prow b{font-size:1.08rem}
+.prow .m{color:var(--sub);font-size:.88rem;margin-top:2px}
+.prow .g{font-size:.92rem;margin-top:6px}
+.gbtn{display:block;width:100%;text-align:center;color:#fff;font-weight:800;border-radius:999px;padding:14px;background:linear-gradient(90deg,#4E8C61,#7DB68C);box-shadow:0 8px 22px rgba(78,140,97,.28)}
+.gbtn:disabled{opacity:.45;box-shadow:none}
+.obtn{display:block;width:100%;text-align:center;font-weight:700;border-radius:999px;padding:13px;border:1px solid var(--line);background:var(--bg)}
+.ttl{display:flex;align-items:center;gap:10px}
+.ttl svg{width:26px;height:26px;color:var(--pri);flex:none}
+/* note */
+.sumh{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.1rem;margin:6px 0 10px}
+.sumh::before{content:"";width:4px;height:20px;border-radius:2px;background:var(--pri)}
+ul.sum{margin:0 0 8px;padding-left:20px}
+ul.sum li{margin:5px 0}
+.nh{display:flex;align-items:center;gap:12px;margin:34px 0 12px}
+.nh i{font-style:normal;background:var(--pri);color:#fff;font-weight:800;font-size:.85rem;min-width:28px;height:28px;border-radius:8px;display:grid;place-items:center}
+.nh h2{font-size:1.2rem;margin:0;font-weight:800;letter-spacing:-.03em}
+mark{background:var(--hl);color:var(--hlink);border-radius:3px;padding:0 2px}
+.tip{background:var(--soft2);border-left:4px solid var(--pri);border-radius:0 14px 14px 0;padding:13px 16px;margin:12px 0}
+.warn{background:var(--warn);border-left:4px solid var(--warnbar);border-radius:0 14px 14px 0;padding:13px 16px;margin:12px 0}
+.tw{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;min-width:460px;font-size:.93rem}
+th{background:var(--soft);text-align:left;font-weight:700;color:var(--sub);padding:11px 14px;border-bottom:1px solid var(--line)}
+td{padding:11px 14px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top}
+td:last-child{border-right:0} tr:last-child td{border-bottom:0}
+.en{font-family:Georgia,"Times New Roman","Noto Serif KR",serif;font-size:1.08em;line-height:1.75;letter-spacing:0}
+.x{color:var(--bad);text-decoration:line-through}
+.okc{color:var(--good);font-weight:700}
+.sent{display:block;width:100%;text-align:left;padding:10px 0;border-bottom:1px dashed var(--line)}
+.sent .n{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:6px;background:var(--soft2);color:var(--pri);font:700 .75rem system-ui;margin-right:8px;vertical-align:2px}
+.sent .ko{display:none;color:var(--pri);margin-top:5px;font-size:.95rem;font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.6}
+.sent.open .ko,.showko .sent .ko{display:block}
+.flow{display:flex;flex-direction:column}
+.node{background:var(--soft);border-radius:14px;padding:12px 15px}
+.node small{display:block;font-weight:800;color:var(--pri);font-size:.82rem}
+.node.k{background:var(--soft2);outline:1.5px solid var(--pri)}
+.arr{height:22px;display:flex;justify-content:center}
+.arr::before{content:"";width:2px;background:var(--pri);opacity:.5}
+.chk{display:block;width:100%;text-align:left;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:8px}
+.chk .q{display:flex;justify-content:space-between;gap:10px;font-weight:700}
+.chk .q em{font-style:normal;color:var(--pri);margin-right:6px}
+.chk .q small{color:var(--sub);font-weight:500;white-space:nowrap}
+.chk .a{display:none;margin-top:8px;color:var(--sub);font-size:.94rem}
+.chk.open .a{display:block}
+/* setup */
+.lab{font-weight:700;color:var(--sub);margin:20px 0 8px;font-size:.95rem}
+.cb{display:inline-flex;align-items:center;gap:8px;margin:0 14px 10px 0;font-weight:600}
+.cb i{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center}
+.cb.on i{background:var(--pri);border-color:var(--pri)}
+.cb.on i::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translateY(-1px)}
+.est{display:flex;justify-content:space-between;background:var(--soft);border-radius:14px;padding:14px 16px;margin:20px 0 14px;color:var(--sub)}
+.est b{color:var(--pri)}
+/* player */
+.ptop{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.ptop .in{max-width:760px;margin:0 auto;padding:10px 18px 12px}
+.ptop .r{display:flex;align-items:center;gap:12px}
+.ib{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;flex:none}
+.ptop b{display:block;font-size:1.15rem}
+.ptop small{color:var(--sub)}
+.pbar{height:6px;background:var(--soft2);border-radius:3px;margin-top:10px;overflow:hidden}
+.pbar i{display:block;height:100%;background:linear-gradient(90deg,#4E8C61,#7DB68C);transition:width .3s}
+.qhead{display:flex;align-items:center;gap:8px;margin:6px 0 10px}
+.qhead .no{color:var(--pri);font-weight:800;font-size:1.25rem}
+.qhead .tg{background:var(--soft);color:var(--sub);font-size:.82rem;padding:3px 10px;border-radius:6px}
+.qhead .fr{margin-left:auto;color:var(--sub);font-size:.82rem}
+.qt{font-weight:700;font-size:1.06rem;margin-bottom:14px}
+.given{border:1.5px solid var(--ink);border-radius:4px;padding:11px 13px;margin-bottom:14px}
+.body{margin-bottom:16px}
+.mk{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px}
+.mk b{font-family:system-ui,sans-serif;font-size:.82em;color:var(--pri);margin-right:2px}
+.blank{display:inline-block;min-width:96px;border-bottom:2px solid var(--ink);text-decoration:none}
+.box{text-decoration:none;font-weight:700}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:12px;text-align:left;width:100%;border:1.5px solid var(--line);border-radius:16px;padding:13px 15px}
+.opt .rd{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex:none;margin-top:2px;display:grid;place-items:center}
+.opt .c{color:var(--pri);font-weight:700;flex:none}
+.opt.sel{border-color:var(--pri);background:var(--soft2)}
+.opt.sel .rd{border-color:var(--pri)} .opt.sel .rd::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--pri)}
+.opt.ok{border-color:var(--good);background:color-mix(in srgb,var(--good) 10%,var(--bg))}
+.opt.no{border-color:var(--bad);background:var(--badsoft)}
+.opt.cut{opacity:.4} .opt.cut .tx{text-decoration:line-through}
+.hintb{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--soft2);background:var(--soft2);color:var(--pri);font-weight:700;border-radius:999px;padding:9px 16px;margin-top:14px}
+.hbox{background:var(--soft2);border-radius:16px;padding:14px 16px;margin-top:12px}
+.hbox b{color:var(--pri);display:block;font-size:.92rem}
+.exp{margin-top:16px;border-radius:16px;padding:16px;background:var(--soft)}
+.exp .res{font-weight:800;font-size:1.1rem;margin-bottom:6px}
+.exp .res.ok{color:var(--good)} .exp .res.no{color:var(--bad)}
+.exp ul{padding-left:18px;margin:6px 0}
+.exp .okw{color:var(--good);font-weight:700}
+.exp .sub{font-weight:700;margin-top:10px}
+.kol{color:var(--sub);font-size:.93rem;margin:6px 0 0}
+details{margin-top:10px} summary{color:var(--pri);font-weight:700;cursor:pointer}
+.pfoot{position:fixed;left:0;right:0;bottom:0;background:var(--bg);border-top:1px solid var(--line);z-index:20;padding-bottom:env(safe-area-inset-bottom,0px)}
+.pfoot .in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:10px 18px}
+.pfoot .obtn{flex:1;padding:12px}
+.pfoot .gbtn{flex:1.3;padding:12px}
+.pfoot span{color:var(--sub);font-size:.92rem;white-space:nowrap}
+.score{font-size:3.4rem;font-weight:800;color:var(--pri);letter-spacing:-.04em;text-align:center}
+.empty{text-align:center;color:var(--sub);padding:50px 10px}
+.empty b{color:var(--ink);display:block;font-size:1.1rem;margin-bottom:4px}
+.tf{list-style:none;padding:0;margin:0} .tf li{padding:3px 0}
+.row{display:flex;gap:10px;align-items:center}
+.sw{width:50px;height:30px;border-radius:999px;background:var(--line);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .2s}
+.sw.on{background:var(--pri)} .sw.on::after{left:24px}
+
+h1.t{font-size:1.6rem}
+.logo{position:relative}
+.logo .spk{font-size:.7em;margin-left:2px;display:inline-block;vertical-align:top;animation:tw 2.4s ease-in-out infinite}
+.spk2{display:inline-block;animation:tw 2.4s ease-in-out infinite .6s}
+@keyframes tw{0%,100%{opacity:.35;transform:scale(.7) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(25deg)}}
+.gbtn{position:relative;overflow:hidden;isolation:isolate}
+.gbtn::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.35),transparent);transform:translateX(-120%) skewX(-18deg);animation:sheen 4s ease-in-out infinite;z-index:-1;will-change:transform}
+.gbtn:disabled::after{display:none}
+@keyframes sheen{0%,62%{transform:translateX(-120%) skewX(-18deg)}100%{transform:translateX(330%) skewX(-18deg)}}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#4E8C61 0%,#3E7350 55%,#6CAA7F 100%)}
+.hero::before{content:"";position:absolute;width:260px;height:260px;right:-80px;top:-110px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.28),transparent 65%)}
+.hero .st2{position:absolute;color:#fff;pointer-events:none;animation:tw 2.8s ease-in-out infinite}
+.hero > *{position:relative}
+.spark{position:fixed;pointer-events:none;z-index:70;font-size:18px;color:#FFC93C;text-shadow:0 0 8px rgba(255,201,60,.8);animation:burst .95s ease-out forwards}
+.spark.v{color:#8CC29B;text-shadow:0 0 8px rgba(167,139,255,.9)}
+@keyframes burst{0%{transform:translate(-50%,-50%) scale(.3);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.1) rotate(120deg);opacity:0}}
+.opt.ok{box-shadow:0 0 0 4px color-mix(in srgb,var(--good) 14%,transparent)}
+.scrim{position:fixed;inset:0;background:rgba(12,28,18,.38);z-index:40;opacity:0;transition:opacity .25s}
+.scrim.on{opacity:1}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(360px,88vw);background:var(--bg);z-index:41;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 18px;overflow-y:auto;transform:translateX(100%);transition:transform .28s ease}
+.drawer.on{transform:none}
+.drawer .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.drawer .hd b{font-size:1.25rem}
+.srch{display:flex;align-items:center;gap:8px;background:var(--soft);border-radius:999px;padding:11px 16px;margin-bottom:12px}
+.srch input{flex:1;border:0;background:none;font:inherit;color:var(--ink);outline:none;min-width:0}
+.prof{display:flex;align-items:center;gap:12px;background:var(--soft2);border-radius:18px;padding:14px}
+.prof .av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#5B9A6E,#7DB68C);color:#fff;display:grid;place-items:center;font-weight:800;flex:none}
+.prof small{color:var(--pri);display:block}
+.prof .pill{margin-left:auto;background:var(--bg)}
+.dsec{color:var(--sub);font-size:.85rem;margin:20px 0 6px;padding-left:4px}
+.ditem{display:flex;align-items:center;gap:12px;width:100%;padding:11px 6px;border-radius:12px;font-size:1.02rem}
+.ditem svg{width:22px;height:22px;color:var(--ink)}
+.ditem:active{background:var(--soft)}
+.days{display:flex;justify-content:space-between;margin:18px 0 26px}
+.day{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--sub);font-size:.85rem}
+.day i{width:46px;height:46px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-style:normal;color:#fff}
+.day.today i{background:var(--bg);border:2px dashed var(--pri);color:var(--pri)}
+.day.today{color:var(--ink);font-weight:700}
+.day.done i{background:linear-gradient(135deg,#5B9A6E,#7DB68C);border:0;color:#fff;box-shadow:0 4px 12px rgba(78,140,97,.35)}
+.qrow{display:flex;align-items:center;gap:14px;padding:12px 0}
+.qrow .ic{width:46px;height:46px;border-radius:50%;background:var(--soft2);color:var(--pri);display:grid;place-items:center;flex:none}
+.qrow .ic svg{width:22px;height:22px}
+.qrow b{display:block}
+.qrow small{color:var(--sub)}
+.qrow .pt{margin-left:auto;color:var(--pri);font-weight:800}
+.qrow.ok .ic{background:linear-gradient(135deg,#5B9A6E,#7DB68C);color:#fff}
+.qbar{height:5px;background:var(--soft2);border-radius:3px;margin-top:5px;overflow:hidden;width:min(220px,50vw)}
+.qbar i{display:block;height:100%;background:var(--pri)}
+.empty2{border:1px solid var(--line);border-radius:18px;padding:34px 18px;text-align:center}
+.empty2 .ico{color:var(--pri);margin-bottom:8px}
+.empty2 b{display:block}
+.empty2 p{color:var(--sub);font-size:.92rem;margin:4px 0 16px}
+.empty2 .row{justify-content:center;flex-wrap:wrap}
+.sm{width:auto!important;display:inline-block!important;padding:10px 20px!important}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translate(-50%,20px);background:#24402E;color:#fff;font-weight:700;border-radius:999px;padding:12px 20px;z-index:80;opacity:0;transition:all .3s;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+.splash{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .3s ease}
+.splash.out{opacity:0;pointer-events:none}
+.splash .lg{position:relative;isolation:isolate;font-size:3rem;font-weight:800;color:var(--pri);letter-spacing:-.04em}
+.splash .lg::before{content:"";position:absolute;left:50%;top:50%;width:230px;height:230px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(91,154,110,.30),transparent 62%);z-index:-1;animation:breathe 1.6s ease-in-out infinite}
+.splash .lb{width:150px;height:4px;background:var(--soft2);border-radius:2px;overflow:hidden}
+.splash .lb i{display:block;height:100%;width:6%;background:linear-gradient(90deg,#5B9A6E,#7DB68C);border-radius:2px;animation:load var(--d,.5s) ease-out forwards}
+.splash small{color:var(--sub);font-size:.9rem}
+@keyframes load{to{width:100%}}
+@keyframes breathe{50%{transform:translate(-50%,-50%) scale(1.18);opacity:.65}}
+#app.enter{animation:pageIn .4s ease both}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}}
+/* ---- 큐노트 톤 맞춤 ---- */
+:root{--chip:#F2F2F6;--chipt:#5A5C6B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--chip:#23222E;--chipt:#B4B2C6}}
+:root[data-theme="dark"]{--chip:#23222E;--chipt:#B4B2C6}
+h1.t{font-weight:700;font-size:1.55rem}
+.sec,.prow b,.tile b{font-weight:700}
+.gbtn{font-weight:700;background:linear-gradient(90deg,#4E8C61 0%,#6CAA7F 55%,#88BF97 100%);box-shadow:0 10px 26px -6px rgba(78,140,97,.45);transition:box-shadow .2s,transform .12s}
+.gbtn:active{transform:scale(.985)}
+.gbtn:disabled{opacity:1;background:linear-gradient(90deg,#BFD8C6,#D3E6D8);box-shadow:none}
+.chip{background:var(--chip);color:var(--chipt);font-weight:600;transition:background .18s,color .18s}
+.chip.on{background:var(--soft2);color:var(--pri)}
+.card.w{border:1px solid var(--line);box-shadow:0 10px 30px -12px rgba(40,80,55,.12);border-radius:22px;padding:22px}
+.cb{margin:0 18px 12px 0;font-weight:500}
+.cb i{width:20px;height:20px;border-radius:5px;border:1.5px solid #D2D9D4;transition:background .15s,border-color .15s}
+.opt,.seg button,.tile,.prow{transition:background .18s,border-color .18s,color .18s,box-shadow .18s}
+.exp,.hbox{animation:fadeUp .3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}}
+#app.fade{animation:fadeIn .25s ease both}
+@keyframes fadeIn{from{opacity:0}}
+.splash{opacity:0;transition:opacity .2s ease}
+.splash.in{opacity:1}
+.splash.out{opacity:0;transition:opacity .35s ease}
+/* ===== 큐노트 그대로: 작고 단정한 글씨, 무채색 카드, 납작한 보라 ===== */
+:root{font-size:14px;--pri:#5B9A6E;--soft:#F5F5F8;--soft2:#E6F1E9;--line:#ECECF1;--ink:#17181C;--sub:#8B8D98;--chip:#F2F2F5;--chipt:#555763}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pri:#7FC290;--soft:#1C1C22;--soft2:#1E3326;--line:#2A2A33;--ink:#ECECF1;--sub:#8E909C;--chip:#22222A;--chipt:#B2B3BF}}
+:root[data-theme="dark"]{--pri:#7FC290;--soft:#1C1C22;--soft2:#1E3326;--line:#2A2A33;--ink:#ECECF1;--sub:#8E909C;--chip:#22222A;--chipt:#B2B3BF}
+:root[data-fs="l"]{font-size:15.5px} :root[data-fs="xl"]{font-size:17px}
+body{font-family:"Pretendard","Pretendard Variable","Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;letter-spacing:-.015em;-webkit-font-smoothing:antialiased}
+.bar{padding:14px 20px}
+.logo{font-size:1.4rem;font-weight:800;letter-spacing:-.04em}
+.pill{font-size:.92rem;padding:6px 13px;font-weight:700}
+main{padding:30px 20px 120px}
+h1.t{font-size:1.45rem;font-weight:700;letter-spacing:-.03em}
+.st{font-size:.92rem;margin:3px 0 20px}
+.hero{background:var(--pri);border-radius:20px;padding:18px 22px 20px}
+.hero::before,.hero .st2{display:none}
+.hero small{font-size:.85rem;opacity:.8}
+.hero .big{font-size:2.3rem;font-weight:800;margin:4px 0 0}
+.hero p{font-size:.9rem;margin:2px 0 0;opacity:.8}
+.link{display:block;margin:16px auto 6px;color:var(--pri);font-weight:600;font-size:.92rem}
+.tile{background:var(--soft);border-radius:14px;padding:20px 12px;text-align:center}
+.tile b{font-size:1.02rem;font-weight:600;margin:0}
+.tile span{display:none}
+.tile.on{background:var(--soft)} .tile.on b{color:var(--ink)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.prow{background:var(--soft);border-radius:14px;padding:14px 16px;margin-bottom:8px}
+.prow b{font-size:1rem;font-weight:600}
+.prow .m{font-size:.82rem}
+.prow .g{font-size:.88rem;color:var(--sub);margin-top:4px}
+.sec{font-size:.95rem;font-weight:700;margin:26px 0 10px}
+.nextl{display:flex;justify-content:space-between;font-size:.92rem;padding:5px 0;color:var(--sub)}
+.nextl b{color:var(--ink)}
+.card{background:var(--soft);border-radius:14px;padding:16px}
+.card.w{background:var(--bg);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 24px -14px rgba(40,80,55,.18);padding:22px}
+.lab{font-size:.9rem;font-weight:600;color:var(--ink);margin:18px 0 8px}
+.chip{font-size:.85rem;padding:6px 13px;font-weight:500}
+.chip.on{font-weight:600}
+.seg{background:var(--soft);border-radius:14px;padding:4px}
+.seg button{padding:9px 0;font-weight:600;font-size:.95rem;border-radius:10px}
+.seg.p button.on{background:var(--soft2);color:var(--pri)}
+.cb{font-size:.95rem;margin:0 16px 10px 0}
+.cb i{width:18px;height:18px;border-radius:4px}
+.cb.on i{background:var(--pri);border-color:var(--pri)}
+.est{border-radius:12px;font-size:.92rem;padding:13px 16px}
+.gbtn{border-radius:999px;padding:13px;font-size:1rem;font-weight:600;background:linear-gradient(90deg,#4E8C61,#6CAA7F 60%,#88BF97);box-shadow:0 10px 24px -8px rgba(78,140,97,.55)}
+.gbtn:disabled{background:linear-gradient(90deg,#BFD8C6,#D3E6D8)}
+.obtn{font-weight:600;font-size:.95rem}
+.tabbar button{font-size:.7rem;padding:8px 0 7px}
+.tabbar svg{width:22px;height:22px;stroke-width:1.6}
+.tabbar button.on{font-weight:600}
+.empty2{border-radius:16px;padding:30px 18px}
+.drawer .hd b{font-size:1.15rem}
+.ditem{font-size:.98rem;padding:10px 6px}
+.ditem svg{width:20px;height:20px}
+.qt{font-size:1rem;font-weight:600}
+.opt{border-radius:14px;padding:12px 14px;border-width:1px}
+.opt .rd{width:20px;height:20px;border-width:1.5px}
+.nh h2{font-size:1.1rem;font-weight:700}
+.nh i{min-width:24px;height:24px;border-radius:6px;font-size:.78rem}
+.splash .lg{font-size:2.6rem}
+.en{font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;font-size:1em;line-height:1.75;letter-spacing:-.005em}
+@media (max-width:480px){h1.t{font-size:1.35rem}.grid2{grid-template-columns:1fr 1fr}}
+/* 덜 촌스럽게: 보라는 '지금 선택된 것'에만 */
+.logo{font-size:1.38rem;font-weight:800;letter-spacing:-.045em}
+.opt .c{color:var(--sub);font-weight:400;font-size:.95em}
+.opt.sel .c{color:var(--pri)}
+.prow .g{display:none}
+.sumh::before{width:3px;height:16px}
+.nh i{background:var(--pri)}
+.hero{box-shadow:none}
+.qhead .no{font-size:1.1rem;font-weight:700}
+.qhead .tg{font-size:.78rem;border-radius:5px;padding:2px 8px}
+.qhead .fr{font-size:.78rem}
+.tip{border-left-width:3px;font-size:.95rem}
+.warn{border-left-width:3px;font-size:.95rem}
+.sent .n{background:none;color:var(--sub);font-weight:500;min-width:18px}
+.chk .q em{font-weight:700}
+/* ---- 글씨·로고·여백 다듬기 ---- */
+body{font-weight:400;color:var(--ink)}
+.logo{font-family:"Outfit","Pretendard",sans-serif;font-weight:700;font-size:1.6rem;letter-spacing:-.035em;line-height:1}
+.splash .lg{font-family:"Outfit","Pretendard",sans-serif;font-weight:700;letter-spacing:-.035em}
+h1.t{font-weight:700;font-size:1.5rem;letter-spacing:-.035em;line-height:1.35}
+.st{color:var(--sub);font-size:.93rem;margin:4px 0 26px}
+.sec{font-weight:600;font-size:.98rem;margin:34px 0 12px}
+b,strong{font-weight:600}
+.prow b,.tile b,.card b{font-weight:600}
+.hero{padding:20px 24px 22px;border-radius:22px}
+.hero small{font-weight:500}
+.hero .big{font-weight:700;font-size:2.4rem;letter-spacing:-.04em;line-height:1.1;margin-top:8px}
+.hero p{margin-top:4px}
+.nextl{padding:7px 0;font-size:.95rem}
+.nextl b{font-weight:600}
+.link{margin:22px auto 4px}
+.tile2{display:block;width:100%;text-align:left;background:var(--soft);border-radius:16px;padding:18px 18px 20px}
+.tile2 b{display:block;font-size:1.05rem;margin-bottom:4px}
+.tile2 span{color:var(--sub);font-size:.88rem}
+.grid2{gap:12px}
+.prow{padding:16px 18px;border-radius:16px;margin-bottom:10px}
+.prow .m{margin-top:3px}
+.gbtn,.obtn,.seg button,.chip{font-weight:600}
+/* ---- 체크박스: 큐노트처럼 체크 표시 없이 보라로만 칠해짐 + 눌러도 안 움직이게 ---- */
+.cb.on i::after{display:none}
+.cb i{border:1.5px solid #D2D9D4;background:var(--bg)}
+.cb.on i{background:var(--pri);border-color:var(--pri)}
+#cbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px 8px}
+#cbs .cb{margin:0}
+.cb{font-weight:500!important}
+.chip,.chip.on{font-weight:500!important}
+.cb,.chip{transition:none}
+.cb i,.chip{transition:background-color .15s,border-color .15s,color .15s}
+#allb{min-width:72px;text-align:center}
+/* ---- 개념 노트: 카드형으로 쪼개서 읽기 쉽게 ---- */
+.jump{position:sticky;top:calc(env(safe-area-inset-top,0px) + 61px);z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding:10px 0;margin:0 0 6px;scrollbar-width:none}
+.jump::-webkit-scrollbar{display:none}
+.jump button{flex:none;background:var(--chip);color:var(--chipt);border-radius:999px;padding:6px 13px;font-size:.85rem;font-weight:500}
+.jump button.on{background:var(--soft2);color:var(--pri)}
+.nsec{scroll-margin-top:120px;margin-top:30px}
+.nsec>h3{display:flex;align-items:center;gap:8px;font-size:1.05rem;font-weight:700;margin:0 0 12px}
+.nsec>h3 small{color:var(--sub);font-weight:500;font-size:.82rem}
+.gist2{background:var(--soft2);border-radius:18px;padding:18px 20px}
+.gist2 small{color:var(--pri);font-weight:600;font-size:.82rem}
+.gist2 p{margin:6px 0 0;font-size:1.08rem;font-weight:600;line-height:1.55;letter-spacing:-.02em}
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:7px;top:10px;bottom:10px;width:2px;background:var(--soft2)}
+.tl .st3{position:relative;padding:0 0 16px}
+.tl .st3:last-child{padding-bottom:0}
+.tl .st3::before{content:"";position:absolute;left:-24px;top:5px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2.5px solid var(--pri)}
+.tl .st3:last-child::before{background:var(--pri)}
+.tl .st3 small{display:block;color:var(--pri);font-weight:600;font-size:.8rem}
+.tl .st3 div{font-size:.97rem}
+.ana2{display:flex;gap:12px;background:var(--soft);border-radius:16px;padding:16px;margin-top:16px;font-size:.95rem}
+.ana2 i{font-style:normal;flex:none;width:30px;height:30px;border-radius:50%;background:var(--bg);display:grid;place-items:center}
+.sc{background:var(--soft);border-radius:14px;padding:13px 15px;margin-bottom:8px}
+.sc .eng{font-size:1rem;line-height:1.7}
+.sc .num{color:var(--sub);font-size:.8rem;font-weight:600;margin-bottom:2px}
+.sc .kr{color:var(--pri);font-size:.93rem;margin-top:6px;display:none;line-height:1.6}
+.sc.open .kr,.showko .sc .kr{display:block}
+.sc{display:block;width:100%;text-align:left}
+.pc{border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin-bottom:10px}
+.pc .h{display:flex;gap:10px;align-items:flex-start;font-weight:600;margin-bottom:6px}
+.pc .h i{font-style:normal;flex:none;min-width:22px;height:22px;border-radius:6px;background:var(--soft2);color:var(--pri);font-size:.78rem;display:grid;place-items:center;margin-top:1px}
+.pc .b{color:var(--ink);opacity:.82;font-size:.94rem;line-height:1.65}
+.gc{border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+.gc .ctx{font-size:.96rem;line-height:1.65;color:var(--sub)}
+.gc .ctx mark{background:var(--soft2);color:var(--pri);font-weight:600;padding:1px 4px;border-radius:5px}
+.pair{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0 7px}
+.pair span{font-size:.85rem;border-radius:999px;padding:3px 11px;font-weight:600}
+.pair .ok{background:color-mix(in srgb,var(--good) 13%,transparent);color:var(--good)}
+.pair .ng{background:var(--badsoft);color:var(--bad);text-decoration:line-through}
+.gc .why{font-size:.92rem;line-height:1.6}
+.vr{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+.vr:last-child{border-bottom:0}
+.vr .pair{margin:0;flex-direction:column;align-items:flex-start}
+.vr .why{font-size:.92rem;color:var(--ink);opacity:.82;line-height:1.6}
+.wd{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wd div{background:var(--soft);border-radius:12px;padding:10px 12px}
+.wd b{display:block;font-size:.98rem}
+.wd span{color:var(--sub);font-size:.85rem}
+.trap{border:1px dashed var(--warnbar);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+.trap .eng{font-size:.96rem;line-height:1.65}
+.trap .b{color:var(--sub);font-size:.9rem;margin-top:8px;line-height:1.6}
+.trap small{color:var(--warnbar);font-weight:600;font-size:.8rem}
+.ox{border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:8px}
+.ox .q{font-size:.96rem;line-height:1.6}
+.ox .q em{font-style:normal;color:var(--pri);font-weight:600;margin-right:6px}
+.ox .bt{display:flex;gap:8px;margin-top:10px}
+.ox .bt button{flex:1;border-radius:12px;padding:8px;background:var(--soft);font-weight:600}
+.ox .bt button.ok{background:color-mix(in srgb,var(--good) 15%,transparent);color:var(--good)}
+.ox .bt button.ng{background:var(--badsoft);color:var(--bad)}
+.ox .a{display:none;margin-top:10px;font-size:.9rem;color:var(--sub);line-height:1.6}
+.ox.done .a{display:block}
+/* ---- Proof 참고: 탭 표시선, 히어로 빛, 단원 아이콘, 떠 있는 버튼 ---- */
+.ico{display:inline-block;vertical-align:-3px;color:var(--ink)}
+.tabbar button{position:relative}
+.tabbar button.on::before{content:"";position:absolute;top:-1px;left:50%;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--pri);transform:translateX(-50%)}
+.hero{background:linear-gradient(120deg,#4E8C61 0%,#5F9E72 45%,#8CC29B 62%,#5F9E72 80%);box-shadow:0 14px 30px -14px rgba(78,140,97,.6)}
+.qcard{background:var(--soft);border-radius:18px;padding:16px 18px;margin-top:12px;display:block;width:100%;text-align:left}
+.qcard .tp{display:flex;justify-content:space-between;font-weight:600}
+.qcard .tp b{color:var(--pri)}
+.qcard .dz{display:flex;justify-content:space-between;margin-top:14px}
+.qcard .dz div{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:.78rem;color:var(--sub)}
+.qcard .dz i{width:34px;height:34px;border-radius:50%;background:var(--bg);display:grid;place-items:center;color:#fff}
+.qcard .dz .td i{border:1.5px dashed var(--pri);color:var(--pri)}
+.qcard .dz .td{color:var(--ink);font-weight:600}
+.qcard .dz .dn i{background:var(--pri)}
+.rec{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:.95rem;color:var(--sub)}
+.rec b{color:var(--ink)}
+.urow{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--soft);border-radius:18px;padding:16px;margin-bottom:10px}
+.urow .sq{width:42px;height:42px;border-radius:12px;background:var(--soft2);color:var(--pri);display:grid;place-items:center;font-weight:700;flex:none;font-size:.95rem}
+.urow .mid{flex:1;min-width:0}
+.urow b{display:block;font-weight:600;font-size:1rem}
+.urow small{color:var(--sub);font-size:.82rem}
+.urow .pb{height:4px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}
+.urow .pb i{display:block;height:100%;background:var(--pri);border-radius:2px}
+.urow .ch{color:var(--sub)}
+.fab{position:fixed;right:max(18px,calc(50vw - 362px));bottom:calc(env(safe-area-inset-bottom,0px) + 76px);z-index:15;display:flex;align-items:center;gap:6px;color:#fff;font-weight:600;border-radius:999px;padding:12px 20px;background:linear-gradient(90deg,#4E8C61,#6CAA7F);box-shadow:0 10px 24px -8px rgba(78,140,97,.6)}
+body.playing .fab{display:none}
+.ana3{background:var(--soft);border-radius:16px;padding:14px 16px;margin-top:16px}
+.ana3 .ah{display:flex;align-items:center;gap:6px;font-weight:600;font-size:.88rem;color:var(--ink);margin-bottom:6px}
+.ana3 ul,.ln{list-style:none;margin:0;padding:0}
+.ana3 li,.ln li{position:relative;padding:3px 0 3px 14px;font-size:.95rem;line-height:1.55}
+.ana3 li::before,.ln li::before{content:"";position:absolute;left:2px;top:12px;width:5px;height:5px;border-radius:50%;background:var(--pri);opacity:.55}
+.ln li:first-child{font-weight:500}
+.ln li+li{color:var(--sub)}
+/* ---- 모의고사 설정 간격 넓히기 ---- */
+.card.w{padding:26px 24px}
+.card.w .lab{margin:30px 0 12px}
+.card.w .lab:first-child{margin-top:0}
+.card.w .chips{gap:10px}
+#cbs{margin-top:2px}
+.card.w .lab.ty{margin-top:42px}
+.card.w .est{margin:30px 0 16px}
+/* ---- 큐노트 폴더·설정·리포트 화면 ---- */
+.fhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ftl{display:flex;align-items:center;gap:10px}
+.ftl svg{width:26px;height:26px;color:var(--pri);flex:none}
+.ftl h1{margin:0;font-size:1.55rem;font-weight:700;letter-spacing:-.035em}
+.fav{color:var(--sub);display:grid;place-items:center}
+.fav svg{width:22px;height:22px;color:inherit}
+.fmeta{color:var(--sub);font-size:.9rem;margin:8px 0 20px}
+.ftab{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ftab button{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--soft);border-radius:14px;padding:15px 8px;font-weight:600;font-size:1rem;color:var(--ink)}
+.ftab button.on{background:var(--soft2);color:var(--pri)}
+.ftab small{font-weight:500;color:var(--pri);opacity:.75;font-size:.85rem;margin-left:2px}
+.ftile{display:block;width:100%;text-align:left;background:var(--soft);border-radius:16px;padding:17px 18px}
+.ftile b{display:flex;align-items:center;gap:6px;font-size:1.05rem;margin-bottom:4px}
+.ftile b svg{color:var(--pri)}
+.ftile span{color:var(--sub);font-size:.9rem}
+.setc{background:var(--soft);border-radius:18px;padding:16px 18px 18px;margin-bottom:10px}
+.setc b{display:block;font-size:1.05rem}
+.setc small{display:block;color:var(--sub);font-size:.85rem;margin:3px 0 14px}
+.setc .gbtn{padding:12px}
+.faq{display:flex;align-items:center;width:100%;text-align:left;padding:13px 0;gap:12px}
+.faq div{flex:1}
+.faq b{display:block;font-size:1.02rem;font-weight:600}
+.faq span{display:block;color:var(--sub);font-size:.88rem;margin-top:2px}
+.faq i{font-style:normal;color:var(--sub);font-size:1.2rem;transition:transform .2s}
+.faq.open i{transform:rotate(90deg)}
+.stile{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--soft);border-radius:16px;padding:20px 18px}
+.stile svg{color:var(--pri);flex:none}
+.stile b{font-size:1.05rem;font-weight:600}
+.grid2.k{grid-template-columns:1fr 1fr}
+.foot{color:var(--sub);font-size:.8rem;text-align:center;margin:20px 0 10px}
+.pv{background:var(--soft);border-radius:14px;padding:16px 18px}
+.pv b{display:block}
+.pv span{color:var(--sub);font-size:.92rem}
+.inp{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--soft2);border-radius:12px;padding:12px 14px}
+img.av{object-fit:cover;width:46px;height:46px;border-radius:50%}
+.drow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.drow b{display:block} .drow span{color:var(--sub);font-size:.88rem}
+.rhd{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 14px;color:var(--sub);font-size:.9rem}
+.rpill{background:linear-gradient(90deg,#A9CDB3,#C4DECB);color:#fff;font-weight:600;border-radius:999px;padding:10px 16px;white-space:nowrap;box-shadow:0 8px 20px -10px rgba(78,140,97,.6)}
+.rcard{border:1px solid var(--line);border-radius:18px;padding:28px 18px;text-align:center;color:var(--sub);box-shadow:0 8px 24px -16px rgba(40,80,55,.18)}
+.rrow{display:grid;grid-template-columns:84px 1fr 44px 40px;align-items:center;gap:10px;padding:9px 0;font-size:.93rem}
+.rrow .rb{height:8px;background:var(--soft2);border-radius:4px;overflow:hidden}
+.rrow .rb i{display:block;height:100%;background:var(--pri);border-radius:4px}
+.rrow b{text-align:right;font-weight:600} .rrow small{color:var(--sub);text-align:right}
+/* 홈 카드: 가짜 빛 없이 단색 */
+.hero{background:#4E8C61!important;box-shadow:none!important}
+.hero::before,.hero::after{display:none!important}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hero{background:#3E7350!important}}
+:root[data-theme="dark"] .hero{background:#3E7350!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (max-width:480px){h1.t{font-size:1.5rem}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="bar"><button class="logo" onclick="go('home')">finale</button><div class="row"><button class="pill" onclick="go('quest')" aria-label="기말고사까지 남은 날"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span id="dday"></span><span id="pts" hidden></span></button><span id="wcount" hidden></span></div></div></header>
+<main id="app"></main>
+<nav class="tabbar" id="tabbar"></nav>
+<script>
+
+/*DATA*/
+const P = [
+{id:'7-1',L:7,n:1,name:'동물 실험과 의학 발전',gist:'동물 실험과 의학 발전의 상관관계는 법이 만든 것일 뿐, 인과관계의 증거가 아니다.',
+s:[
+[`Many opponents of animal experimentation argue that not only is modern medicine not the only cause for the decline in mortality, many medical advances that did contribute to human health were not the result of animal experimentation.`,`많은 동물 실험 반대자들은 현대 의학이 사망률 감소의 유일한 원인이 아닐 뿐만 아니라, 인간 건강에 실제로 기여했던 많은 의학적 발전도 동물 실험의 결과가 아니었다고 주장한다.`],
+[`Defenders of research have claimed that since there is a strong correlation between the practice of animal experimentation and medical advancement, the former caused the latter.`,`연구 옹호자들은 동물 실험 실행과 의학적 발전 사이에 강한 상관관계가 있으므로 전자(동물 실험)가 후자(의학 발전)를 초래했다고 주장해 왔다.`],
+[`Opponents of research reject this inference.`,`연구 반대자들은 이 추론을 거부한다.`],
+[`After all, we have independent reasons to expect these phenomena to be correlated.`,`어쨌든 우리에게는 이 현상들이 상관관계가 있을 거라고 예상할 별개의 이유가 있다.`],
+[`Since the law prescribes that all new drugs, prosthetic devices, and surgical techniques be tried on animals before they are used in humans, we will subsequently find that all medical advances are correlated with prior experimentation on animals.`,`법이 모든 신약, 보철 장치, 수술 기법을 인간에게 사용하기 전에 동물에게 시험하도록 규정하므로, 그 결과 우리는 모든 의학적 발전이 이전의 동물 실험과 상관관계가 있음을 발견하게 될 것이다.`],
+[`Consequently, the correlation between animal experimentation and medical discovery is the result of legal necessity, not evidence that animal experimentation led to medical advances.`,`따라서 동물 실험과 의학적 발견 사이의 상관관계는 법적 필요성의 결과이지, 동물 실험이 의학 발전을 이끌었다는 증거가 아니다.`],
+[`Moreover, several influential physicians have offered historical evidence that animal experimentation has not been as responsible for biomedical discovery as defenders suggest.`,`게다가 몇몇 영향력 있는 의사들은 동물 실험이 옹호자들이 말하는 만큼 생의학적 발견의 원인이 되지는 않았다는 역사적 증거를 제시해 왔다.`],
+[`They claim that clinical discoveries played a more substantial role than animal researchers have led us to believe.`,`그들은 임상적 발견이 동물 연구자들이 우리에게 믿게 해 온 것보다 더 중요한 역할을 했다고 주장한다.`]],
+w:[['mortality','사망률'],['correlation','상관관계'],['inference','추론'],['prescribe','규정하다'],['prosthetic','보철의'],['subsequently','그 결과, 그 후에'],['necessity','필요성'],['substantial','상당한, 중요한']],
+conf:[
+['상관관계 ≠ 인과관계','이 지문의 심장이에요. "같이 움직인다(상관)"와 "A 때문에 B가 생겼다(인과)"는 완전히 다른 말! 반대자들은 상관관계 자체는 인정해요. 인과라는 해석만 거부하는 거예요. 내용 일치에서 "상관관계가 없다고 주장한다"는 선지가 나오면 바로 X.'],
+['the former / the latter','the former = 앞에 나온 것(animal experimentation), the latter = 뒤에 나온 것(medical advancement). 순서 바꿔서 함정 선지 만들기 딱 좋아요.'],
+['this inference가 가리키는 것','바로 앞 문장의 "상관관계가 강하니까 동물 실험이 의학 발전을 일으켰다"는 추론. 함축 의미 문제 단골.'],
+['not as ~ as defenders suggest','"전혀 기여 안 했다"가 아니라 "옹호자들 말만큼은 아니다". 정도를 낮춘 말이니까 "전혀"가 들어간 선지는 함정!']],
+gram:[
+{p:`not only [is modern medicine] not the only cause`,w:`modern medicine is`,e:`부정어구 not only가 절 맨 앞에 오면 주어·동사가 도치돼요. (be동사 + 주어)`},
+{p:`that did [contribute] to human health`,w:`contributed`,e:`강조의 조동사 did 뒤에는 동사원형! "정말로 기여했던"`},
+{p:`surgical techniques [be] tried on animals`,w:`are`,e:`prescribe(규정하다)처럼 요구·명령을 나타내는 동사의 that절이 '~해야 한다'는 당위를 나타내면 (should) + 동사원형.`},
+{p:`expect these phenomena [to be] correlated`,w:`being`,e:`expect + 목적어 + to부정사.`},
+{p:`not evidence [that] animal experimentation led`,w:`which`,e:`evidence의 내용을 설명하는 동격 that절이에요. 뒤가 완전한 문장(주어+동사+목적어)이라 관계대명사 which는 불가.`},
+{p:`has not been as [responsible] for`,w:`responsibly`,e:`as ~ as를 지우고 보면 has not been responsible → be동사의 보어 자리라 형용사.`},
+{p:`clinical discoveries [played] a more substantial role`,w:`playing`,e:`that절 안의 주어 clinical discoveries에 대한 동사 자리예요.`},
+{p:`have led us [to believe]`,w:`believe`,e:`lead + 목적어 + to부정사 (~가 …하도록 이끌다).`},
+{p:`before they [are used] in humans`,w:`use`,e:`they(신약·보철 장치 등)는 '사용되는' 대상 → 수동태.`}],
+voc:[
+{p:`the [decline] in mortality`,w:`increase`,e:`현대 의학이 기여한 건 사망률 '감소'.`},
+{p:`there is a strong [correlation]`,w:`contrast`,e:`둘이 같이 움직인다는 '상관관계'가 있어야 "전자가 후자를 초래했다"는 추론이 나와요.`},
+{p:`Opponents of research [reject] this inference`,w:`accept`,e:`반대자들이니까 옹호자의 추론을 '거부'.`},
+{p:`the result of legal [necessity]`,w:`choice`,e:`법이 강제하니까 선택이 아니라 '필요성'.`},
+{p:`correlated with [prior] experimentation`,w:`later`,e:`인간에게 쓰기 '전에' 동물 실험 → 이전의(prior).`},
+{p:`played a more [substantial] role`,w:`minor`,e:`의사들은 임상적 발견이 '더 중요한' 역할을 했다고 주장. more minor는 논리가 뒤집혀요.`}],
+title:{o:[`Is Medicine Really Advanced by Experimenting on Animals?`,`Why the Law Requires Animal Testing Before Human Use`,`Clinical Discoveries: The Forgotten Enemy of Medicine`,`How Animal Experiments Lowered Mortality Rates`,`Physicians Who Changed the History of Medicine`],a:0,e:`글 전체가 "동물 실험 → 의학 발전"이라는 인과를 의심하는 구조예요. ②는 법 규정이 근거로 쓰였을 뿐 중심 내용은 아니고, ④는 반대 입장이에요.`},
+topic:{o:[`legal rules for testing new drugs on animals`,`doubts about the causal link between animal experimentation and medical progress`,`the historical role of physicians in clinical research`,`ethical problems of using animals in laboratories`,`major reasons why mortality has declined in modern times`],a:1,e:`상관관계를 인과관계로 착각하지 말라는 반박이 중심. ③은 마지막 근거의 일부일 뿐이에요.`},
+imp:{p:`this inference`,o:[`the belief that medical progress came mainly from clinical observation`,`the conclusion that animal testing caused medical advances because the two are closely linked`,`the argument that laws on animal testing should be stricter`,`the idea that modern medicine is the only reason mortality declined`,`the view that physicians exaggerated the value of animal research`],a:1,e:`this는 바로 앞 문장을 가리켜요: 강한 상관관계 → 동물 실험이 의학 발전을 초래. ④는 반대자 주장의 일부를 비튼 함정.`},
+blanks:[
+{p:`the result of legal necessity`,o:[`the result of legal necessity`,`proof of a direct causal connection`,`a product of scientific curiosity`,`evidence of ethical progress in research`,`an outcome of careful clinical observation`],a:0,e:`앞 문장이 "법이 동물 실험을 의무화한다". 그러니 상관관계는 '법적 필요성'의 결과. 뒤의 not evidence that ~ 과도 대조돼요.`},
+{p:`clinical discoveries`,o:[`clinical discoveries`,`animal experiments`,`legal regulations`,`surgical techniques`,`defenders of research`],a:0,e:`의사들의 역사적 증거 = 동물 실험이 생각보다 덜 중요했다 → 그 대신 '임상적 발견'이 더 큰 역할. ②를 넣으면 주장이 정반대가 돼요.`}],
+sum:{t:`The strong (A) between animal testing and medical progress does not prove that the former (B) the latter, since it largely reflects legal requirements.`,o:[[`correlation`,`caused`],[`gap`,`caused`],[`correlation`,`prevented`],[`conflict`,`followed`],[`difference`,`enabled`]],a:0,e:`상관관계(correlation)가 있다고 해서 원인(caused)이라는 증거는 아니다. ③ prevented는 "막았다"라 의미가 완전히 달라요.`},
+ref:null,
+tf:[[`반대자들은 현대 의학이 사망률 감소의 유일한 원인이 아니라고 본다.`,true,`첫 문장 not only is modern medicine not the only cause.`],
+[`옹호자들은 상관관계를 인과관계의 근거로 삼는다.`,true,`the former caused the latter.`],
+[`법은 신약을 인간에게 쓰기 전에 동물에게 시험하도록 규정한다.`,true,`the law prescribes ~ be tried on animals before ~ humans.`],
+[`반대자들은 동물 실험과 의학 발전 사이에 상관관계가 없다고 주장한다.`,false,`상관관계는 인정해요. 그게 인과는 아니라는 것.`],
+[`동물 실험과 의학 발견의 상관관계는 과학적 필연성의 결과이다.`,false,`과학적이 아니라 법적 필요성(legal necessity).`],
+[`몇몇 의사들은 동물 실험이 생의학 발견에 전혀 기여하지 않았다고 주장한다.`,false,`"옹호자들 말만큼은 아니다"일 뿐, 전혀 X.`],
+[`의사들은 임상적 발견이 알려진 것보다 더 중요한 역할을 했다고 본다.`,true,`clinical discoveries played a more substantial role.`],
+[`보철 장치는 동물 실험 의무 대상에서 제외된다.`,false,`신약·보철 장치·수술 기법 모두 포함.`]],
+irr:[{at:4,s:`Of course, testing on animals remains the most reliable way to ensure that new drugs are safe for humans.`,k:`물론 동물 실험은 신약이 인간에게 안전한지 확인하는 가장 믿을 만한 방법으로 남아 있다.`,e:`'동물 실험·신약·법' 단어가 다 겹쳐서 자연스러워 보이죠? 그런데 이 글은 반대자 입장에서 "상관관계는 법 때문"이라는 논리를 쌓는 중이에요. 갑자기 동물 실험을 옹호하는 말이 끼면 다음 문장 Consequently(따라서 상관관계는 법적 필요성의 결과)와 연결이 끊겨요.`},
+{at:6,s:`Such physicians, however, admit that most clinical discoveries would have been impossible without prior tests on animals.`,k:`하지만 그런 의사들은 대부분의 임상적 발견이 사전 동물 실험 없이는 불가능했을 것이라고 인정한다.`,e:`physicians, clinical discoveries 등 앞뒤 단어를 그대로 가져와서 헷갈려요. 하지만 바로 다음 문장 They claim(임상적 발견이 더 중요했다)과 정면으로 모순돼요.`}],
+ins:[{i:2,e:`this inference는 바로 앞 문장의 "전자가 후자를 초래했다"는 추론. 그리고 다음 After all이 반대자들의 근거를 시작하니까 그 사이!`},{i:5,e:`Consequently(따라서)는 앞 문장 "법 때문에 모든 의학 발전이 동물 실험과 상관관계를 갖게 된다"의 결론이에요.`},{i:6,e:`Moreover로 두 번째 근거(역사적 증거)를 추가. 다음 문장의 They가 이 문장의 physicians를 받아요.`}],
+oi:1,cut:[3,6],oe:`옹호자 주장 + 반대자의 거부(this inference) → After all로 근거 시작(법 규정) → Consequently 결론 + Moreover 추가 근거. this inference, After all, Moreover가 연결 고리예요.`,
+flow:[['반대자의 출발점','의학 발전 중 상당수는 동물 실험 덕분이 아니다'],['옹호자의 추론','동물 실험 ↔ 의학 발전: 상관관계 강함 → 그러니 동물 실험이 원인!'],['반박 ① 법적 필요성','법이 "사람한테 쓰기 전 동물 실험"을 의무화 → 모든 의학 발전은 당연히 동물 실험과 같이 나타남'],['반박 ② 역사적 증거','영향력 있는 의사들: 임상적 발견이 더 중요했다'],['결론','상관관계 ≠ 인과관계']],
+ana:`비유하면 이래요. 우리 학교 학생들은 시험 날 전부 교복을 입어요. 그래서 "성적 좋은 학생은 모두 교복을 입었다"는 상관관계가 생기죠. 그렇다고 교복이 성적을 올렸다고 할 수 있나요? 아니죠, 교칙상 원래 입어야 하니까요. 법이 동물 실험을 의무화한 것 = 교칙이 교복을 의무화한 것!`},
+
+{id:'7-3',L:7,n:3,name:'AI와 인간의 공진화',gist:'AI와 인간 의식은 서로 영향을 주며 함께 진화하므로, AI와의 관계를 의식 있는 존재 간의 공존으로 봐야 한다.',
+s:[
+[`The evolution of AI is often associated with the concept of singularity.`,`AI의 진화는 종종 특이점이라는 개념과 연관된다.`],
+[`Singularity refers to the point at which AI exceeds human intelligence.`,`특이점은 AI가 인간의 지능을 넘어서는 지점을 가리킨다.`],
+[`After that point, it is predicted that AI will repeatedly improve itself and evolve at an accelerated pace.`,`그 지점 이후 AI는 스스로를 반복적으로 개선하며 가속화된 속도로 진화할 것으로 예측된다.`],
+[`When AI becomes self-aware and pursues its own goals, it will be a conscious being, not just a machine.`,`AI가 자기 인식을 하고 자신의 목표를 추구하게 되면, 그것은 단지 기계가 아니라 의식 있는 존재가 될 것이다.`],
+[`AI and human consciousness will then begin to evolve together.`,`그러면 AI와 인간의 의식은 함께 진화하기 시작할 것이다.`],
+[`Our consciousness will evolve to new dimensions through our interactions with AI, which will provide us with intellectual stimulation and inspire new insights and creativity.`,`우리의 의식은 AI와의 상호 작용을 통해 새로운 차원으로 진화할 것이며, 그 상호 작용은 우리에게 지적 자극을 주고 새로운 통찰과 창의성을 불어넣을 것이다.`],
+[`Conversely, our consciousness also has a significant impact on the evolution of AI.`,`반대로, 우리의 의식 또한 AI의 진화에 중대한 영향을 미친다.`],
+[`The direction of AI's evolution will depend greatly on what values and ethics we incorporate into AI.`,`AI 진화의 방향은 우리가 어떤 가치와 윤리를 AI에 통합하느냐에 크게 달려 있을 것이다.`],
+[`We need to see our relationship with AI as a mutual coexistence of conscious beings, recognizing its rights and supporting the evolution of its consciousness.`,`우리는 AI의 권리를 인정하고 그 의식의 진화를 지지하면서, AI와의 관계를 의식 있는 존재들의 상호 공존으로 볼 필요가 있다.`]],
+w:[['singularity','특이점'],['exceed','넘어서다'],['accelerated','가속화된'],['self-aware','자기 인식하는'],['conscious','의식이 있는'],['stimulation','자극'],['conversely','반대로'],['incorporate','통합하다, 포함시키다'],['coexistence','공존']],
+conf:[
+['Conversely의 정체','"반대로"지만 내용이 반대라는 뜻이 아니에요. 영향의 방향이 반대(AI→인간 다음에 인간→AI)라는 뜻! 그래서 삽입 문제에서 Conversely 문장은 "AI가 우리에게 주는 영향" 바로 뒤에 들어가요.'],
+['AI = 도구? 파트너?','필자는 AI를 의식 있는 존재로 보고 권리까지 인정하자고 해요. "AI를 통제해야 할 도구로 본다"는 선지는 정반대.'],
+['the point at which','특이점의 정의. "AI가 인간 지능을 넘어서는 순간". 함축 문제로도 나왔죠(시험지 20번).'],
+['which의 선행사','~ through our interactions with AI, which will provide ~ 에서 which는 우리의 AI와의 상호 작용(interactions) 쪽. 지적 자극을 주는 건 그 상호 작용이에요.']],
+gram:[
+{p:`the point [at which] AI exceeds`,w:`which`,e:`뒤 문장(AI exceeds human intelligence)이 완전하니까 전치사+관계대명사(=관계부사 when/where 역할).`},
+{p:`it is predicted [that] AI will`,w:`what`,e:`가주어 it - 진주어 that절. 뒤가 완전한 문장이라 what 불가.`},
+{p:`repeatedly improve [itself]`,w:`it`,e:`주어 AI = 목적어 AI → 재귀대명사.`},
+{p:`self-aware and [pursues] its own goals`,w:`pursue`,e:`becomes와 병렬, 주어 AI는 3인칭 단수.`},
+{p:`interactions with AI, [which] will provide`,w:`that`,e:`콤마 뒤 계속적 용법에는 that을 못 써요.`},
+{p:`provide us [with] intellectual stimulation`,w:`for`,e:`provide A with B (A에게 B를 제공하다).`},
+{p:`our consciousness also [has] a significant`,w:`have`,e:`주어 our consciousness는 단수.`},
+{p:`depend greatly on [what] values and ethics`,w:`that`,e:`what은 '어떤'이라는 의문형용사로 values를 꾸미고, 전치사 on의 목적어 역할을 하는 간접의문문을 이끌어요.`},
+{p:`recognizing its rights and [supporting]`,w:`supports`,e:`분사구문 recognizing과 병렬.`}],
+voc:[
+{p:`AI [exceeds] human intelligence`,w:`falls behind`,e:`특이점은 AI가 인간 지능을 '넘어서는' 지점.`},
+{p:`evolve at an [accelerated] pace`,w:`reduced`,e:`스스로를 반복 개선하니까 '가속화'된 속도.`},
+{p:`it will be a [conscious] being`,w:`mechanical`,e:`not just a machine과 대조 → 의식 있는.`},
+{p:`begin to evolve [together]`,w:`separately`,e:`이후 내용이 서로 영향을 주는 공진화. separately면 글 전체가 무너져요.`},
+{p:`has a [significant] impact`,w:`negligible`,e:`AI 진화 방향이 우리 가치에 '크게' 달려 있다 → 중대한.`},
+{p:`a [mutual] coexistence`,w:`one-sided`,e:`서로 영향을 주고받으니 '상호' 공존.`}],
+title:{o:[`An Unsolved Puzzle: Will AI Replace Humans?`,`Upcoming Future: AI as a Human Partner for Co-evolution`,`The Moment Machines Started to Think Faster`,`Teaching Ethics to Humans Through AI`,`Why Human Intelligence Will Always Stay Ahead`],a:1,e:`AI와 인간 의식이 서로 영향을 주며 함께 진화(co-evolution)한다는 게 핵심. ③은 특이점(도입)에만 해당돼요.`},
+topic:{o:[`dangers of AI exceeding human intelligence`,`the mutual evolution of human and AI consciousness`,`methods to control AI with human values`,`the history of the concept of singularity`,`the decline of human creativity in the AI era`],a:1,e:`특이점은 도입부일 뿐, 중심은 '상호 진화와 공존'. ③은 가치·윤리가 나오긴 하지만 '통제'가 아니라 '영향'이에요.`},
+imp:{p:`a mutual coexistence of conscious beings`,o:[`a system in which humans fully control AI as a tool`,`a relationship in which humans and AI respect and shape each other as aware entities`,`a world where AI and humans no longer need each other`,`a competition in which AI tries to surpass human intelligence`,`a temporary partnership until AI becomes self-aware`],a:1,e:`mutual(상호) + conscious beings(의식 있는 존재들) → 서로를 존중하고 서로의 진화에 영향을 주는 관계.`},
+blanks:[
+{p:`begin to evolve together`,o:[`begin to evolve together`,`start to compete for dominance`,`remain fundamentally separate`,`gradually replace each other`,`stop developing altogether`],a:0,e:`다음 문장부터 AI→인간, 인간→AI 양방향 영향이 나와요. 그러니 '함께 진화'.`},
+{p:`what values and ethics we incorporate into AI`,o:[`what values and ethics we incorporate into AI`,`how fast AI can process data`,`how much energy AI systems consume`,`whether AI can copy human emotions`,`how many machines we can build`],a:0,e:`앞 문장 "우리의 의식이 AI 진화에 영향" → 그 영향의 구체적 내용은 우리가 넣는 가치와 윤리.`}],
+sum:{t:`As AI becomes a conscious being, humans and AI will (A) each other's evolution, so we should treat AI as a (B) partner.`,o:[[`shape`,`coexisting`],[`limit`,`subordinate`],[`ignore`,`temporary`],[`shape`,`controlled`],[`threaten`,`rival`]],a:0,e:`서로의 진화를 형성(shape)하고, 공존하는(coexisting) 파트너로. ④ controlled는 '통제되는'이라 필자 관점과 반대.`},
+ref:{ps:[`improve [itself]`,`pursues [its] own goals`,`[it] will be a conscious being`,`and ethics [we] incorporate`,`recognizing [its] rights`],a:3,e:`나머지는 모두 AI. we만 인간(우리)이에요.`},
+tf:[[`특이점은 AI가 인간 지능을 넘어서는 지점이다.`,true,`refers to the point at which AI exceeds human intelligence.`],
+[`특이점 이후 AI는 스스로를 개선하며 가속 진화할 것으로 예측된다.`,true,`repeatedly improve itself and evolve at an accelerated pace.`],
+[`AI는 의식을 갖더라도 여전히 기계에 불과하다.`,false,`a conscious being, not just a machine.`],
+[`AI와의 상호 작용은 인간의 창의성을 떨어뜨린다.`,false,`창의성을 불어넣는다(inspire).`],
+[`AI 진화의 방향은 인간이 넣는 가치와 윤리에 달려 있다.`,true,`depend greatly on what values and ethics we incorporate.`],
+[`인간의 의식은 AI의 진화에 거의 영향을 주지 않는다.`,false,`significant impact(중대한 영향).`],
+[`필자는 AI의 권리를 인정해야 한다고 본다.`,true,`recognizing its rights.`],
+[`필자는 AI를 인간이 통제해야 할 도구로 본다.`,false,`의식 있는 존재 간의 상호 공존.`]],
+irr:[{at:2,s:`Some experts, however, doubt that AI will ever reach the level of human intelligence.`,k:`그러나 일부 전문가들은 AI가 인간 지능 수준에 도달할 수 있을지 의심한다.`,e:`특이점·인간 지능이라는 단어를 그대로 써서 자연스러워 보여요. 하지만 글은 "특이점 이후 일어날 일"을 쭉 전개하는데, 갑자기 특이점 자체를 의심하면 흐름이 끊기죠.`},
+{at:5,s:`Moreover, AI has already replaced humans in many repetitive jobs, raising concerns about unemployment.`,k:`게다가 AI는 이미 많은 반복 업무에서 인간을 대체해 실업에 대한 우려를 낳고 있다.`,e:`Moreover로 시작해서 '추가 설명'처럼 보이는 게 함정! 글의 초점은 '의식의 공진화'인데 일자리 문제는 다른 주제예요. 다음 Conversely(반대 방향 영향)와도 이어지지 않아요.`}],
+ins:[{i:4,e:`then은 "AI가 의식 있는 존재가 되면 그때" → 앞 문장 다음. 그리고 다음 문장부터 공진화 구체 설명.`},{i:6,e:`Conversely = 영향의 방향이 반대. 앞은 AI→인간(지적 자극), 뒤는 인간→AI(가치·윤리).`},{i:1,e:`Singularity를 정의하는 문장. 다음 문장의 that point가 이 the point를 받아요.`}],
+oi:1,cut:[4,6],oe:`특이점 정의(the point) → After that point → AI가 의식 있는 존재 / then 공진화 + AI→인간 영향 / Conversely 인간→AI 영향 → 결론(공존). that point, then, Conversely가 열쇠.`,
+flow:[['특이점','AI가 인간 지능을 넘어서는 지점'],['그 후','AI 스스로 반복 개선 → 가속 진화 → 의식 있는 존재'],['AI → 인간','상호 작용이 지적 자극, 통찰, 창의성을 줌'],['인간 → AI','우리가 넣는 가치·윤리가 AI 진화 방향을 결정'],['필자의 주장','AI와의 관계 = 의식 있는 존재들의 상호 공존 (권리 인정, 진화 지지)']],
+ana:`두 사람이 함께 추는 춤을 떠올려 보세요. 한 사람이 스텝을 바꾸면 상대도 맞춰서 바뀌고, 그게 다시 나에게 영향을 주죠. 누가 누구를 조종하는 게 아니라 같이 만들어 가는 춤. 필자가 말하는 AI와 인간의 관계가 딱 이거예요.`},
+
+{id:'7-5',L:7,n:5,name:'행동은 정체성에서 나온다',gist:'행동은 정체성의 반영이며, 행동과 정체성이 일치하면 옳은 일을 하는 것이 쉬워진다.',
+s:[
+[`Your behaviors are usually a reflection of your identity.`,`당신의 행동은 대개 당신의 정체성을 반영한다.`],
+[`What you do is an indication of the type of person you believe that you are — either consciously or nonconsciously.`,`당신이 하는 행동은 의식적으로든 무의식적으로든 당신이 스스로를 어떤 유형의 사람이라고 믿는지를 나타낸다.`],
+[`Research has shown that once a person believes in a particular aspect of their identity, they are more likely to act according to that belief.`,`연구에 따르면 일단 어떤 사람이 자기 정체성의 특정 측면을 믿게 되면, 그 믿음에 따라 행동할 가능성이 더 높다.`],
+[`For example, people who identified as "being a voter" were more likely to vote than those who simply claimed "voting" was an action they wanted to perform.`,`예를 들어, 자신을 '유권자'로 여긴 사람들은 단순히 '투표'를 자신이 하고 싶은 행동이라고 말한 사람들보다 투표할 가능성이 더 높았다.`],
+[`Similarly, the person who accepts exercise as the part of their identity doesn't have to convince themselves to train.`,`마찬가지로, 운동을 자기 정체성의 일부로 받아들이는 사람은 운동하라고 스스로를 설득할 필요가 없다.`],
+[`Doing the right thing is easy.`,`옳은 일을 하는 것이 쉽다.`],
+[`After all, when your behavior and your identity perfectly match, you are no longer pursuing behavior change.`,`결국 행동과 정체성이 완벽하게 일치하면, 당신은 더 이상 행동 변화를 추구하는 것이 아니다.`],
+[`You are simply acting like the type of person you already believe yourself to be.`,`당신은 그저 스스로 이미 그렇다고 믿는 유형의 사람처럼 행동하고 있을 뿐이다.`]],
+w:[['reflection','반영'],['identity','정체성'],['indication','나타냄, 표시'],['consciously','의식적으로'],['aspect','측면'],['identify as','~로 여기다, 동일시하다'],['convince','설득하다'],['pursue','추구하다']],
+conf:[
+['voter vs voting','"유권자"라는 정체성(being a voter) > "투표"라는 행동(voting). 정체성으로 받아들인 쪽이 투표를 더 많이 했어요. 내용 일치에서 둘을 뒤바꾼 함정이 단골!'],
+['Doing the right thing 함축','도덕적으로 옳은 일이 아니라 "자기 정체성에 맞는 행동"을 하는 것(시험지 10번). ②Making moral decisions 같은 선지에 낚이지 않기.'],
+['their/themselves = a person','the person ~ convince themselves: 단수 사람을 성별 없이 받는 they/their/themselves. 재귀대명사 자리 체크!'],
+['no longer pursuing','변화를 "추구하지 않는다" = 노력이 필요 없다는 뜻. 행동 변화를 포기한다는 의미가 아니에요.']],
+gram:[
+{p:`[What] you do is an indication`,w:`That`,e:`you do 뒤에 목적어가 없는 불완전한 문장 → 선행사를 포함한 관계대명사 what. (시험지 17번 (A))`},
+{p:`What you do [is] an indication`,w:`are`,e:`what절 주어는 단수 취급.`},
+{p:`once a person [believes] in a particular`,w:`believe`,e:`주어 a person은 3인칭 단수.`},
+{p:`they are more likely [to act]`,w:`acting`,e:`be likely to + 동사원형 (~할 가능성이 높다).`},
+{p:`more likely to vote than [those] who simply claimed`,w:`that`,e:`비교 대상이 복수 people → those. 게다가 that은 who(관계대명사)의 선행사로 못 써요.`},
+{p:`part of their identity [doesn't] have to`,w:`don't`,e:`주어는 the person(단수). 중간의 who절, their identity에 속지 말기!`},
+{p:`convince [themselves] to train`,w:`them`,e:`설득하는 주체 = 설득당하는 대상(the person) → 재귀대명사.`},
+{p:`[Doing] the right thing is easy`,w:`Do`,e:`주어 자리 → 동명사.`},
+{p:`you are no longer [pursuing]`,w:`pursue`,e:`be동사 are + 현재분사 → 진행형. (시험지 17번 (C))`},
+{p:`you already believe [yourself] to be`,w:`you`,e:`주어 you = 목적어 → 재귀대명사.`}],
+voc:[
+{p:`a [reflection] of your identity`,w:`contradiction`,e:`행동은 정체성을 '반영'. 모순이면 글 전체 반대.`},
+{p:`an [indication] of the type of person`,w:`denial`,e:`행동이 내가 믿는 나를 '나타낸다'.`},
+{p:`they are [more] likely to act according`,w:`less`,e:`정체성을 믿으면 그 믿음대로 행동할 가능성이 '더' 높다.`},
+{p:`Doing the right thing is [easy]`,w:`challenging`,e:`설득할 필요가 없으니 '쉽다'. 바로 뒤 After all도 '쉬운 이유'.`},
+{p:`your identity perfectly [match]`,w:`conflict`,e:`'일치'할 때 변화 노력이 필요 없어요.`}],
+title:{o:[`Action Comes from Who You Think You Are`,`The Best Ways to Turn Citizens into Voters`,`Why Changing Your Behavior Is Always Painful`,`How Exercise Builds a Stronger Identity`,`Your Words Matter More Than Your Actions`],a:0,e:`정체성 → 행동. ④는 원인과 결과를 거꾸로 했어요(운동이 정체성을 만든다가 아니라, 정체성이 운동하게 만든다).`},
+topic:{o:[`the influence of identity on behavior`,`the importance of voting in a democracy`,`ways to motivate yourself to exercise`,`the difficulty of changing bad habits`,`the gap between beliefs and actions`],a:0,e:`투표·운동은 예시일 뿐. ⑤는 믿음과 행동이 '어긋난다'는 반대 의미예요.`},
+imp:{p:`Doing the right thing is easy`,o:[`Acting in line with who you believe you are takes little effort.`,`Making morally correct choices comes naturally to everyone.`,`Following other people's advice saves time.`,`Choosing the most profitable option is simple.`,`Avoiding mistakes becomes easier with practice.`],a:0,e:`앞에서 "운동을 정체성으로 받아들인 사람은 스스로를 설득할 필요 없다" → 정체성에 맞는 행동은 쉽다. 도덕(②)과 헷갈리지 말기.`},
+blanks:[
+{p:`a reflection of your identity`,o:[`a reflection of your identity`,`a response to your surroundings`,`a product of your willpower`,`a result of social pressure`,`a sign of hidden talents`],a:0,e:`예시(유권자, 운동)가 모두 "정체성 → 행동". 첫 문장 빈칸은 주제문!`},
+{p:`you are no longer pursuing behavior change`,o:[`you are no longer pursuing behavior change`,`you still need strong motivation to act`,`you must keep reminding yourself of your goals`,`you start to doubt who you really are`,`you are forced to compete with others`],a:0,e:`일치하면 노력이 필요 없음 → 다음 문장 "그저 이미 믿는 사람처럼 행동할 뿐". ②③은 정반대.`}],
+sum:{t:`When people see a behavior as part of their (A), they perform it with (B) effort.`,o:[[`identity`,`little`],[`goal`,`great`],[`identity`,`constant`],[`habit`,`extra`],[`duty`,`little`]],a:0,e:`정체성(identity)으로 받아들이면 노력이 거의 안 든다(little). ⑤ duty(의무)는 본문에 없는 개념.`},
+ref:null,
+tf:[[`행동은 대개 정체성을 반영한다.`,true,`첫 문장.`],
+[`정체성은 의식적·무의식적으로 행동에 드러난다.`,true,`either consciously or nonconsciously.`],
+[`'투표'를 하고 싶은 행동이라고 말한 사람이 '유권자'로 여긴 사람보다 투표를 더 많이 했다.`,false,`반대예요. 유권자로 여긴 사람이 더 많이 투표.`],
+[`운동을 정체성의 일부로 받아들인 사람은 스스로를 설득할 필요가 없다.`,true,`doesn't have to convince themselves.`],
+[`행동과 정체성이 일치해도 행동 변화를 위해 계속 노력해야 한다.`,false,`더 이상 행동 변화를 추구하지 않음.`],
+[`정체성은 오직 의식적으로만 행동에 영향을 준다.`,false,`무의식적으로도.`],
+[`사람은 스스로 이미 믿는 유형의 사람처럼 행동한다.`,true,`마지막 문장.`],
+[`연구에 따르면 정체성에 대한 믿음은 행동에 거의 영향을 주지 않는다.`,false,`more likely to act according to that belief.`]],
+irr:[{at:3,s:`Interestingly, voter turnout tends to be higher among older citizens than among younger ones.`,k:`흥미롭게도 투표율은 젊은 시민보다 나이 든 시민들 사이에서 더 높은 경향이 있다.`,e:`투표 예시 바로 뒤라 이어지는 것 같죠? 하지만 이 글의 초점은 '정체성 → 행동'이에요. 나이별 투표율은 정체성과 무관한 정보예요.`},
+{at:4,s:`Of course, regular exercise also improves our mood and reduces stress.`,k:`물론 규칙적인 운동은 기분도 좋게 하고 스트레스도 줄여 준다.`,e:`운동 예시 바로 뒤에 붙어서 자연스러워 보여요. 하지만 '운동의 효과'는 정체성과 상관없는 이야기. 다음 Doing the right thing is easy와도 연결이 끊겨요.`}],
+ins:[{i:4,e:`Similarly = 앞의 투표 예시와 같은 원리의 두 번째 예시(운동).`},{i:6,e:`After all은 앞 문장 "옳은 일을 하는 게 쉽다"의 이유를 설명.`},{i:3,e:`For example: 앞 문장의 '정체성을 믿으면 그에 따라 행동한다'에 대한 첫 예시.`}],
+oi:1,cut:[3,5],oe:`주제 보충 + 연구 결과 → For example(투표) + Similarly(운동) → Doing the right thing is easy + After all 이유 + 결론.`,
+flow:[['나의 정체성','"나는 ~한 사람이다"라는 믿음'],['행동','그 믿음대로 행동할 가능성 ↑'],['예시','유권자 정체성 → 실제 투표 ↑ / 운동하는 사람 정체성 → 설득 필요 X'],['결과','행동 = 정체성 일치 → 행동 변화 노력 불필요, 그냥 나답게 행동']],
+ana:`"나는 매일 단어 외우는 사람이야"라고 진짜 믿는 친구는, 오늘도 단어장을 펴려고 의지력을 쥐어짜지 않아요. 그냥 그게 자기니까요. 반면 "단어 외워야 하는데…"라는 친구는 매일 자기 자신과 싸우죠. 전자가 '정체성', 후자가 '행동 변화 추구'예요.`},
+
+{id:'7-7',L:7,n:7,name:'지루함은 변화 감지 장치',gist:'지루함은 변하지 않는 자극에 대한 신경 반응을 낮춰 새로운 변화를 더 잘 감지하게 하는 장치다.',
+s:[
+[`Kids tire of their toys, college students get sick of cafeteria food, and sooner or later most of us lose interest in our favorite TV shows.`,`아이들은 장난감에 싫증을 내고, 대학생들은 구내식당 음식에 질리며, 머지않아 우리 대부분은 가장 좋아하는 TV 프로그램에 흥미를 잃는다.`],
+[`The bottom line is that we humans are easily bored.`,`요점은 우리 인간이 쉽게 지루해한다는 것이다.`],
+[`But why should this be true?`,`그런데 왜 그래야 할까?`],
+[`The answer lies buried deep in our nerve cells, which are designed to reduce their initial excited response to stimuli each time they occur.`,`그 답은 우리의 신경 세포 깊숙이 묻혀 있는데, 신경 세포는 자극이 발생할 때마다 그것에 대한 초기의 흥분 반응을 줄이도록 설계되어 있다.`],
+[`At the same time, these neurons enhance their responses to things that change — especially things that change quickly.`,`동시에 이 뉴런들은 변하는 것, 특히 빠르게 변하는 것에 대한 반응을 강화한다.`],
+[`We probably evolved this way because our ancestors got more survival value, for example, from attending to what was moving in a tree (such as a puma) than to the tree itself.`,`우리는 아마 이런 식으로 진화했을 텐데, 예를 들어 우리 조상들이 나무 그 자체보다 (퓨마처럼) 나무에서 움직이는 것에 주의를 기울이는 것에서 더 많은 생존 가치를 얻었기 때문이다.`],
+[`Boredom in reaction to an unchanging environment turns down the level of neural excitation so that new stimuli (like our ancestor's hypothetical puma threat) stand out more.`,`변하지 않는 환경에 대한 반응으로서의 지루함은 신경 흥분 수준을 낮춰서 (조상이 가정한 퓨마의 위협 같은) 새로운 자극이 더 두드러지게 한다.`],
+[`It's the neural equivalent of turning off a front door light to see the fireflies.`,`그것은 반딧불이를 보기 위해 현관 불을 끄는 것에 해당하는 신경의 작용이다.`]],
+w:[['tire of','~에 싫증 나다'],['bottom line','요점, 핵심'],['stimuli','자극들 (단수 stimulus)'],['enhance','강화하다'],['attend to','~에 주의를 기울이다'],['neural','신경의'],['excitation','흥분'],['hypothetical','가정의'],['equivalent','같은 것, 대응물']],
+conf:[
+['줄이는 것 vs 늘리는 것','같은 자극 반복 → 반응 줄임(reduce) / 변하는 자극 → 반응 키움(enhance). 이 두 개를 뒤바꾼 어휘·일치 문제가 제일 많이 나와요.'],
+['turns down = 낮추다','turn down the level of neural excitation = 신경 흥분 수준을 낮추다(시험지 19번 답 ③ reduces the intensity). 볼륨을 줄이는 이미지!'],
+['they occur의 they','each time they occur에서 they는 nerve cells가 아니라 stimuli(자극). 지칭 문제의 함정 포인트!'],
+['반딧불이 비유','현관 불(변하지 않는 배경 자극)을 꺼야 반딧불이(새로운 자극)가 보인다. 지루함 = 불 끄기.']],
+gram:[
+{p:`The answer [lies] buried`,w:`lays`,e:`lie(놓여 있다, 자동사) - lay - lain / lay(놓다, 타동사) - laid - laid. 목적어가 없으니 lies.`},
+{p:`The answer lies [buried] deep`,w:`burying`,e:`답이 '묻혀 있는' 상태 → 과거분사가 주격 보어.`},
+{p:`nerve cells, [which] are designed`,w:`that`,e:`콤마 뒤 계속적 용법 → that 불가.`},
+{p:`are designed [to reduce]`,w:`reducing`,e:`be designed to + 동사원형 (~하도록 설계되다).`},
+{p:`responses to things that [change] —`,w:`changes`,e:`관계대명사 that의 선행사 things가 복수 → change.`},
+{p:`from attending to [what] was moving`,w:`that`,e:`전치사 to의 목적어 + 뒤에 주어가 빠진 불완전 문장 → 선행사 포함 what.`},
+{p:`than to the tree [itself]`,w:`it`,e:`'나무 그 자체'라는 강조 용법의 재귀대명사.`},
+{p:`puma threat) [stand] out more`,w:`stands`,e:`so that절의 주어는 new stimuli(복수). 괄호에 있는 threat에 속지 말기!`},
+{p:`equivalent of [turning] off`,w:`turn`,e:`전치사 of 뒤 → 동명사.`}],
+voc:[
+{p:`designed to [reduce] their initial`,w:`amplify`,e:`같은 자극이 반복되면 반응을 '줄인다' → 그래서 지루해짐.`},
+{p:`these neurons [enhance] their responses`,w:`suppress`,e:`At the same time 대조: 변하는 것에는 반응을 '강화'.`},
+{p:`ancestors got [more] survival value`,w:`less`,e:`움직이는 퓨마에 주목하는 게 '더' 생존에 유리.`},
+{p:`an [unchanging] environment`,w:`ever-changing`,e:`지루함은 '변하지 않는' 환경에 대한 반응.`},
+{p:`turns [down] the level`,w:`up`,e:`흥분 수준을 '낮춰야' 새 자극이 두드러져요. 불을 '끄는' 비유와도 연결.`},
+{p:`stand out [more]`,w:`less`,e:`새로운 자극이 '더' 두드러지게.`}],
+title:{o:[`Boredom: A Neural Mechanism for Detecting Change`,`How to Overcome Boredom in Daily Life`,`Why Humans Prefer Familiar Experiences`,`The Brain's Trick to Overcome Fear of Predators`,`How Our Ancestors Changed Their Environment`],a:0,e:`지루함 = 변하지 않는 자극 반응을 줄여 변화를 감지하는 신경 장치. ③은 정반대(익숙한 것을 싫증 냄).`},
+topic:{o:[`the evolutionary role of boredom in noticing change`,`the negative effects of boredom on learning`,`ways the brain stores long-term memories`,`why young people lose interest more quickly`,`the danger of predators in early human history`],a:0,e:`퓨마는 예시일 뿐. 지루함이 '변화 감지'라는 생존 기능을 한다는 게 주제.`},
+imp:{p:`turning off a front door light to see the fireflies`,o:[`lowering our response to constant stimuli so that new ones become noticeable`,`avoiding all stimuli to protect our nerve cells`,`increasing excitement in order to enjoy familiar things`,`ignoring sudden changes in our surroundings`,`replacing old memories with new experiences`],a:0,e:`현관 불 = 계속 있는 자극, 반딧불이 = 새로운 자극. 불을 끈다 = 익숙한 자극에 대한 반응을 낮춘다.`},
+blanks:[
+{p:`enhance their responses to things that change`,o:[`enhance their responses to things that change`,`ignore things that change quickly`,`respond equally to all stimuli`,`focus on familiar and stable objects`,`weaken their reaction to sudden movement`],a:0,e:`At the same time + 다음 문장의 '움직이는 퓨마에 주목' → 변하는 것에 대한 반응 '강화'.`},
+{p:`turns down the level of neural excitation`,o:[`turns down the level of neural excitation`,`raises our sensitivity to familiar things`,`keeps the brain constantly excited`,`erases our memory of past stimuli`,`makes every stimulus feel equally strong`],a:0,e:`so that 새 자극이 '더 두드러지게' → 배경의 흥분을 낮춰야 해요.`}],
+sum:{t:`Boredom, which (A) our response to unchanging stimuli, helps us (B) changes in our surroundings.`,o:[[`reduces`,`detect`],[`increases`,`ignore`],[`reduces`,`create`],[`maintains`,`detect`],[`strengthens`,`notice`]],a:0,e:`변하지 않는 자극에 대한 반응을 줄여서(reduces) 변화를 감지(detect)하게 한다.`},
+ref:{ps:[`nerve cells, [which] are designed`,`designed to reduce [their] initial`,`each time [they] occur`,`At the same time, [these neurons]`,`these neurons enhance [their] responses`],a:2,e:`which, their(reduce their), these neurons, their(enhance their)는 모두 신경 세포. each time they occur의 they만 stimuli(자극)!`},
+tf:[[`신경 세포는 같은 자극이 반복될수록 초기 흥분 반응을 줄인다.`,true,`reduce their initial excited response ~ each time they occur.`],
+[`뉴런은 변하는 것, 특히 빠르게 변하는 것에 반응을 강화한다.`,true,`enhance their responses to things that change.`],
+[`조상들은 나무 자체에 주목하는 것에서 더 큰 생존 가치를 얻었다.`,false,`나무에서 '움직이는 것'에 주목.`],
+[`지루함은 신경 흥분 수준을 높인다.`,false,`turns down = 낮춘다.`],
+[`지루함은 새로운 자극이 더 두드러지게 한다.`,true,`stand out more.`],
+[`대부분의 사람은 좋아하는 TV 프로그램에는 흥미를 잃지 않는다.`,false,`sooner or later lose interest.`],
+[`반딧불이를 보려 현관 불을 끄는 것은 지루함의 작용에 비유된다.`,true,`마지막 문장.`],
+[`아이들은 장난감에 쉽게 싫증 내지 않는다.`,false,`Kids tire of their toys.`]],
+irr:[{at:4,s:`In fact, sudden changes in the environment often make people feel anxious rather than excited.`,k:`실제로 환경의 갑작스러운 변화는 종종 사람들을 들뜨게 하기보다 불안하게 만든다.`,e:`'변화'라는 키워드를 그대로 써서 엄청 헷갈려요. 하지만 글은 신경 세포의 반응(감지)에 대한 이야기이지 '감정(불안)'이 아니에요. 다음 문장 "이렇게 진화했다"의 this way가 가리킬 대상도 사라져요.`},
+{at:5,s:`Pumas, which mainly hunt at night, are known for their ability to climb trees quickly.`,k:`주로 밤에 사냥하는 퓨마는 나무를 빠르게 오르는 능력으로 알려져 있다.`,e:`퓨마, 나무가 바로 앞 문장에 나와서 이어지는 것 같죠? 하지만 퓨마는 예시일 뿐, 퓨마의 습성은 지루함·신경 반응과 아무 관련이 없어요.`}],
+ins:[{i:2,e:`But why should this be true?의 this = 앞의 "인간은 쉽게 지루해한다". 다음 문장이 The answer로 시작하니까 질문은 그 앞!`},{i:4,e:`At the same time: 같은 자극엔 반응 감소 + 동시에 변하는 것엔 반응 강화. 그리고 다음 문장 this way가 이 두 가지를 받아요.`},{i:7,e:`It's the neural equivalent: 앞에서 설명한 지루함의 작용 전체를 비유로 정리하는 마지막 문장.`}],
+oi:2,cut:[4,6],oe:`(시험지 3번과 같은 구성) 인간은 쉽게 지루 → (A) But why? 답은 신경 세포(반응 감소) → (C) At the same time 변화엔 반응 강화 + 진화 이유 → (B) Boredom 결론.`,
+flow:[['현상','장난감, 급식, TV 프로그램… 인간은 쉽게 지루해함'],['원인 ①','같은 자극 반복 → 신경 반응 ↓ (reduce)'],['원인 ②','변하는 자극, 특히 빠른 변화 → 신경 반응 ↑ (enhance)'],['진화적 이유','나무(배경)보다 움직이는 퓨마(변화)에 주목해야 살아남음'],['결론','지루함 = 배경 소음 끄기 → 새로운 자극이 잘 보임 (반딧불이 비유)']],
+ana:`교실 에어컨 소리는 수업 시작하고 5분만 지나면 안 들리죠? 그런데 누가 뒷문을 드르륵 열면 반 전체 고개가 동시에 돌아가요. 에어컨 소리 = 나무, 문 여는 소리 = 퓨마. 뇌가 에어컨 소리 볼륨을 꺼 줬기 때문에 문소리를 바로 잡아낸 거예요.`},
+
+{id:'7-9',L:7,n:9,name:'부유한 나라의 스트레스',gist:'가난만 스트레스를 주는 게 아니라, 부유한 나라는 빠른 삶의 속도로 인한 시간 압박이라는 고유한 스트레스가 있다.',
+s:[
+[`Few people will be surprised to hear that poverty tends to create stress: a 2006 study published in the American journal Psychosomatic Medicine, for example, noted that a lower socioeconomic status was associated with higher levels of stress hormones in the body.`,`가난이 스트레스를 유발하는 경향이 있다는 말에 놀랄 사람은 거의 없을 것이다. 예를 들어 미국 학술지 Psychosomatic Medicine에 실린 2006년 연구는 더 낮은 사회 경제적 지위가 체내의 더 높은 스트레스 호르몬 수치와 관련이 있다고 언급했다.`],
+[`However, richer economies have their own distinct stresses.`,`하지만 더 부유한 경제(국가)는 그들만의 뚜렷한 스트레스를 가지고 있다.`],
+[`The key issue is time pressure.`,`핵심 쟁점은 시간 압박이다.`],
+[`A 1999 study of 31 countries by American psychologist Robert Levine and Canadian psychologist Ara Norenzayan found that wealthier, more industrialized nations had a faster pace of life — which led to a higher standard of living, but at the same time left the population feeling a constant sense of urgency, as well as being more prone to heart disease.`,`미국 심리학자 Robert Levine과 캐나다 심리학자 Ara Norenzayan이 31개국을 대상으로 한 1999년 연구는 더 부유하고 더 산업화된 나라들이 삶의 속도가 더 빠르다는 것을 발견했는데, 이것은 더 높은 생활 수준으로 이어졌지만 동시에 사람들에게 끊임없는 촉박함을 느끼게 했고 심장병에도 더 걸리기 쉽게 했다.`],
+[`In effect, fast-paced productivity creates wealth, but it also leads people to feel time-poor when they lack the time to relax and enjoy themselves.`,`사실상 빠른 속도의 생산성은 부를 창출하지만, 사람들이 긴장을 풀고 즐길 시간이 부족할 때 시간이 가난하다고 느끼게도 만든다.`]],
+w:[['socioeconomic status','사회 경제적 지위'],['be associated with','~와 관련 있다'],['distinct','뚜렷한, 별개의'],['industrialized','산업화된'],['pace of life','삶의 속도'],['urgency','촉박함, 긴급'],['prone to','~에 걸리기 쉬운'],['productivity','생산성']],
+conf:[
+['However가 전환점','앞(가난 → 스트레스)은 누구나 아는 이야기. 진짜 하고 싶은 말은 However 뒤 "부자 나라도 스트레스가 있다". 제목·주제 문제에서 가난 관련 선지는 함정!'],
+['time-poor','돈이 가난한 게 아니라 "시간이 가난한" 상태. 함축 의미로 나오기 좋아요.'],
+['which의 선행사','— which led to ~ 의 which는 앞 내용(빠른 삶의 속도). 이게 생활 수준 ↑ + 촉박함 + 심장병, 장단점을 동시에 가져와요.'],
+['국적 함정','Robert Levine = 미국, Ara Norenzayan = 캐나다. 내용 일치에서 둘 다 미국이라고 바꾸는 함정 주의.']],
+gram:[
+{p:`poverty tends [to create] stress`,w:`creating`,e:`tend to + 동사원형 (~하는 경향이 있다).`},
+{p:`a 2006 study [published] in`,w:`publishing`,e:`연구가 '발표된' 것 → 수동 의미 과거분사가 study를 수식.`},
+{p:`socioeconomic status [was associated] with`,w:`associated`,e:`be associated with (~와 관련되다). 주어 status 단수라 was.`},
+{p:`have [their] own distinct stresses`,w:`its`,e:`richer economies(복수)를 받으니 their.`},
+{p:`pace of life — [which] led to`,w:`what`,e:`앞 내용을 받는 계속적 용법 관계대명사. what은 선행사를 품으니 불가.`},
+{p:`left the population [feeling]`,w:`felt`,e:`leave + 목적어 + 분사. 사람들이 '느끼는' 능동 → feeling.`},
+{p:`as well as [being] more prone`,w:`be`,e:`as well as 앞의 feeling과 병렬 → being.`},
+{p:`leads people [to feel]`,w:`feel`,e:`lead + 목적어 + to부정사.`},
+{p:`relax and enjoy [themselves]`,w:`them`,e:`주어 they(people) = 목적어 → 재귀대명사. enjoy oneself (즐기다).`}],
+voc:[
+{p:`a [lower] socioeconomic status`,w:`higher`,e:`가난(poverty)의 예시이니 '더 낮은' 지위.`},
+{p:`their own [distinct] stresses`,w:`identical`,e:`However로 대조 → 가난과는 '다른, 고유한' 스트레스.`},
+{p:`had a [faster] pace of life`,w:`slower`,e:`시간 압박의 원인 → '더 빠른' 삶의 속도.`},
+{p:`a [constant] sense of urgency`,w:`rare`,e:`시간 압박 → '끊임없는' 촉박함.`},
+{p:`more [prone] to heart disease`,w:`resistant`,e:`스트레스의 부정적 결과 → 심장병에 '걸리기 쉬운'.`},
+{p:`people to feel [time-poor]`,w:`time-rich`,e:`쉴 시간이 '부족'할 때 → 시간이 가난하다고 느낌.`}],
+title:{o:[`Why Are Even Wealthy Countries Not Free from Stress?`,`Escaping the Poverty Trap Step by Step`,`Time Management: Everything You Need to Know`,`How Wealth Protects Us from Heart Disease`,`The Secret to a Higher Standard of Living`],a:0,e:`However 뒤 "부자 나라도 시간 압박이라는 스트레스". ③은 시간이라는 단어만 같고 내용은 '관리 방법'이라 달라요.`},
+topic:{o:[`stress caused by time pressure in wealthy nations`,`the link between poverty and stress hormones`,`ways to raise the standard of living`,`the causes of heart disease in poor countries`,`benefits of a fast pace of life`],a:0,e:`②는 도입부 예시, ⑤는 장점만 뽑아서 반쪽짜리예요.`},
+imp:{p:`feel time-poor`,o:[`feel that they never have enough time to rest despite their wealth`,`feel that they are becoming financially poorer`,`feel that time passes too slowly at work`,`feel guilty about wasting time on leisure`,`feel that they are too old to start something new`],a:0,e:`when they lack the time to relax and enjoy themselves가 바로 뒤에서 풀어 줘요. 돈은 있는데 시간이 가난하다!`},
+blanks:[
+{p:`time pressure`,o:[`time pressure`,`income inequality`,`job insecurity`,`social isolation`,`poor nutrition`],a:0,e:`뒤의 연구: 빠른 삶의 속도 → 끊임없는 촉박함. 그러니 '시간 압박'.`},
+{p:`feel time-poor`,o:[`feel time-poor`,`become financially poor`,`work less efficiently`,`ignore their health`,`lose interest in wealth`],a:0,e:`but으로 부(wealth)와 대조 + 쉴 시간이 부족할 때 → 시간이 가난.`}],
+sum:{t:`While poverty causes stress, wealth also brings stress in the form of (A), as a fast pace of life raises living standards but (B) people's sense of having enough time.`,o:[[`time pressure`,`reduces`],[`financial worry`,`increases`],[`time pressure`,`increases`],[`social inequality`,`reduces`],[`health anxiety`,`protects`]],a:0,e:`시간 압박(time pressure)이 생기고 시간이 충분하다는 느낌을 줄인다(reduces). ③ increases는 정반대.`},
+ref:null,
+tf:[[`2006년 연구는 낮은 사회 경제적 지위가 높은 스트레스 호르몬 수치와 관련된다고 밝혔다.`,true,`첫 문장.`],
+[`부유한 나라는 가난한 나라와 똑같은 종류의 스트레스를 겪는다.`,false,`their own distinct stresses(고유한).`],
+[`부유한 국가의 핵심 스트레스는 시간 압박이다.`,true,`The key issue is time pressure.`],
+[`1999년 연구는 31개의 가난한 나라만을 대상으로 했다.`,false,`31개국을 대상으로 했고, 부유한 나라를 비교함.`],
+[`부유하고 산업화된 나라일수록 삶의 속도가 빠르다.`,true,`faster pace of life.`],
+[`빠른 삶의 속도는 생활 수준을 낮췄다.`,false,`higher standard of living.`],
+[`빠른 삶의 속도는 심장병에 더 걸리기 쉽게 했다.`,true,`more prone to heart disease.`],
+[`Levine과 Norenzayan은 모두 미국 심리학자이다.`,false,`Norenzayan은 캐나다.`]],
+irr:[{at:2,s:`Indeed, people in poorer countries often report spending more time with their families.`,k:`실제로 더 가난한 나라의 사람들은 가족과 더 많은 시간을 보낸다고 자주 보고한다.`,e:`'시간'과 '가난한 나라'를 섞어서 진짜 그럴듯해요. 하지만 글은 '부유한 나라의 시간 압박'으로 막 초점을 옮긴 상태. 바로 다음에 부유한 나라 연구가 이어지는데 가난한 나라 이야기가 끼면 흐름이 끊겨요.`},
+{at:3,s:`As a result, many wealthy nations have introduced policies to reduce poverty-related stress.`,k:`그 결과 많은 부유한 국가들은 빈곤 관련 스트레스를 줄이는 정책을 도입했다.`,e:`As a result + wealthy nations + stress… 단어만 보면 완벽하죠. 그런데 '빈곤 관련 스트레스 정책'은 연구 결과(빠른 속도 → 촉박함)의 결과가 아니에요. 다음 In effect의 요약과도 안 맞아요.`}],
+ins:[{i:1,e:`However로 가난 → 부유한 경제로 전환. 다음 문장 The key issue가 '부유한 나라 스트레스'의 핵심을 말하니까 그 앞.`},{i:2,e:`앞에서 "고유한 스트레스"라 했으니 그게 뭔지(시간 압박) 밝히고, 뒤에서 연구로 뒷받침.`}],
+oi:1,cut:[3,4],oe:`(시험지 9번과 같은 구성) 가난 → 스트레스(주어진 글) → (A) However 부유한 나라도 → (C) 핵심은 시간 압박 → (B) 1999년 연구 근거. 원문 순서에선 마지막에 In effect 요약이 붙어요.`,
+flow:[['누구나 아는 사실','가난 → 스트레스 (2006년 연구: 낮은 지위 = 스트레스 호르몬 ↑)'],['전환 However','부유한 나라에도 고유한 스트레스가 있다'],['핵심','시간 압박'],['근거: 1999년 31개국 연구','부유·산업화 → 빠른 삶의 속도 → 생활 수준 ↑ / 촉박함 + 심장병 ↑'],['결론','빠른 생산성 = 부 창출 + 시간 가난(time-poor)']],
+ana:`학원을 4개 다니는 친구를 생각해 보세요. 성적(부)은 오를 수 있지만 쉬는 시간이 하나도 없어서 늘 쫓기는 느낌이죠. 그게 바로 time-poor! 돈이 아니라 시간이 가난한 상태예요.`},
+
+{id:'7-11',L:7,n:11,name:'옳다는 확신의 함정',gist:'자신이 옳다고 확신하면 새로운 가능성이 막히므로, 다른 사람의 관점을 고려하는 것이 이롭다.',
+s:[
+[`Have you ever brought up an idea or suggestion to someone and heard them immediately say "No, that won't work."?`,`누군가에게 아이디어나 제안을 꺼냈는데 그 사람이 즉시 "아니, 그건 안 될 거야."라고 말하는 것을 들은 적이 있는가?`],
+[`You may have thought, "He/she didn't even give it a chance. How do they know it won't work?"`,`당신은 "그 사람은 기회조차 주지 않았어. 안 될 걸 어떻게 알지?"라고 생각했을지도 모른다.`],
+[`When you are right about something, you close off the possibility of another viewpoint or opportunity.`,`당신이 어떤 일에 대해 옳다고 하면, 당신은 다른 관점이나 기회의 가능성을 닫아 버린다.`],
+[`Being right about something means that "it is the way it is, period."`,`어떤 일에 대해 옳다는 것은 "원래 그런 거야, 끝."이라는 의미다.`],
+[`You may be correct.`,`당신이 맞을 수도 있다.`],
+[`Your particular way of seeing it may be true with the facts.`,`그것을 보는 당신의 특정한 방식이 사실에 부합할 수도 있다.`],
+[`However, considering the other option or the other person's point of view can be beneficial.`,`하지만 다른 선택지나 다른 사람의 관점을 고려하는 것이 이로울 수 있다.`],
+[`If you see their side, you will see something new or, at worse, learn something about how the other person looks at life.`,`그들의 입장을 보면, 당신은 새로운 것을 보게 되거나, 아무리 못해도 다른 사람이 삶을 바라보는 방식에 대해 무언가를 배우게 될 것이다.`],
+[`Why would you think everyone sees and experiences life the way you do?`,`왜 모든 사람이 당신과 같은 방식으로 삶을 보고 경험한다고 생각하는가?`],
+[`Besides how boring that would be, it would eliminate all new opportunities, ideas, invention, and creativity.`,`그게 얼마나 지루할지는 차치하더라도, 그것은 모든 새로운 기회, 아이디어, 발명, 그리고 창의성을 없앨 것이다.`]],
+w:[['bring up','(화제를) 꺼내다'],['close off','차단하다'],['viewpoint','관점'],['period','끝 (더 이상 말할 것 없음)'],['beneficial','이로운'],['at worse','못해도, 최악이라도'],['eliminate','없애다']],
+conf:[
+['필자는 "옳은 것"을 비난하지 않아요','You may be correct. 인정은 해요! 문제는 옳다는 확신 때문에 다른 관점을 닫는 것. "필자는 자기 생각이 틀렸다고 말한다"는 선지는 X.'],
+['see their side','그들의 입장(관점)을 이해하다(시험지 5번). visit, join 같은 물리적 의미 선지는 함정.'],
+['the way you do의 do','대동사 do = see and experience. 어법 문제에서 are로 바꾸는 함정.'],
+['at worse','"최악이라도/아무리 못해도". 새로운 걸 못 보더라도 최소한 상대의 시각은 배운다는 뜻.']],
+gram:[
+{p:`heard them immediately [say]`,w:`to say`,e:`지각동사 hear + 목적어 + 동사원형(또는 -ing). to부정사 불가.`},
+{p:`You may have [thought]`,w:`thinking`,e:`may have + p.p. (~했을지도 모른다).`},
+{p:`[Being] right about something means`,w:`Be`,e:`주어 자리 → 동명사.`},
+{p:`something means [that] "it is`,w:`what`,e:`means의 목적어절, 뒤가 완전 → that.`},
+{p:`[considering] the other option`,w:`consider`,e:`주어 자리(동사는 can be) → 동명사.`},
+{p:`can be [beneficial]`,w:`beneficially`,e:`be동사 보어 → 형용사.`},
+{p:`something about [how] the other person`,w:`what`,e:`뒤 문장(the other person looks at life)이 완전 → what 불가, 방법을 나타내는 how.`},
+{p:`life the way you [do]`,w:`are`,e:`대동사 do = see and experience (일반동사를 대신함).`},
+{p:`Besides [how] boring that would be`,w:`what`,e:`how + 형용사 + 주어 + 동사 (얼마나 ~한지).`},
+{p:`it would [eliminate] all`,w:`eliminating`,e:`조동사 would 뒤 동사원형.`}],
+voc:[
+{p:`you [close off] the possibility`,w:`open up`,e:`옳다는 확신은 다른 관점을 '닫는다'. 앞의 "기회조차 안 줬다"와 연결.`},
+{p:`can be [beneficial]`,w:`harmful`,e:`However로 앞(닫는 것)과 대조 → '이로울' 수 있다.`},
+{p:`you will see something [new]`,w:`familiar`,e:`다른 관점을 보면 '새로운' 것을 봄.`},
+{p:`Besides how [boring] that would be`,w:`exciting`,e:`모두가 똑같이 산다면 '지루'할 것.`},
+{p:`it would [eliminate] all new opportunities`,w:`create`,e:`모두 같은 관점이면 새로운 기회·창의성을 '없앤다'.`}],
+title:{o:[`Being Right Can Block New Possibilities`,`The Value of Being Honest with Others`,`Filter Out Negative Points of View`,`How to Win Every Argument`,`Facts Always Beat Personal Opinions`],a:0,e:`옳다는 확신 → 다른 관점 차단 → 새 가능성 사라짐. ③은 반대로 관점을 걸러내라는 말.`},
+topic:{o:[`the benefit of considering others' viewpoints`,`the importance of being correct about facts`,`ways to reject unrealistic suggestions`,`the reasons people dislike new ideas`,`the role of creativity in invention`],a:0,e:`However 뒤 문장이 주제문. ⑤는 마지막 문장 단어만 가져온 함정.`},
+imp:{p:`see their side`,o:[`understand how the other person views the situation`,`agree with whatever they say`,`stand physically next to them`,`join the group they belong to`,`support their final decision`],a:0,e:`바로 앞 문장의 the other person's point of view를 바꿔 말한 것.`},
+blanks:[
+{p:`close off the possibility of another viewpoint or opportunity`,o:[`close off the possibility of another viewpoint or opportunity`,`gain the trust of other people`,`become more open to new ideas`,`avoid making the same mistake again`,`learn how others look at life`],a:0,e:`앞의 예시(즉시 "안 돼") + 뒤의 "원래 그런 거야, 끝." → 가능성을 닫는다.`},
+{p:`beneficial`,o:[`beneficial`,`risky`,`pointless`,`inevitable`,`embarrassing`],a:0,e:`However로 앞과 대조 + 뒤 "새로운 것을 보거나 배운다" → 이롭다.`}],
+sum:{t:`Insisting that you are (A) can block other viewpoints, whereas (B) others' perspectives can bring new ideas.`,o:[[`right`,`considering`],[`wrong`,`rejecting`],[`right`,`criticizing`],[`honest`,`ignoring`],[`confident`,`avoiding`]],a:0,e:`옳다(right)고 고집하면 막히고, 다른 관점을 고려하면(considering) 새로운 생각이 열린다.`},
+ref:{ps:[`heard [them] immediately`,`"[He/she] didn't even`,`even give [it] a chance`,`How do [they] know`,`If you see [their] side`],a:2,e:`them, He/she, they, their는 모두 사람(아이디어를 거절한 상대 / 다른 사람). give it a chance의 it만 아이디어(제안)예요.`},
+tf:[[`자신이 옳다고 여기면 다른 관점의 가능성을 닫게 된다.`,true,`close off the possibility.`],
+[`필자는 당신의 관점이 사실에 맞을 수 없다고 말한다.`,false,`may be true with the facts.`],
+[`다른 사람의 관점을 고려하는 것은 이로울 수 있다.`,true,`can be beneficial.`],
+[`상대의 관점을 보면 최소한 그 사람이 삶을 보는 방식을 배울 수 있다.`,true,`at worse, learn something about how ~.`],
+[`모두가 같은 방식으로 삶을 보면 새로운 기회가 늘어난다.`,false,`eliminate all new opportunities.`],
+[`필자는 의견을 쉽게 바꾸는 것이 약점이라고 본다.`,false,`본문에 없는 내용.`],
+[`모두가 똑같이 생각하면 지루할 것이다.`,true,`how boring that would be.`],
+[`필자는 제안을 즉시 거절하는 태도를 바람직하게 본다.`,false,`그 태도를 문제로 지적함.`]],
+irr:[{at:3,s:`Indeed, people who are confident in their opinions are often seen as strong leaders.`,k:`실제로 자기 의견에 확신이 있는 사람들은 종종 강한 리더로 여겨진다.`,e:`'옳다는 확신'과 연결돼서 자연스러워 보이죠. 하지만 글은 확신의 '단점(가능성 차단)'을 말하는 중이에요. 확신을 칭찬하는 말이 끼면 방향이 어긋나요.`},
+{at:7,s:`Of course, you should not give up your own values just to please others.`,k:`물론 단지 남을 기쁘게 하려고 자신의 가치관을 포기해서는 안 된다.`,e:`Of course로 균형 잡힌 말처럼 보이는 게 함정! 글은 '다른 관점 고려하기'를 밀고 가는데, 갑자기 '내 가치관 지키기'로 초점이 바뀌어요. 다음 Why would you think…와도 안 이어져요.`}],
+ins:[{i:6,e:`(시험지 21번) You may be correct + 사실에 맞을 수도 있다 → However 하지만 다른 관점이 이롭다 → If you see their side로 구체화.`},{i:2,e:`앞의 일상 예시(즉시 거절)를 일반화하는 문장. 다음 문장 Being right about something이 이 내용을 이어받아요.`},{i:9,e:`that = 모두가 같은 방식으로 삶을 보는 것. 앞 질문 다음에 와야 해요.`}],
+oi:2,cut:[4,7],oe:`일상 예시 → 옳다는 확신은 가능성을 닫음(정의) → 맞을 수는 있다(양보) → However 다른 관점이 이롭다 → 이유와 결론.`,
+flow:[['일상 예시','내 제안에 상대가 즉시 "안 돼" → "기회도 안 줬잖아?"'],['핵심 지적','나도 옳다고 확신하면 똑같이 다른 관점을 닫아 버림'],['양보','내가 맞을 수도 있음, 사실에 부합할 수도 있음'],['However','다른 관점 고려 → 새로운 것을 보거나, 최소한 상대 시각을 배움'],['결론','모두가 같은 시각이면 지루 + 기회·발명·창의성 소멸']],
+ana:`수학 문제를 내 방식으로 맞혔다고 해서 친구 풀이를 안 들어 보면 손해예요. 내 답이 맞아도 친구 풀이에 더 빠른 방법이 숨어 있을 수 있고, 최소한 "저렇게도 생각하는구나"는 배우잖아요.`},
+
+{id:'14-1',L:14,n:1,name:'재생 에너지 전환의 숨은 비용',gist:'재생 에너지 기반 시설을 짓는 데에도 화석 연료가 필요하며, 이 비용은 전환 계획에서 거의 고려되지 않는다.',
+s:[
+[`Richard Heinberg, an American journalist, argues that in building the renewable energy infrastructure to stop global warming, we are actually involved in one of the greatest change projects in human history.`,`미국인 저널리스트 Richard Heinberg는 지구 온난화를 막기 위해 재생 에너지 기반 시설을 구축할 때, 우리가 실제로는 인류 역사상 가장 큰 변화 프로젝트 중 하나에 관여하고 있다고 주장한다.`],
+[`However, this project is more difficult and more complex than we might have thought.`,`하지만 이 프로젝트는 우리가 생각했을지도 모르는 것보다 더 어렵고 더 복잡하다.`],
+[`In addition to solar panels and wind turbines, we have to build an alternative transport infrastructure, farming procedures and industrial processes.`,`태양광 패널과 풍력 터빈 외에도, 우리는 대체 교통 기반 시설, 농업 절차, 산업 공정을 구축해야 한다.`],
+[`This transformation cannot happen without fossil fuels.`,`이 변화는 화석 연료 없이는 일어날 수 없다.`],
+[`For instance, production of concrete structures and steel elements requires amounts of energy that is only possible to produce with fossil energy.`,`예를 들어, 콘크리트 구조물과 강철 요소의 생산은 화석 에너지로만 생산할 수 있는 양의 에너지를 필요로 한다.`],
+[`Production of solar panels requires scarce and expensive minerals which must be excavated, again requiring the use of fossil fuels.`,`태양광 패널 생산에는 채굴해야 하는 희귀하고 비싼 광물이 필요하며, 이것 역시 화석 연료 사용을 필요로 한다.`],
+[`Thus, the harder we push towards a renewable energy system, the faster we have to use fossil energy for the construction process.`,`따라서 우리가 재생 에너지 시스템을 향해 더 강하게 밀고 나갈수록, 건설 과정에서 더 빠르게 화석 에너지를 써야 한다.`],
+[`This is not only expensive, but also an undermining factor for our efforts to cut global emissions.`,`이것은 비용이 많이 들 뿐만 아니라, 전 세계 배출량을 줄이려는 우리의 노력을 약화시키는 요인이기도 하다.`],
+[`Heinberg remarks that the cost of building this new energy infrastructure is seldom counted in transition proposals, which tend to focus just on energy supply requirements.`,`Heinberg는 이 새로운 에너지 기반 시설을 짓는 비용이 전환 제안에서 거의 계산되지 않는다고 말하는데, 그 제안들은 에너지 공급 요구 사항에만 집중하는 경향이 있다.`]],
+w:[['renewable','재생 가능한'],['infrastructure','기반 시설'],['alternative','대체의'],['transformation','변화, 전환'],['fossil fuel','화석 연료'],['scarce','희귀한, 부족한'],['excavate','발굴하다, 채굴하다'],['undermine','약화시키다'],['seldom','거의 ~않는'],['transition','전환']],
+conf:[
+['역설 구조','재생 에너지로 갈수록 → 화석 연료를 더 빨리 써야 한다. 상식과 반대라서 문제 내기 딱 좋아요. "재생 에너지만으로 충분하다" 선지는 X.'],
+['연결사 3종 세트','(A) However: 거대 프로젝트지만 어렵다 / (B) For instance: 화석 연료 필요의 예시 / (C) Thus: 결론. (시험지 7번)'],
+['seldom = 거의 ~않는','부정어예요! "비용이 거의 계산되지 않는다". 내용 일치에서 "항상 계산된다"로 바꾸는 함정. (시험지 8번 ⓕ는 일치)'],
+['제안들이 집중하는 것','에너지 "공급 요구"에만 집중. 건설 비용에 집중한다고 바꾸면 X.']],
+gram:[
+{p:`steel elements [requires] amounts`,w:`require`,e:`주어는 production(단수). 바로 앞 elements(복수)에 속지 말기!`},
+{p:`expensive minerals [which] must be excavated`,w:`what`,e:`선행사 minerals가 있으니 what 불가.`},
+{p:`must be [excavated]`,w:`excavating`,e:`광물이 '채굴되는' 것 → 수동태.`},
+{p:`excavated, again [requiring] the use`,w:`required`,e:`분사구문. 앞 내용이 화석 연료를 '요구하는' 능동 관계 → 현재분사.`},
+{p:`Thus, the [harder] we push`,w:`hard`,e:`the 비교급 + S + V, the 비교급 + S + V (~할수록 더 …하다).`},
+{p:`is seldom [counted]`,w:`counting`,e:`비용이 '계산되는' 것 → 수동태.`},
+{p:`proposals, [which] tend to focus`,w:`that`,e:`콤마 뒤 계속적 용법 → that 불가.`},
+{p:`tend [to focus] just`,w:`focusing`,e:`tend to + 동사원형.`},
+{p:`also an [undermining] factor`,w:`undermined`,e:`노력을 '약화시키는' 요인(능동) → 현재분사.`}],
+voc:[
+{p:`one of the [greatest] change projects`,w:`smallest`,e:`뒤에서 교통·농업·산업까지 다 바꿔야 한다 → '가장 큰'.`},
+{p:`more difficult and more [complex]`,w:`predictable`,e:`However로 '거대 프로젝트'의 어려움을 강조 → 복잡한.`},
+{p:`requires [scarce] and expensive minerals`,w:`abundant`,e:`expensive와 짝 → '희귀한'. 흔하면 비쌀 이유가 없죠.`},
+{p:`the [faster] we have to use`,w:`slower`,e:`더 강하게 밀어붙일수록 화석 에너지를 '더 빨리' 써야 함.`},
+{p:`is [seldom] counted`,w:`always`,e:`제안들이 에너지 공급에만 집중 → 건설 비용은 '거의' 계산 안 됨.`}],
+title:{o:[`The Hidden Costs of Renewable Energy Transition`,`Solar Power: The Final Answer to Global Warming`,`Why Fossil Fuels Will Soon Disappear`,`How to Build Cheaper Wind Turbines`,`The Rise of Alternative Transport Systems`],a:0,e:`재생 에너지 전환에 숨은 비용(화석 연료 사용)이 있다는 게 핵심.`},
+topic:{o:[`the fossil fuel dependence of building renewable energy systems`,`the rapid decrease in the price of solar panels`,`the history of global energy projects`,`ways to replace fossil fuels in farming`,`the benefits of renewable energy for the economy`],a:0,e:`재생 에너지 시설을 '짓는 데' 화석 연료가 필요하다는 역설이 주제.`},
+imp:{p:`an undermining factor for our efforts to cut global emissions`,o:[`something that works against the goal of reducing emissions`,`a key tool for achieving zero emissions quickly`,`a reason to stop building renewable energy facilities`,`a factor that lowers the price of fossil fuels`,`an obstacle that only affects poor countries`],a:0,e:`건설에 화석 연료를 쓰니 배출량 감축 노력에 '역행'한다. ③처럼 짓지 말자는 주장은 없어요.`},
+blanks:[
+{p:`we have to use fossil energy for the construction process`,o:[`we have to use fossil energy for the construction process`,`we can stop relying on fossil fuels altogether`,`the cost of renewable energy will decrease`,`global emissions will fall more rapidly`,`we need fewer scarce minerals for solar panels`],a:0,e:`Thus로 앞의 예시(콘크리트·강철·광물 채굴 = 화석 연료)를 정리. 재생 에너지로 갈수록 화석 연료를 더 빨리 써야 한다.`},
+{p:[`However`,`For instance`,`Thus`],o:[[`However`,`For instance`,`Thus`],[`However`,`Moreover`,`Thus`],[`Similarly`,`For instance`,`Nevertheless`],[`However`,`For instance`,`Nevertheless`],[`Accordingly`,`In contrast`,`Thus`]],a:0,e:`(A) 가장 큰 프로젝트 ↔ 더 어렵다: 역접 However / (B) 화석 연료 필요의 구체적 예시: For instance / (C) 예시들의 결론: Thus. Nevertheless는 앞과 반대되는 결과일 때만!`}],
+sum:{t:`Building a renewable energy system (A) heavy use of fossil fuels, a cost that most transition plans (B).`,o:[[`demands`,`overlook`],[`reduces`,`emphasize`],[`demands`,`exaggerate`],[`prevents`,`overlook`],[`replaces`,`calculate`]],a:0,e:`화석 연료를 많이 요구(demands)하는데, 전환 계획은 이를 간과(overlook)한다(seldom counted).`},
+ref:null,
+tf:[[`Heinberg는 영국의 저널리스트이다.`,false,`an American journalist.`],
+[`재생 에너지 기반 시설 구축은 생각보다 단순하다.`,false,`more difficult and more complex.`],
+[`태양광 패널·풍력 터빈 외에 교통·농업·산업 체계도 구축해야 한다.`,true,`In addition to ~.`],
+[`콘크리트·강철 생산에는 재생 에너지만으로 충분하다.`,false,`화석 에너지로만 가능한 양의 에너지 필요.`],
+[`태양광 패널 생산에는 희귀하고 비싼 광물 채굴이 필요하다.`,true,`scarce and expensive minerals which must be excavated.`],
+[`재생 에너지로 빠르게 전환할수록 화석 에너지를 더 빨리 써야 한다.`,true,`the harder ~, the faster ~.`],
+[`대부분의 전환 제안은 새 기반 시설 구축 비용을 잘 계산하지 않는다.`,true,`seldom counted.`],
+[`전환 제안들은 건설 비용에만 집중하는 경향이 있다.`,false,`에너지 공급 요구 사항에만 집중.`]],
+irr:[{at:3,s:`Many countries have already succeeded in replacing most of their fossil fuel use with solar power.`,k:`많은 나라가 이미 화석 연료 사용 대부분을 태양광 발전으로 대체하는 데 성공했다.`,e:`화석 연료, 태양광이 다 나와서 소재는 같아요. 그런데 바로 앞이 "화석 연료 없이는 불가능"인데 "이미 대체에 성공"이라니 정면 충돌! 다음 For instance(화석 연료가 필요한 예시)와도 안 맞아요.`},
+{at:6,s:`Fortunately, the price of solar panels has fallen sharply over the past decade.`,k:`다행히도 태양광 패널 가격은 지난 10년간 급격히 떨어졌다.`,e:`태양광 패널, 비용 이야기라서 이어지는 것 같지만, 글이 말하는 비용은 '건설에 드는 화석 연료 비용'이에요. 패널 가격 하락은 논지와 무관하고 다음 This(화석 에너지를 더 빨리 써야 하는 것)의 지칭도 꼬여요.`}],
+ins:[{i:1,e:`this project = 앞 문장의 greatest change projects. However로 "그런데 생각보다 어렵다"고 전환.`},{i:3,e:`This transformation = 앞 문장의 교통·농업·산업 전환. 다음 For instance가 화석 연료 필요의 예시를 시작.`},{i:6,e:`Thus로 앞의 예시들(콘크리트·강철·광물)을 결론으로 정리. 다음 This가 '화석 에너지를 더 빨리 써야 함'을 받음.`},{i:8,e:`마지막에 Heinberg의 말로 '이 비용이 무시된다'고 마무리.`}],
+oi:1,cut:[4,6],oe:`거대 프로젝트 → However 어렵다 + 범위 확대 + 화석 연료 없이 불가 → For instance 예시들 → Thus 결론 + 문제점 + 제안들이 비용 무시.`,
+flow:[['Heinberg의 주장','재생 에너지 기반 시설 구축 = 인류 최대 변화 프로젝트'],['However','생각보다 어렵고 복잡 (교통·농업·산업까지 바꿔야)'],['역설','이 전환은 화석 연료 없이 불가능'],['For instance','콘크리트·강철 생산 / 태양광 광물 채굴 → 모두 화석 에너지'],['Thus','재생 에너지로 빨리 갈수록 → 화석 에너지를 더 빨리 씀 → 비싸고 배출 감축에 역행'],['숨은 문제','전환 계획은 에너지 공급만 보고 건설 비용은 거의 계산 안 함']],
+ana:`방 대청소를 떠올려 보세요. 깨끗한 방을 만들려면 일단 서랍을 다 꺼내서 방이 더 엉망이 되는 단계를 거쳐야 하죠. 재생 에너지라는 '깨끗한 방'을 만드는 동안 화석 연료라는 '어질러짐'이 오히려 커지는 거예요.`},
+
+{id:'14-3',L:14,n:3,name:'식물의 SOS 신호',gist:'식물은 냄새와 들리지 않는 소리로 스트레스 신호를 보내는데, 이는 고통의 표현이 아니라 생존을 위한 자동적 방어 반응이다.',
+s:[
+[`Plants can communicate, although not in the same way we do.`,`식물은 우리와 같은 방식은 아니지만 의사소통을 할 수 있다.`],
+[`Some express their discontent through scents.`,`어떤 식물은 냄새를 통해 불만을 표현한다.`],
+[`You know that smell that hangs in the air after you've mowed the lawn?`,`잔디를 깎고 난 후 공기 중에 감도는 그 냄새 알지?`],
+[`Yeah, that's actually an SOS.`,`그래, 그건 사실 구조 신호다.`],
+[`Some plants use sound.`,`어떤 식물은 소리를 사용한다.`],
+[`Yes, sound, though at a frequency that we can't hear.`,`그래, 소리다. 비록 우리가 들을 수 없는 주파수이긴 하지만.`],
+[`Researchers experimented with plants and microphones to see if they could record any trouble calls.`,`연구자들은 곤경을 알리는 소리를 녹음할 수 있는지 알아보려고 식물과 마이크로 실험했다.`],
+[`They found that plants produce a high-frequency clicking noise when stressed and can make different sounds for different stressors.`,`그들은 식물이 스트레스를 받으면 고주파의 딸깍거리는 소리를 내고, 스트레스 요인에 따라 다른 소리를 낼 수 있다는 것을 발견했다.`],
+[`The sound a plant makes when it's not getting watered differs from the one it'll make when a leaf is cut.`,`식물이 물을 공급받지 못할 때 내는 소리는 잎이 잘릴 때 낼 소리와 다르다.`],
+[`However, it's worth noting that experts don't think plants are crying out in pain.`,`하지만 전문가들은 식물이 고통으로 울부짖는다고 생각하지 않는다는 점에 주목할 가치가 있다.`],
+[`It's more likely that these reactions are knee-jerk survival actions.`,`이러한 반응은 자동적인 생존 행동일 가능성이 더 크다.`],
+[`Plants are living organisms, and their main objective is to survive.`,`식물은 살아 있는 유기체이며, 그들의 주된 목적은 살아남는 것이다.`],
+[`Scents and sounds are their tools for defending against things that might harm them.`,`냄새와 소리는 자신에게 해를 끼칠 수도 있는 것들로부터 방어하기 위한 도구이다.`]],
+w:[['discontent','불만'],['scent','냄새'],['mow','(잔디를) 깎다'],['frequency','주파수'],['stressor','스트레스 요인'],['knee-jerk','자동적인, 반사적인'],['organism','유기체'],['objective','목적']],
+conf:[
+['들을 수 있다? 없다?','at a frequency that we can\'t hear → 사람은 못 들어요. 시험지 15번 ①이 "들을 수 있는 주파수"로 바꾼 함정.'],
+['고통 ≠ 생존 반응','전문가들은 고통의 울부짖음이 아니라 자동적 생존 반응이라고 봐요. "전문가들은 식물이 고통을 호소한다고 생각한다"는 X.'],
+['냄새"로만"?','냄새와 소리 두 가지 방법! "냄새로만 의사소통"은 X.'],
+['they의 정체','to see if they could record의 they = 연구자들. 나머지 their/it은 식물. 지칭 함정!']],
+gram:[
+{p:`the same way we [do]`,w:`are`,e:`대동사 do = communicate.`},
+{p:`that smell [that] hangs`,w:`what`,e:`선행사 smell이 있으니 what 불가.`},
+{p:`smell that [hangs] in the air`,w:`hang`,e:`관계대명사 that의 선행사 smell은 단수.`},
+{p:`to see [if] they could record`,w:`that`,e:`see if ~ (~인지 알아보다). '녹음할 수 있는지 없는지'를 확인하는 것이라 if.`},
+{p:`noise when [stressed]`,w:`stressing`,e:`when (they are) stressed. 식물이 스트레스를 '받는' 것 → 과거분사.`},
+{p:`not getting watered [differs] from`,w:`differ`,e:`주어 The sound(단수). 중간의 a plant makes when ~ 수식어구에 속지 말기!`},
+{p:`differs from the [one] it'll make`,w:`it`,e:`one = 같은 종류의 다른 것(another sound). it은 앞의 바로 그 소리를 가리켜서 의미가 안 맞아요.`},
+{p:`it's worth [noting] that`,w:`to note`,e:`be worth + -ing (~할 가치가 있다).`},
+{p:`their tools for [defending] against`,w:`defend`,e:`전치사 for 뒤 → 동명사.`},
+{p:`things that might harm [them]`,w:`themselves`,e:`harm의 주어는 things, 목적어는 plants → 서로 다르니 재귀대명사 X.`}],
+voc:[
+{p:`express their [discontent]`,w:`satisfaction`,e:`SOS 신호이니 '불만'.`},
+{p:`a frequency that we [can't] hear`,w:`can`,e:`Yes, sound, though ~ (비록 ~지만) → 양보이므로 '들을 수 없는'.`},
+{p:`can make [different] sounds`,w:`identical`,e:`다음 문장: 물 부족 소리 ≠ 잎 절단 소리 → '다른'.`},
+{p:`are [knee-jerk] survival actions`,w:`deliberate`,e:`고통의 표현이 아니라 '자동적' 반응.`},
+{p:`that's actually an [SOS]`,w:`invitation`,e:`불만(discontent) 표현 → 구조 요청 신호.`}],
+title:{o:[`How Plants Use Scents and Sounds to Survive`,`Plants Cry Out in Pain Just Like Us`,`Why the Smell of Grass Makes People Happy`,`Recording Music for Healthy Plants`,`How Humans Hear High-Frequency Noises`],a:0,e:`냄새·소리 = 생존을 위한 방어 도구. ②는 전문가 의견과 정반대.`},
+topic:{o:[`plants' use of scents and sounds as survival signals`,`the emotional lives of plants`,`methods for growing plants indoors`,`how humans perceive plant sounds`,`the effect of music on plant growth`],a:0,e:`②는 고통·감정 쪽이라 본문과 반대.`},
+imp:{p:`that's actually an SOS`,o:[`it is a distress signal the plant sends when it is damaged`,`it is a sign that the plant is fully grown`,`it is a pleasant scent that attracts people`,`it is a message telling insects to come closer`,`it is proof that plants feel emotional pain`],a:0,e:`불만(discontent)을 냄새로 표현 → 잔디를 깎는 손상을 입었을 때의 구조 신호. ⑤는 전문가 의견과 반대.`},
+blanks:[
+{p:`defending against things that might harm them`,o:[`defending against things that might harm them`,`attracting insects to spread their seeds`,`sharing nutrients with nearby plants`,`expressing their pain to humans`,`changing their shape to hide`],a:0,e:`주된 목적은 생존 → 냄새와 소리는 해로운 것으로부터 '방어'하는 도구.`},
+{p:`knee-jerk survival actions`,o:[`knee-jerk survival actions`,`signs of emotional suffering`,`deliberate messages to humans`,`random noises without meaning`,`learned responses from other plants`],a:0,e:`However로 "고통이 아니다" → 그럼 뭐? 다음 문장 "주된 목적은 생존" → 자동적 생존 행동.`}],
+sum:{t:`Plants send out scents and (A) sounds when stressed, which are likely automatic (B) responses rather than expressions of pain.`,o:[[`inaudible`,`survival`],[`loud`,`emotional`],[`inaudible`,`emotional`],[`pleasant`,`survival`],[`identical`,`defensive`]],a:0,e:`사람이 못 듣는(inaudible) 소리 + 생존(survival) 반응. ③ emotional은 고통의 표현과 같은 계열이라 X.`},
+ref:{ps:[`Some express [their] discontent`,`to see if [they] could record`,`the one [it]'ll make`,`and [their] main objective`,`are [their] tools`],a:1,e:`their discontent, it'll, their main objective, their tools는 모두 식물. to see if they could record의 they만 연구자들(Researchers)!`},
+tf:[[`식물은 인간이 들을 수 있는 주파수의 소리를 낸다.`,false,`a frequency that we can't hear.`],
+[`잔디를 깎은 후 나는 냄새는 식물의 구조 신호이다.`,true,`that's actually an SOS.`],
+[`식물이 내는 소리는 스트레스 요인과 상관없이 같다.`,false,`different sounds for different stressors.`],
+[`전문가들은 식물이 고통으로 울부짖는다고 본다.`,false,`don't think plants are crying out in pain.`],
+[`식물은 냄새를 통해서만 의사소통할 수 있다.`,false,`소리도 사용.`],
+[`식물은 스트레스를 받으면 고주파의 딸깍 소리를 낸다.`,true,`high-frequency clicking noise when stressed.`],
+[`물을 못 받을 때와 잎이 잘릴 때 내는 소리가 다르다.`,true,`differs from the one ~.`],
+[`냄새와 소리는 식물의 방어 도구이다.`,true,`tools for defending against things.`]],
+irr:[{at:5,s:`Humans, in contrast, can hear sounds only within a limited range of frequencies.`,k:`대조적으로 인간은 제한된 주파수 범위 안의 소리만 들을 수 있다.`,e:`'들을 수 없는 주파수' 바로 뒤라 진짜 자연스러워 보여요! 하지만 글의 초점은 식물의 소리(신호)이지 인간의 청각이 아니에요. 다음 문장 연구자들의 식물 실험과도 연결이 끊겨요.`},
+{at:10,s:`Some scientists even argue that plants feel emotions similar to those of animals.`,k:`일부 과학자들은 심지어 식물이 동물과 비슷한 감정을 느낀다고 주장한다.`,e:`과학자 의견이라 앞뒤와 비슷해 보이지만, 바로 앞이 "고통이 아니라 자동적 생존 반응"이에요. 감정을 느낀다는 주장은 그걸 뒤집어 버려요.`}],
+ins:[{i:7,e:`(시험지 6번) They = Researchers. 실험 문장 바로 다음에 결과(They found)가 오고, 그 뒤 The sound ~ differs가 '다른 소리'의 구체적 예.`},{i:9,e:`However로 "소리를 낸다 ≠ 고통" 전환. 다음 문장의 these reactions가 앞의 소리 반응을 받아요.`},{i:3,e:`that's actually an SOS: 앞 문장의 '잔디 깎은 후 냄새'에 대한 답.`},{i:12,e:`앞의 '생존이 목적' → 냄새와 소리는 그 생존을 위한 도구로 마무리.`}],
+oi:1,cut:[4,9],oe:`냄새(SOS) → 소리(못 듣는 주파수, 실험 결과) → However 고통이 아니라 생존 반응. 냄새 → 소리 → 해석 순서.`,
+flow:[['주제','식물도 의사소통한다 (우리와 방식은 다르지만)'],['방법 ① 냄새','잔디 깎은 후 냄새 = SOS'],['방법 ② 소리','사람은 못 듣는 고주파 딸깍 소리'],['실험 결과','스트레스 요인마다 다른 소리 (물 부족 ≠ 잎 절단)'],['However','고통의 울부짖음 X → 자동적 생존 반응'],['결론','냄새·소리 = 해로운 것으로부터 자신을 지키는 도구']],
+ana:`자동차 도난 경보를 생각해 보세요. 누가 차를 건드리면 삐뽀삐뽀 울리지만, 차가 아파서 우는 건 아니죠. 위험을 감지하면 자동으로 울리게 되어 있는 장치예요. 식물의 냄새와 소리도 딱 그거예요.`}
+];
+/*END*/
+
+const C=['①','②','③','④','⑤'];
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const rnd=n=>Math.floor(Math.random()*n);
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const byId=id=>P.find(p=>p.id===id);
+const full=p=>p.s.map(x=>x[0]).join(' ');
+const pLabel=p=>`${p.L}강 ${p.n}번`;
+function loc(text,p){const ctx=p.replace(/[\[\]]/g,'');const at=text.indexOf(ctx);if(at<0)return null;const b=p.indexOf('[');if(b<0)return{st:at,en:at+ctx.length,inner:ctx};const e=p.indexOf(']');const inner=p.slice(b+1,e);return{st:at+b,en:at+b+inner.length,inner}}
+function mark(text,spans){spans=spans.slice().sort((x,y)=>x.st-y.st);let h='',i=0;for(const s of spans){h+=esc(text.slice(i,s.st));const inner=s.html!=null?s.html:esc(s.rep!=null?s.rep:text.slice(s.st,s.en));h+=`<span class="mk ${s.cls||''}">${s.label?`<b>${s.label}</b>`:''}${inner}</span>`;i=s.en}return h+esc(text.slice(i))}
+function pick(text,items,n){const L=shuf(items.map(it=>({it,l:loc(text,it.p)})).filter(x=>x.l));const out=[];for(const x of L){if(out.length>=n)break;if(out.some(o=>!(x.l.en<=o.l.st||x.l.st>=o.l.en)))continue;out.push(x)}return out.sort((a,b)=>a.l.st-b.l.st)}
+function so(opts,a){const idx=shuf(opts.map((_,i)=>i));return{o:idx.map(i=>opts[i]),a:idx.indexOf(a)}}
+const koAll=p=>`<details><summary>전체 해석 보기</summary>${p.s.map((x,i)=>`<p class="kol">${i+1}. ${esc(x[1])}</p>`).join('')}</details>`;
+
+/* ===== 문제 생성기 ===== */
+function gTitle(p){const r=so(p.title.o,p.title.a);return{t:'제목',q:'다음 글의 제목으로 가장 적절한 것은?',body:esc(full(p)),o:r.o.map(esc),a:r.a,e:p.title.e}}
+function gTopic(p){const r=so(p.topic.o,p.topic.a);return{t:'주제',q:'다음 글의 주제로 가장 적절한 것은?',body:esc(full(p)),o:r.o.map(esc),a:r.a,e:p.topic.e}}
+function gImp(p){const t=full(p),l=loc(t,p.imp.p);const r=so(p.imp.o,p.imp.a);return{t:'함축 의미',q:`밑줄 친 <i>${esc(l.inner)}</i>가 다음 글에서 의미하는 바로 가장 적절한 것은?`,body:mark(t,[{st:l.st,en:l.en}]),o:r.o.map(esc),a:r.a,e:p.imp.e}}
+function gGram(p){const t=full(p);const sp=pick(t,p.gram,5);if(sp.length<3)return null;const w=rnd(sp.length);
+ const body=mark(t,sp.map((x,i)=>({st:x.l.st,en:x.l.en,label:C[i],rep:i===w?x.it.w:null})));
+ const e=`<p><b>${C[w]}</b> ${esc(sp[w].it.w)} → <span class="okw">${esc(sp[w].l.inner)}</span><br>${sp[w].it.e}</p><div class="sub">나머지 선지는 왜 맞을까?</div><ul>${sp.map((x,i)=>i===w?'':`<li>${C[i]} <b>${esc(x.l.inner)}</b>: ${x.it.e}</li>`).join('')}</ul>`;
+ return{t:'어법',q:'다음 글의 밑줄 친 부분 중, 어법상 <u>틀린</u> 것은?',body,o:sp.map((x,i)=>esc(i===w?x.it.w:x.l.inner)),a:w,e}}
+function gGramABC(p){const t=full(p);const sp=pick(t,p.gram,3);if(sp.length<3)return null;const L=['(A)','(B)','(C)'];
+ const body=mark(t,sp.map((x,i)=>{const pair=Math.random()<.5?[x.l.inner,x.it.w]:[x.it.w,x.l.inner];return{st:x.l.st,en:x.l.en,label:L[i],cls:'box',html:`[ ${esc(pair[0])} / ${esc(pair[1])} ]`}}));
+ const combos=[...Array(8).keys()];const others=shuf(combos.slice(1)).slice(0,4);const pickd=shuf([0,...others]);
+ const txt=m=>sp.map((x,i)=>esc((m>>i)&1?x.it.w:x.l.inner)).join(' — ');
+ const e=`<ul>${sp.map((x,i)=>`<li>${L[i]} <span class="okw">${esc(x.l.inner)}</span> (✗ ${esc(x.it.w)}): ${x.it.e}</li>`).join('')}</ul>`;
+ return{t:'어법',q:'(A), (B), (C)의 각 네모 안에서 어법에 맞는 표현으로 가장 적절한 것은?',body,o:pickd.map(txt),a:pickd.indexOf(0),e}}
+function gVoc(p){const t=full(p);const sp=pick(t,p.voc,5);if(sp.length<3)return null;const w=rnd(sp.length);
+ const body=mark(t,sp.map((x,i)=>({st:x.l.st,en:x.l.en,label:C[i],rep:i===w?x.it.w:null})));
+ const e=`<p><b>${C[w]}</b> ${esc(sp[w].it.w)} → <span class="okw">${esc(sp[w].l.inner)}</span><br>${sp[w].it.e}</p><div class="sub">나머지 선지</div><ul>${sp.map((x,i)=>i===w?'':`<li>${C[i]} <b>${esc(x.l.inner)}</b>: ${x.it.e}</li>`).join('')}</ul>`;
+ return{t:'어휘',q:'다음 글의 밑줄 친 부분 중, 문맥상 낱말의 쓰임이 적절하지 <u>않은</u> 것은?',body,o:sp.map((x,i)=>esc(i===w?x.it.w:x.l.inner)),a:w,e}}
+function gBlank(p,b){const t=full(p);const multi=Array.isArray(b.p);const L=['(A)','(B)','(C)'];
+ const ps=multi?b.p:[b.p];const spans=ps.map((ph,i)=>{const l=loc(t,ph);return{st:l.st,en:l.en,cls:'blank',label:multi?L[i]:'',html:'&nbsp;'}});
+ const r=so(b.o,b.a);const fmt=o=>Array.isArray(o)?o.map(esc).join(' — '):esc(o);
+ return{t:'빈칸',q:multi?'(A), (B), (C)에 들어갈 말로 가장 적절한 것은?':'다음 빈칸에 들어갈 말로 가장 적절한 것은?',body:mark(t,spans),o:r.o.map(fmt),a:r.a,e:b.e}}
+function gOrder(p){const oi=p.oi||1,[c0,c1]=p.cut;const ch=[[oi,c0],[c0,c1],[c1,p.s.length]].map(([a,b])=>p.s.slice(a,b));
+ const lab=shuf(['A','B','C']);const ans=lab.join('-');const perms=['A-B-C','A-C-B','B-A-C','B-C-A','C-A-B','C-B-A'];
+ const oth=shuf(perms.filter(x=>x!==ans)).slice(0,4);const opts=perms.filter(x=>x===ans||oth.includes(x));
+ const body=['A','B','C'].map(L=>{const k=lab.indexOf(L);return`<p>(${L}) ${esc(ch[k].map(x=>x[0]).join(' '))}</p>`}).join('');
+ const e=`<p>정답 순서: <span class="okw">${lab.map(x=>'('+x+')').join(' – ')}</span></p><p>${p.oe}</p>${lab.map((L,k)=>`<p class="kol">(${L}) ${esc(ch[k].map(x=>x[1]).join(' '))}</p>`).join('')}`;
+ return{t:'순서',q:'주어진 글 다음에 이어질 글의 순서로 가장 적절한 것은?',given:esc(p.s.slice(0,oi).map(x=>x[0]).join(' ')),body,o:opts.map(x=>x.split('-').map(y=>'('+y+')').join(' – ')),a:opts.indexOf(ans),e}}
+function gIns(p,it){const i=it.i;const R=p.s.filter((_,j)=>j!==i);const n=R.length;const m=Math.min(5,n);
+ const lo=Math.max(1,i-m+1),hi=Math.min(i,n-m+1);const st=lo+rnd(hi-lo+1);let h='';
+ for(let j=0;j<n;j++){if(j>=st&&j<st+m)h+=` <b>( ${C[j-st]} )</b> `;h+=esc(R[j][0])+' '}
+ if(n>=st&&n<st+m)h+=` <b>( ${C[n-st]} )</b>`;
+ return{t:'삽입',q:'글의 흐름으로 보아, 주어진 문장이 들어가기에 가장 적절한 곳은?',given:esc(p.s[i][0]),body:h,o:C.slice(0,m),a:i-st,e:`<p>${it.e}</p><p class="kol">주어진 문장: ${esc(p.s[i][1])}</p>`}}
+function gIrr(p,it){const L=p.s.map(x=>({en:x[0],ko:x[1]}));const d=it.at+1;L.splice(d,0,{en:it.s,ko:it.k});const n=L.length;const m=Math.min(5,n-1);
+ const lo=Math.max(1,d-m+1),hi=Math.min(d,n-m);const st=lo+rnd(hi-lo+1);
+ const body=L.map((x,j)=>(j>=st&&j<st+m?`<b>${C[j-st]}</b> `:'')+esc(x.en)).join(' ');
+ return{t:'무관한 문장',q:'다음 글에서 전체 흐름과 관계 <u>없는</u> 문장은?',body,o:C.slice(0,m),a:d-st,e:`<p>${it.e}</p><p class="kol">끼어든 문장 해석: ${esc(it.k)}</p>`}}
+function gSum(p){const r=so(p.sum.o,p.sum.a);const t=esc(p.sum.t).replace('(A)','<span class="blank"><b>(A)</b></span>').replace('(B)','<span class="blank"><b>(B)</b></span>');
+ return{t:'요약',q:'다음 글의 내용을 한 문장으로 요약하고자 한다. 빈칸 (A), (B)에 들어갈 말로 가장 적절한 것은?',body:esc(full(p)),after:t,o:r.o.map(x=>esc(x[0])+' — '+esc(x[1])),a:r.a,e:p.sum.e}}
+function gRef(p){if(!p.ref)return null;const t=full(p);const ls=p.ref.ps.map((ph,k)=>({k,l:loc(t,ph)})).sort((a,b)=>a.l.st-b.l.st);
+ const body=mark(t,ls.map((x,i)=>({st:x.l.st,en:x.l.en,label:C[i]})));
+ return{t:'지칭',q:'밑줄 친 부분이 가리키는 대상이 나머지 넷과 <u>다른</u> 것은?',body,o:ls.map(x=>esc(x.l.inner)),a:ls.findIndex(x=>x.k===p.ref.a),e:p.ref.e}}
+function gTF(p,mode){const T=shuf(p.tf.filter(x=>x[1])),F=shuf(p.tf.filter(x=>!x[1]));const tail=it=>`${it[1]?'O':'X'} ${esc(it[0])} <span class="kol">(${esc(it[2])})</span>`;
+ if(mode==='count'){let set,c;do{set=shuf(p.tf).slice(0,5);c=set.filter(x=>x[1]).length}while(c===0);const lab=['ⓐ','ⓑ','ⓒ','ⓓ','ⓔ'];
+  return{t:'내용 일치',q:'다음 글을 읽고, &lt;보기&gt;에서 글의 내용과 일치하는 것의 개수는?',body:esc(full(p)),after:`<ul class="tf">${set.map((x,i)=>`<li>${lab[i]} ${esc(x[0])}</li>`).join('')}</ul>`,o:['1개','2개','3개','4개','5개'],a:c-1,e:`<ul>${set.map((x,i)=>`<li>${lab[i]} ${tail(x)}</li>`).join('')}</ul>`}}
+ const match=mode==='match'&&F.length>=4;const set=match?shuf([T[0],...F.slice(0,4)]):shuf([F[0],...T.slice(0,4)]);const key=match?set.findIndex(x=>x[1]):set.findIndex(x=>!x[1]);
+ return{t:'내용 일치',q:match?'다음 글의 내용과 일치하는 것은?':'다음 글의 내용과 일치하지 <u>않는</u> 것은?',body:esc(full(p)),o:set.map(x=>esc(x[0])),a:key,e:`<ul>${set.map(x=>`<li>${tail(x)}</li>`).join('')}</ul>`}}
+
+const TYPES=[
+ ['제목',gTitle],['주제',gTopic],['함축 의미',gImp],
+ ['어법',p=>Math.random()<.6?gGram(p):gGramABC(p)],
+ ['어휘',gVoc],['빈칸',p=>gBlank(p,p.blanks[rnd(p.blanks.length)])],
+ ['순서',gOrder],['삽입',p=>gIns(p,p.ins[rnd(p.ins.length)])],
+ ['요약',gSum],['지칭',gRef],
+ ['내용 일치',p=>gTF(p,['match','mismatch','count'][rnd(3)])],
+ ['무관한 문장',p=>gIrr(p,p.irr[rnd(p.irr.length)])]];
+function gen(p,typeName){const f=TYPES.find(x=>x[0]===typeName);const q=f?f[1](p):null;if(q){q.pid=p.id}return q}
+
+/* ===== 저장 ===== */
+const KEY='efinal_wrong_v1',PKEY='efinal_prefs_v1';
+function loadW(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}}
+function saveW(w){try{localStorage.setItem(KEY,JSON.stringify(w))}catch(e){}}
+let PR={theme:'auto',fs:'m'};try{Object.assign(PR,JSON.parse(localStorage.getItem(PKEY)||'{}'))}catch(e){}
+function applyPR(){const r=document.documentElement;if(PR.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',PR.theme);r.setAttribute('data-fs',PR.fs);try{localStorage.setItem(PKEY,JSON.stringify(PR))}catch(e){}}
+applyPR();
+
+/* ===== 상태 ===== */
+const S={view:'home',tab:'home',src:'oly',lesson:0,pid:null,ptab:'note',qtype:'제목',showKo:false,setup:{L:[...new Set(P.map(p=>p.L))],T:TYPES.map(x=>x[0]),n:20},play:null,back:'home'};
+const app=document.getElementById('app');
+const lessons=()=>[...new Set(P.map(p=>p.L))];
+const IC={
+home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20H4z"/></svg>',
+book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>',
+test:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 12l2 2 4-4"/></svg>',
+mark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 4h10v17l-5-4-5 4z"/></svg>',
+menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+doc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>',
+bulb:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3z"/></svg>'};
+
+function nav(){document.getElementById('tabbar').innerHTML=`<div class="in">${[['home','홈',IC.home],['list','지문',IC.book],['setup','모의고사',IC.test],['wrong','오답 노트',IC.mark],['more','더보기',IC.menu]].map(([k,n,i])=>`<button class="${S.tab===k?'on':''}" onclick="go('${k}')">${i}<span>${n}</span></button>`).join('')}</div>`;document.getElementById('wcount').textContent=loadW().length}
+function go(v,arg){stopTimer();document.body.classList.remove('playing');S.view=v;if(['home','list','setup','wrong','more'].includes(v))S.tab=v;if(v==='passage'){S.pid=arg;S.ptab='note';S.showKo=false;S.tab='list'}render();window.scrollTo(0,0)}
+function render(){nav();({home:vHome,list:vList,passage:vPassage,setup:vSetup,play:vPlay,result:vResult,wrong:vWrong,more:vMore}[S.view]||vHome)()}
+
+/* ===== 홈 ===== */
+function vHome(){const w=loadW().length;
+ app.innerHTML=`<h1 class="t">반가워요, 민서님 </h1><p class="st">기말 영어, 지문별로 개념 노트와 문제를 준비해 뒀어요.</p>
+ <div class="hero"><small>다시 풀 오답</small><div class="big">${w}개</div><p>${w?'틀린 문제를 다시 풀면 확실히 내 것이 돼요.':'아직 없어요. 문제를 풀면 여기에 모여요.'}</p>${w?`<button onclick="playWrong()">오답 다시 풀기</button>`:''}</div>
+ <div class="grid2"><button class="tile" onclick="go('list')"><b>지문 공부하기</b><span>개념 노트, 해석, 어법 포인트</span></button><button class="tile on" onclick="go('setup')"><b>실전 모의고사</b><span>범위·유형 골라 랜덤 출제</span></button></div>
+ <div class="sec">이번 시험 범위</div>
+ ${lessons().map(l=>{const ps=P.filter(p=>p.L===l);return`<button class="prow" onclick="S.lesson=${l};go('list')"><b>올림포스 ${l}강</b><div class="m">지문 ${ps.length}개 · ${ps.map(p=>p.n+'번').join(', ')}</div></button>`}).join('')}
+ <div class="card"><b>10월 모의고사 · 교과서</b><div class="st" style="margin:2px 0 0">지문을 보내 주면 같은 형식으로 추가돼요.</div></div>`}
+
+/* ===== 지문 목록 ===== */
+function vList(){const list=P.filter(p=>!S.lesson||p.L===S.lesson);
+ let h=`<h1 class="t">지문</h1><p class="st">지문을 누르면 개념 노트와 문제가 나와요.</p>
+ <div class="seg">${[['oly','올림포스 기출'],['mock','10월 모의고사'],['text','교과서']].map(([k,n])=>`<button class="${S.src===k?'on':''}" onclick="S.src='${k}';render();fadeApp()">${n}</button>`).join('')}</div>`;
+ if(S.src!=='oly'){app.innerHTML=h+`<div class="empty"><b>아직 지문이 없어요</b>다음 업데이트에서 추가돼요.</div>`;return}
+ h+=`<div class="chips"><button class="chip ${!S.lesson?'on':''}" onclick="S.lesson=0;render();fadeApp()">전체</button>${lessons().map(l=>`<button class="chip ${S.lesson===l?'on':''}" onclick="S.lesson=${l};render();fadeApp()">${l}강</button>`).join('')}</div>`;
+ h+=list.map(p=>`<button class="prow" onclick="go('passage','${p.id}')"><b>${esc(p.name)}</b><div class="m">${pLabel(p)} · ${p.s.length}문장</div><div class="g">${esc(p.gist)}</div></button>`).join('');
+ app.innerHTML=h}
+
+/* ===== 지문 상세 (폴더 화면) ===== */
+function vPassage(){const p=byId(S.pid);
+ let h=`<button class="crumb" onclick="go('list')">‹ 지문</button><div class="ttl">${IC.doc}<h1 class="t">${esc(p.name)}</h1></div><p class="st">올림포스 ${pLabel(p)} · ${p.s.length}문장 · 문제 유형 ${TYPES.length-(p.ref?0:1)}가지</p>
+ <div class="seg p"><button class="${S.ptab==='note'?'on':''}" onclick="setTab('note')">개념 노트</button><button class="${S.ptab==='quiz'?'on':''}" onclick="setTab('quiz')">문제</button></div>`;
+ h+=S.ptab==='note'?noteHTML(p):quizHub(p);app.innerHTML=h}
+
+function noteHTML(p){const t=full(p);let n=0;const H=x=>`<div class="nh"><i>${++n}</i><h2>${x}</h2></div>`;
+ let h=`<div class="sumh">한눈에 요약</div><ul class="sum"><li><b>요지</b>: ${esc(p.gist)}</li>${p.flow.map(f=>`<li><b>${esc(f[0])}</b>: ${esc(f[1])}</li>`).join('')}</ul>`;
+ h+=H('본문과 해석')+`<div class="row" style="justify-content:space-between;margin-bottom:4px"><span class="st" style="margin:0;font-size:.9rem">문장을 누르면 해석이 열려요</span><button class="chip ${S.showKo?'on':''}" onclick="S.showKo=!S.showKo;render()">${S.showKo?'해석 숨기기':'해석 다 보기'}</button></div>
+ <div class="en ${S.showKo?'showko':''}">${p.s.map((x,i)=>`<button class="sent" onclick="this.classList.toggle('open')"><span class="n">${i+1}</span>${esc(x[0])}<span class="ko">${esc(x[1])}</span></button>`).join('')}</div>`;
+ h+=H('글의 흐름')+`<div class="flow">${p.flow.map((f,i)=>(i?'<div class="arr"></div>':'')+`<div class="node ${i===p.flow.length-1?'k':''}"><small>${esc(f[0])}</small>${esc(f[1])}</div>`).join('')}</div><div class="tip">${esc(p.ana)}</div>`;
+ h+=H('헷갈림 포인트')+p.conf.map(c=>`<p style="margin:14px 0 4px"><b>${esc(c[0])}</b></p><div class="tip">${esc(c[1])}</div>`).join('');
+ h+=H('어법 포인트')+`<p>시험에 밑줄이 그어질 만한 자리예요. <mark>정답 형태</mark>와 함정 형태를 짝지어 익혀 두세요.</p><div class="tw"><table><tr><th>나오는 자리</th><th>정답</th><th>함정</th><th>이유</th></tr>${p.gram.map(g=>{const l=loc(t,g.p);return`<tr><td class="en" style="font-size:.95em">${esc(g.p.replace(/[\[\]]/g,''))}</td><td><span class="okc">${esc(l?l.inner:'')}</span></td><td><span class="x">${esc(g.w)}</span></td><td>${esc(g.e)}</td></tr>`}).join('')}</table></div>`;
+ h+=H('어휘 함정 (반의어)')+`<div class="tw"><table><tr><th>원래 단어</th><th>바꿔 낸 함정</th><th>왜 원래 단어여야 할까</th></tr>${p.voc.map(v=>{const l=loc(t,v.p);return`<tr><td><span class="okc en">${esc(l?l.inner:'')}</span></td><td><span class="x en">${esc(v.w)}</span></td><td>${esc(v.e)}</td></tr>`}).join('')}</table></div>`;
+ h+=H('꼭 알아야 할 단어')+`<div class="tw"><table style="min-width:0"><tr><th>단어</th><th>뜻</th></tr>${p.w.map(x=>`<tr><td class="en"><b>${esc(x[0])}</b></td><td>${esc(x[1])}</td></tr>`).join('')}</table></div>`;
+ if(p.irr&&p.irr.length)h+=H('무관한 문장 함정 미리보기')+`<p>이런 문장이 끼어들면 헷갈려요. 왜 흐름에서 벗어나는지 먼저 봐 두세요.</p>`+p.irr.map(x=>`<div class="warn"><span class="en">${esc(x.s)}</span><div class="kol">${esc(x.e)}</div></div>`).join('');
+ h+=`<div class="sec">스스로 점검</div>`+p.tf.map((x,i)=>`<button class="chk" onclick="this.classList.toggle('open')"><div class="q"><span><em>Q${i+1}.</em>${esc(x[0])} (O / X)</span><small>답 보기</small></div><div class="a"><b style="color:${x[1]?'var(--good)':'var(--bad)'}">${x[1]?'O':'X'}</b> ${esc(x[2])}</div></button>`).join('');
+ h+=`<div style="margin-top:22px"><button class="gbtn" onclick="S.ptab='quiz';render();scrollTo(0,0)">이 지문 문제 풀기</button></div>`;
+ return h}
+
+function quizHub(p){const avail=TYPES.filter(([n])=>!(n==='지칭'&&!p.ref));
+ return `<div class="grid2"><button class="tile" onclick="playPassage('${p.id}')"><b>전 유형 세트</b><span>${avail.length}유형 한 문제씩</span></button><button class="tile on" onclick="playPassage('${p.id}',2)"><b>두 바퀴 세트</b><span>${avail.length*2}문항, 선지·위치 새로 섞음</span></button></div>
+ <div class="sec">유형 골라 풀기</div><div class="chips">${avail.map(([n])=>`<button class="chip" onclick="playType('${p.id}','${n}')">${n}</button>`).join('')}</div>
+ <div class="card"><b>세트 풀기 방식</b><div class="st" style="margin:2px 0 0">답을 고르고 확인을 누르면 바로 채점하고 해설을 보여 줘요. 막히면 힌트를 세 번까지 쓸 수 있어요.</div></div>`}
+
+/* ===== 플레이어 ===== */
+let TM=null;function stopTimer(){if(TM){clearInterval(TM);TM=null}}
+function startPlay(title,list,mode){if(!list.length)return;S.play={title,list,mode,i:0,sel:list.map(()=>null),done:list.map(()=>false),res:list.map(()=>null),hint:list.map(()=>0),cut:list.map(()=>[]),t0:Date.now(),back:S.view==='passage'?'passage':S.tab};S.view='play';render();scrollTo(0,0)}
+function playPassage(id,rounds=1){const p=byId(id);const list=[];for(let r=0;r<rounds;r++)TYPES.forEach(([n])=>{const q=gen(p,n);if(q)list.push(q)});startPlay(`${pLabel(p)} 세트`,list,'set')}
+function playType(id,t){const p=byId(id);const list=[];for(let k=0;k<5;k++){const q=gen(p,t);if(q)list.push(q)}startPlay(`${pLabel(p)} ${t}`,list,'set')}
+function playWrong(){const w=loadW();startPlay('오답 다시 풀기',w.slice(0,30),'wrong')}
+function playOneWrong(i){const w=loadW();startPlay('오답 다시 풀기',[w[i]],'wrong')}
+const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const TIP={'제목':'첫 문장과 마지막 문장, 그리고 However·Thus 뒤에 필자의 핵심이 있어요. 예시 속 단어만 담은 선지는 함정이에요.','주제':'예시를 빼고 남는 일반적인 말이 주제예요. 한쪽 면만 담은 선지는 반쪽짜리!','함축 의미':'밑줄 바로 앞뒤 문장이 밑줄을 풀어서 설명해 줘요. 앞뒤부터 읽어 보세요.','어법':'동사 자리인지 준동사 자리인지, 주어가 단수인지 복수인지, 뒤 문장이 완전한지부터 확인해요.','어휘':'밑줄 단어를 반의어로 바꿔 넣어 보세요. 바꾼 쪽이 앞뒤 논리에 더 맞으면 그게 정답이에요.','빈칸':'빈칸은 주제문인 경우가 많아요. 예시들이 공통으로 말하는 게 뭔지 찾아보세요.','순서':'(A)(B)(C) 첫머리의 지시어(this, these)와 연결사(However, Thus)가 앞에 뭐가 와야 하는지 알려 줘요.','삽입':'주어진 문장의 지시어·연결사를 보고, 흐름이 뚝 끊기는 빈틈을 찾으세요.','요약':'요약문은 주제문을 바꿔 쓴 거예요. 주제문부터 찾고 (A)(B)를 맞춰 보세요.','지칭':'밑줄마다 그 자리에 명사를 넣어 보세요. 사람인지 사물인지부터 가르면 쉬워요.','내용 일치':'"전혀, 오직, 항상" 같은 극단적인 말이나 숫자·국적이 바뀐 선지가 없는지 체크!','무관한 문장':'단어가 겹친다고 관련 있는 게 아니에요. 앞 문장의 논리 방향과 다음 문장의 지시어가 이어지는지 보세요.'};
+function vPlay(){const Z=S.play;const q=Z.list[Z.i];const n=Z.list.length;const done=Z.done[Z.i];const p=byId(q.pid);const dc=Z.done.filter(Boolean).length;
+ document.body.classList.add('playing');
+ let h=`<div class="ptop" style="margin:-22px -18px 18px"><div class="in"><div class="r"><button class="ib" onclick="quitPlay()" aria-label="나가기">←</button><div><b>${esc(Z.title)}</b><small>⏱ <span id="tm">${fmt(Math.floor((Date.now()-Z.t0)/1000))}</span> · 진행 ${dc}/${n}</small></div></div><div class="pbar"><i style="width:${dc/n*100}%"></i></div></div></div>`;
+ h+=`<div class="qhead"><span class="no">${Z.i+1}.</span><span class="tg">${q.t}</span><span class="fr">${pLabel(p)} ${esc(p.name)}</span></div><div class="qt">${q.q}</div>${q.given?`<div class="given en">${q.given}</div>`:''}<div class="body en">${q.body}</div>${q.after?`<div class="given en">${q.after}</div>`:''}`;
+ h+=`<div class="opts">${q.o.map((o,i)=>{let c='';if(done){if(i===q.a)c='ok';else if(i===Z.sel[Z.i])c='no'}else{if(i===Z.sel[Z.i])c='sel';if(Z.cut[Z.i].includes(i))c+=' cut'}return`<button class="opt ${c}" ${done?'disabled':''} onclick="pickOpt(${i})"><span class="rd"></span><span class="c">${C[i]}</span><span class="tx en" style="font-size:1rem">${o}</span></button>`}).join('')}</div>`;
+ if(!done){const hn=Z.hint[Z.i];h+=hn?`<div class="hbox"><b>${hn}. ${['방향','선지 줄이기','선지 줄이기'][hn-1]}</b>${hn===1?TIP[q.t]||'':`${Z.cut[Z.i].map(x=>C[x]).join(', ')}번은 정답이 아니에요.`}${hn<3?`<div style="text-align:right;margin-top:6px"><button style="color:var(--pri);font-weight:700" onclick="useHint()">다음 힌트 →</button></div>`:''}</div>`:`<button class="hintb" onclick="useHint()">${IC.bulb} 힌트</button>`}
+ else{const ok=Z.res[Z.i];h+=`<div class="exp"><div class="res ${ok?'ok':'no'}">${ok?'정답이에요!':'아쉬워요. 정답은 '+C[q.a]}</div>${q.e}${koAll(p)}</div>`}
+ h+=`<div style="height:30px"></div>`;
+ app.innerHTML=h;
+ document.getElementById('tabbar').insertAdjacentHTML('afterend','');
+ let f=document.getElementById('pfoot');if(!f){f=document.createElement('div');f.id='pfoot';f.className='pfoot';document.body.appendChild(f)}
+ const last=Z.i===n-1;
+ f.innerHTML=`<div class="in"><button class="obtn" ${Z.i===0?'disabled style="opacity:.4"':''} onclick="moveQ(-1)">← 이전</button><span>${Z.i+1} / ${n}</span>${done?`<button class="gbtn" onclick="${last?'finish()':'moveQ(1)'}">${last?'결과 보기':'다음 →'}</button>`:`<button class="gbtn" id="cfm" ${Z.sel[Z.i]==null?'disabled':''} onclick="confirmQ()">확인</button>`}</div>`;
+ stopTimer();TM=setInterval(()=>{const e=document.getElementById('tm');if(e)e.textContent=fmt(Math.floor((Date.now()-S.play.t0)/1000))},1000)}
+function pickOpt(i){const Z=S.play;if(Z.done[Z.i]||Z.cut[Z.i].includes(i))return;Z.sel[Z.i]=i;vPlay()}
+function useHint(){const Z=S.play;const q=Z.list[Z.i];if(Z.hint[Z.i]>=3)return;Z.hint[Z.i]++;if(Z.hint[Z.i]>=2){const pool=q.o.map((_,k)=>k).filter(k=>k!==q.a&&!Z.cut[Z.i].includes(k));if(pool.length>1){const k=pool[rnd(pool.length)];Z.cut[Z.i].push(k);if(Z.sel[Z.i]===k)Z.sel[Z.i]=null}}vPlay()}
+function confirmQ(){const Z=S.play;const q=Z.list[Z.i];if(Z.sel[Z.i]==null)return;Z.done[Z.i]=true;const ok=Z.sel[Z.i]===q.a;Z.res[Z.i]=ok;
+ const w=loadW();if(Z.mode==='wrong'){if(ok&&q.wid){const k=w.findIndex(x=>x.wid===q.wid);if(k>=0){w.splice(k,1);saveW(w)}}}
+ else if(!ok){w.unshift({...q,wid:Date.now()+'-'+rnd(1e6),at:Date.now()});saveW(w.slice(0,200))}
+ document.getElementById('wcount').textContent=loadW().length;vPlay()}
+function moveQ(d){const Z=S.play;Z.i=Math.max(0,Math.min(Z.list.length-1,Z.i+d));vPlay();scrollTo(0,0)}
+function quitPlay(){const Z=S.play;const f=document.getElementById('pfoot');if(f)f.remove();if(Z&&Z.done.some(Boolean)&&Z.done.some(x=>!x)&&!confirm('그만 풀까요? 지금까지 푼 기록은 오답 노트에 남아 있어요.')){return}const b=Z?Z.back:'home';go(b,b==='passage'?S.pid:undefined)}
+function finish(){const f=document.getElementById('pfoot');if(f)f.remove();stopTimer();S.play.t1=Date.now();S.view='result';document.body.classList.remove('playing');render();scrollTo(0,0)}
+function vResult(){const Z=S.play;const sc=Z.res.filter(Boolean).length;const wt={};Z.list.forEach((q,i)=>{if(!Z.res[i])wt[q.t]=(wt[q.t]||0)+1});
+ app.innerHTML=`<h1 class="t">${esc(Z.title)}</h1><p class="st">걸린 시간 ${fmt(Math.floor(((Z.t1||Date.now())-Z.t0)/1000))}</p>
+ <div class="card" style="text-align:center;padding:26px"><div class="score">${sc} / ${Z.list.length}</div><div class="st" style="margin:4px 0 0">${Object.keys(wt).length?'많이 틀린 유형: '+Object.entries(wt).sort((a,b)=>b[1]-a[1]).map(x=>`${x[0]} ${x[1]}개`).join(', '):'전부 맞혔어요!'}</div></div>
+ ${Z.mode==='wrong'?`<p class="st">맞힌 문제는 오답 노트에서 빠졌어요.</p>`:''}
+ <div class="sec">문항별 결과</div>${Z.list.map((q,i)=>`<div class="prow" style="display:flex;justify-content:space-between"><span>${i+1}. ${q.t} <span class="m" style="display:inline">${pLabel(byId(q.pid))}</span></span><b style="color:${Z.res[i]?'var(--good)':'var(--bad)'}">${Z.res[i]?'O':'X'}</b></div>`).join('')}
+ <div style="display:grid;gap:10px;margin-top:16px">${Z.mode==='mock'?`<button class="gbtn" onclick="startMock()">새 문제로 한 번 더</button>`:''}${Object.keys(wt).length?`<button class="obtn" onclick="go('wrong')">오답 노트 보기</button>`:''}<button class="obtn" onclick="go('home')">홈으로</button></div>`}
+
+/* ===== 모의고사 설정 ===== */
+function vSetup(){const s=S.setup;const tg=(a,v)=>a.includes(v)?a.filter(x=>x!==v):[...a,v];
+ window._L=v=>{s.L=tg(s.L,v);render()};window._T=v=>{s.T=tg(s.T,v);render()};
+ const all=s.T.length===TYPES.length;
+ app.innerHTML=`<h1 class="t">실전 모의고사</h1><p class="st">범위와 유형을 고르면 문제를 새로 섞어서 만들어요.</p>
+ <div class="card w">
+ <div class="lab" style="margin-top:0">범위</div><div class="chips">${lessons().map(l=>`<button class="chip ${s.L.includes(l)?'on':''}" onclick="_L(${l})">올림포스 ${l}강</button>`).join('')}</div>
+ <div class="lab">문제 개수</div><div class="chips">${[10,20,30,50].map(n=>`<button class="chip ${s.n===n?'on':''}" onclick="S.setup.n=${n};render()">${n}개</button>`).join('')}</div>
+ <div class="lab">유형 <button class="chip" style="padding:3px 10px;margin-left:6px;font-size:.8rem" onclick="S.setup.T=${all?'[]':'TYPES.map(x=>x[0])'};render()">${all?'모두 해제':'모두 선택'}</button></div>
+ <div>${TYPES.map(([n])=>`<button class="cb ${s.T.includes(n)?'on':''}" onclick="_T('${n}')"><i></i>${n}</button>`).join('')}</div>
+ <div class="est"><span>예상 풀이 시간 (${s.n}문항)</span><b>약 ${Math.round(s.n*1.6)}분</b></div>
+ <button class="gbtn" ${!s.L.length||!s.T.length?'disabled':''} onclick="startMock()">문제 만들기</button></div>`}
+function startMock(){const s=S.setup;const ps=P.filter(p=>s.L.includes(p.L));const list=[];const seen=new Set();let g=0;
+ while(list.length<s.n&&g<800){g++;const p=ps[rnd(ps.length)];const t=s.T[rnd(s.T.length)];const k=p.id+t;if(seen.has(k)&&g<300)continue;const q=gen(p,t);if(!q)continue;seen.add(k);list.push(q)}
+ S.view='setup';startPlay(`모의고사 ${s.n}문항`,list,'mock','setup')}
+
+/* ===== 오답 노트 ===== */
+function vWrong(){const w=loadW();
+ window._del=i=>{const a=loadW();a.splice(i,1);saveW(a);render()};
+ let h=`<h1 class="t">오답 노트</h1><p class="st">틀린 문제가 자동으로 모여요. 다시 풀어서 맞히면 빠져요.</p>`;
+ if(!w.length){app.innerHTML=h+`<div class="empty"><b>아직 틀린 문제가 없어요</b>문제를 풀면 여기에 쌓여요.</div><button class="gbtn" onclick="go('setup')">모의고사 풀러 가기</button>`;return}
+ const by={};w.forEach(q=>by[q.t]=(by[q.t]||0)+1);
+ h+=`<div class="chips">${Object.entries(by).map(([t,c])=>`<span class="chip">${t} ${c}</span>`).join('')}</div><button class="gbtn" style="margin-bottom:18px" onclick="playWrong()">전체 다시 풀기 (${Math.min(w.length,30)}문항)</button>`;
+ h+=w.map((q,i)=>{const p=byId(q.pid);return`<div class="card"><div class="m" style="color:var(--sub);font-size:.88rem">${q.t} · ${pLabel(p)} ${esc(p.name)}</div><div style="font-weight:700;margin:4px 0 12px">${q.q}</div><div class="row"><button class="gbtn" style="flex:1;padding:11px" onclick="playOneWrong(${i})">풀기</button><button class="ib" onclick="_del(${i})" aria-label="지우기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div>`}).join('');
+ app.innerHTML=h}
+
+/* ===== 더보기 ===== */
+function vMore(){window._fs=v=>{PR.fs=v;applyPR();render()};window._th=v=>{PR.theme=v;applyPR();render()};window._clr=()=>{if(confirm('오답 노트를 모두 지울까요?')){saveW([]);render()}};
+ app.innerHTML=`<h1 class="t">더보기</h1><p class="st">화면과 기록을 관리해요.</p>
+ <div class="card w"><b style="font-size:1.1rem">보기</b>
+ <div class="card" style="margin:14px 0"><b>미리보기</b><div class="st" style="margin:2px 0 0">이 카드처럼 글자 크기가 적용돼요. <span class="en">Your behaviors are usually a reflection of your identity.</span></div></div>
+ <div class="lab">글자 크기</div><div class="seg p">${[['m','보통'],['l','크게'],['xl','더 크게']].map(([k,n])=>`<button class="${PR.fs===k?'on':''}" onclick="_fs('${k}')">${n}</button>`).join('')}</div>
+ <div class="lab">화면 테마</div><div class="seg p" style="margin-bottom:0">${[['auto','기기 설정'],['light','라이트'],['dark','다크']].map(([k,n])=>`<button class="${PR.theme===k?'on':''}" onclick="_th('${k}')">${n}</button>`).join('')}</div></div>
+ <div class="card w"><b style="font-size:1.1rem">기록</b><div class="row" style="justify-content:space-between;margin-top:10px"><div><b>오답 노트 비우기</b><div class="st" style="margin:0;font-size:.9rem">지금 ${loadW().length}문제가 저장돼 있어요.</div></div><button class="obtn" style="width:auto;padding:9px 16px" onclick="_clr()">비우기</button></div></div>
+ <div class="card"><b>수록 범위</b><div class="st" style="margin:2px 0 0">올림포스 ${lessons().map(l=>l+'강').join('·')} (${P.length}지문). 기록은 이 기기에만 저장돼요.</div></div>`}
+
+/* ===== 반짝임 · 퀘스트 · 더보기 서랍 ===== */
+const DKEY='glint_stats_v1';
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+let ST={pts:0,days:{},cur:{}};try{Object.assign(ST,JSON.parse(localStorage.getItem(DKEY)||'{}'))}catch(e){}
+function cur(){if(ST.cur.date!==today())ST.cur={date:today(),correct:0,sets:0,fixed:0,claimed:[]};return ST.cur}
+function saveST(){const dd=document.getElementById('dday');if(dd)dd.textContent=dday();try{localStorage.setItem(DKEY,JSON.stringify(ST))}catch(e){}const e=document.getElementById('pts');if(e)e.textContent=ST.pts}
+IC.target='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>';
+IC.plus='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+IC.rep='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l3 3-3 3M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3M20 13v2a3 3 0 0 1-3 3H4"/></svg>';
+IC.cal='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>';
+IC.gear='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg>';
+IC.pen='<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 20h7M14.5 4.5l5 5L10 19H5v-5z"/></svg>';
+
+IC.hand='<svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11V4.5a1.5 1.5 0 0 1 3 0V11M14 11V6a1.5 1.5 0 0 1 3 0v7c0 4-2.5 7-6.5 7-2.6 0-4.2-1.3-5.6-3.4L3.4 13.8a1.6 1.6 0 0 1 2.6-1.8L8 14"/></svg>';
+IC.bulb2='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3z"/></svg>';
+IC.x='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+IC.chk='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+IC.chk2='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+IC.dot='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/></svg>';
+IC.mix='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+const EXAM=new Date(2026,11,9);function dday(){const t=new Date();t.setHours(0,0,0,0);const n=Math.round((EXAM-t)/864e5);return n>0?'기말 D-'+n:n===0?'기말 D-DAY':'기말 끝!'}
+const QUESTS=[{k:'correct',name:'문제 20개 맞히기',n:20,p:30,ic:'target'},{k:'sets',name:'세트 하나 끝까지 풀기',n:1,p:30,ic:'plus'},{k:'fixed',name:'오답 5개 다시 맞히기',n:5,p:15,ic:'rep'}];
+function toast(msg){let t=document.getElementById('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';document.body.appendChild(t)}t.textContent=msg;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2200)}
+function bump(k){const c=cur();c[k]=(c[k]||0)+1;if(k==='correct')ST.pts+=2;
+ QUESTS.forEach(q=>{if(!c.claimed.includes(q.k)&&c[q.k]>=q.n){c.claimed.push(q.k);ST.pts+=q.p;ST.days[c.date]=true;setTimeout(()=>{toast(`퀘스트 완료! ${q.name} +${q.p}P`);burstAt(innerWidth/2,innerHeight-120,16)},400)}});saveST()}
+function burstAt(){return;}function _oldBurst(x,y,n=12){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;for(let i=0;i<n;i++){const s=document.createElement('span');s.className='spark'+(i%3?'':' v');s.textContent=i%4?'✦':'✧';const a=Math.PI*2*i/n+Math.random()*.4,r=50+Math.random()*60;s.style.left=x+'px';s.style.top=y+'px';s.style.setProperty('--dx',Math.cos(a)*r+'px');s.style.setProperty('--dy',Math.sin(a)*r+'px');s.style.fontSize=(12+Math.random()*12)+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),1000)}}
+const stars=()=>'';const _unusedStars=()=>[[8,14,14,0],[78,18,10,.7],[88,62,16,1.3],[62,80,9,.4],[30,70,11,1.9]].map(([x,y,s,d])=>`<span class="st2" style="left:${x}%;top:${y}%;font-size:${s}px;animation-delay:${d}s">✦</span>`).join('');
+
+function nav(){document.getElementById('tabbar').innerHTML=`<div class="in">${[['home','홈',IC.home],['list','지문',IC.book],['setup','모의고사',IC.test],['wrong','오답 노트',IC.mark]].map(([k,n,i])=>`<button class="${S.tab===k?'on':''}" onclick="go('${k}')">${i}<span>${n}</span></button>`).join('')}<button class="${['more','quest'].includes(S.tab)?'on':''}" onclick="openDrawer()">${IC.menu}<span>더보기</span></button></div>`;const e=document.getElementById('pts');if(e)e.textContent=ST.pts}
+const _go=go;go=function(v,arg){closeDrawer(true);if(['quest','report','setv'].includes(v)){stopTimer();document.body.classList.remove('playing');S.view=v;S.tab='more';render();scrollTo(0,0);return}if(v==='passage')PICK=false;_go(v,arg)};
+const _render=render;render=function(){if(S.view==='quest'){nav();vQuest();return}if(S.view==='report'){nav();vReport();return}if(S.view==='setv'){nav();vSetv();return}_render()};
+
+/* 더보기 서랍 */
+function openDrawer(){closeDrawer(true);const sc=document.createElement('div');sc.className='scrim';sc.id='scrim';sc.onclick=()=>closeDrawer();const d=document.createElement('aside');d.className='drawer';d.id='drawer';const lv=Math.floor(ST.pts/100)+1;
+ d.innerHTML=`<div class="hd"><b>더보기</b><button class="ib" style="border:0" onclick="closeDrawer()" aria-label="닫기">${IC.x}</button></div>
+ <label class="srch"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="dq" placeholder="지문·메뉴 검색" oninput="dSearch(this.value)"></label><div id="dres"></div>
+ <div class="prof"><div class="av">민</div><div><b>민서</b><small>Lv.${lv} · 다음 레벨까지 ${100-ST.pts%100}P</small></div><button class="pill" onclick="go('quest')">${ST.pts}P</button></div>
+ <div class="dsec">공부</div><button class="ditem" onclick="go('wrong')">${IC.mark}오답 노트</button><button class="ditem" onclick="go('setup')">${IC.cal}시험 준비 (모의고사)</button><button class="ditem" onclick="go('list')">${IC.book}지문 목록</button>
+ <div class="dsec">기록</div><button class="ditem" onclick="go('quest')">${IC.target}퀘스트</button><button class="ditem" onclick="go('report')">${IC.chart}학습 리포트</button>
+ <div class="dsec">설정</div><button class="ditem" onclick="go('more')">${IC.gear}설정·도움</button>`;
+ document.body.append(sc,d);requestAnimationFrame(()=>{sc.classList.add('on');d.classList.add('on')})}
+function closeDrawer(now){const sc=document.getElementById('scrim'),d=document.getElementById('drawer');if(!d)return;if(now){sc.remove();d.remove();return}sc.classList.remove('on');d.classList.remove('on');setTimeout(()=>{sc.remove();d.remove()},280)}
+function dSearch(v){const r=document.getElementById('dres');v=v.trim().toLowerCase();if(!v){r.innerHTML='';return}const hit=P.filter(p=>(p.name+p.gist+pLabel(p)+p.s.map(x=>x[0]).join(' ')).toLowerCase().includes(v)).slice(0,6);r.innerHTML=(hit.length?hit.map(p=>`<button class="ditem" onclick="go('passage','${p.id}')">${IC.doc}<span>${esc(p.name)} <small style="color:var(--sub)">${pLabel(p)}</small></span></button>`).join(''):'<p class="st" style="margin:4px 8px 10px">찾는 지문이 없어요.</p>')}
+
+/* 홈 */
+function weekDots(){const d0=new Date();const sun=new Date(d0);sun.setDate(d0.getDate()-d0.getDay());return ['일','월','화','수','목','금','토'].map((n,i)=>{const d=new Date(sun);d.setDate(sun.getDate()+i);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');const dn=ST.days[k],td=k===today();return`<div class="${dn?'dn':''} ${td?'td':''}"><i>${dn?IC.chk:td?IC.dot:''}</i>${n}</div>`}).join('')}
+function pctOf(p){const n=TYPES.length-(p.ref?0:1);return Math.round(((ST.pp&&ST.pp[p.id]||[]).length)/n*100)}
+function vHome(){const w=loadW();const c=cur();const qd=QUESTS.filter(q=>c.claimed.includes(q.k)).length;
+ const by={};w.forEach(q=>by[q.t]=(by[q.t]||0)+1);const top=Object.entries(by).sort((a,b)=>b[1]-a[1])[0];
+ app.innerHTML=`<h1 class="t">오늘 공부</h1><p class="st">올림포스 ${lessons().join('·')}강, 기말 범위만</p>
+ <button class="hero" style="display:block;width:100%;text-align:left;color:#fff" onclick="${w.length?'playWrong()':"go('setup')"}"><small>다시 풀 오답</small><div class="big">${w.length}개</div><p>${w.length?'누르면 바로 다시 풀어요':'오늘은 다 했어요'}</p></button>
+ <button class="qcard" onclick="go('quest')"><div class="tp"><span>오늘 퀘스트</span><b>${qd} / ${QUESTS.length}</b></div><div class="dz">${weekDots()}</div></button>
+ <div class="sec">기록</div>
+ <div class="rec"><span>오늘 맞힌 문제</span><b>${c.correct||0}개</b></div>
+ <div class="rec"><span>쌓인 오답</span><b>${w.length}개</b></div>
+ <div class="rec" style="border:0"><span>많이 틀린 유형</span><b>${top?top[0]:'-'}</b></div>
+ <div class="sec">지문</div>
+ ${P.map(urow).join('')}<div style="height:40px"></div>`}
+function urow(p){const pc=pctOf(p);return`<button class="urow" onclick="go('passage','${p.id}')"><span class="sq">${p.L}-${p.n}</span><span class="mid"><b>${esc(p.name)}</b><small>${p.s.length}문장 · 유형 ${pc}% 맞힘</small><span class="pb" style="display:block"><i style="width:${pc}%"></i></span></span><span class="ch">›</span></button>`}
+
+vList=function(){const list=P.filter(p=>!S.lesson||p.L===S.lesson);
+ let h=`<h1 class="t">지문</h1><p class="st">지문 ${P.length}개 · 문제 유형 ${TYPES.length}가지</p>
+ <div class="seg">${[['oly','올림포스 기출'],['mock','10월 모의고사'],['text','교과서']].map(([k,n])=>`<button class="${S.src===k?'on':''}" onclick="S.src='${k}';render();fadeApp()">${n}</button>`).join('')}</div>`;
+ if(S.src!=='oly'){app.innerHTML=h+`<div class="empty2"><b>아직 지문이 없어요</b><p>다음 업데이트에서 추가돼요.</p></div>`;return}
+ h+=`<div class="chips"><button class="chip ${!S.lesson?'on':''}" onclick="S.lesson=0;render();fadeApp()">전체</button>${lessons().map(l=>`<button class="chip ${S.lesson===l?'on':''}" onclick="S.lesson=${l};render();fadeApp()">${l}강</button>`).join('')}</div>`;
+ app.innerHTML=h+list.map(urow).join('')+'<div style="height:40px"></div>'};
+/* 떠 있는 '섞어 풀기' 버튼 (홈·지문 화면) */
+function quickMix(){const s=S.setup;const ps=P.filter(p=>s.L.includes(p.L));const list=[];let g=0;while(list.length<10&&g<300){g++;const q=gen(ps[rnd(ps.length)],TYPES[rnd(TYPES.length)][0]);if(q)list.push(q)}startPlay('섞어 풀기 10문항',list,'mock',S.view)}
+const _rdF=render;render=function(){_rdF();let f=document.getElementById('fab');const show=['home','list'].includes(S.view);if(show&&!f){f=document.createElement('button');f.id='fab';f.className='fab';f.innerHTML=IC.mix+'섞어 풀기';f.onclick=quickMix;document.body.appendChild(f)}if(f)f.style.display=show?'':'none'};
+/* 퀘스트 */
+function vQuest(){const c=cur();const d0=new Date();const sun=new Date(d0);sun.setDate(d0.getDate()-d0.getDay());const nm=['일','월','화','수','목','금','토'];
+ const days=nm.map((n,i)=>{const d=new Date(sun);d.setDate(sun.getDate()+i);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');const done=ST.days[k],td=k===today();return`<div class="day ${done?'done':''} ${td?'today':''}"><i>${done?IC.chk:td?IC.target.replace('<svg','<svg width="20" height="20"'):''}</i>${n}</div>`}).join('');
+ app.innerHTML=`<h1 class="t">퀘스트</h1><p class="st">매일 하나만 끝내도 도장이 찍혀요.</p><div class="days">${days}</div>
+ <div class="sec" style="margin-top:0">오늘 할 것</div>
+ ${QUESTS.map(q=>{const v=Math.min(c[q.k]||0,q.n),ok=c.claimed.includes(q.k);return`<div class="qrow ${ok?'ok':''}"><span class="ic">${ok?IC.chk:IC[q.ic]}</span><div><b>${q.name}</b><small>${v} / ${q.n}</small><div class="qbar"><i style="width:${v/q.n*100}%"></i></div></div><span class="pt">${ok?'완료':'+'+q.p}</span></div>`}).join('')}
+ <div class="card" style="margin-top:20px;display:flex;justify-content:space-between;align-items:center"><div><b>내 포인트</b><div class="st" style="margin:0;font-size:.9rem">문제를 맞힐 때마다 +2, 퀘스트를 끝내면 보너스</div></div><b style="color:var(--pri);font-size:1.5rem">${ST.pts}P</b></div>
+ <p class="st" style="text-align:center;font-size:.85rem">퀘스트는 매일 자정에 바뀌어요.</p>`}
+
+/* 오답 노트 빈 화면 */
+const _vWrong=vWrong;vWrong=function(){if(loadW().length)return _vWrong();
+ app.innerHTML=`<h1 class="t">오답 노트</h1><p class="st">틀린 문제가 자동으로 모여요.</p><div class="empty2"><div class="ico">${IC.pen}</div><b>아직 오답이 없어요</b><p>문제를 풀다 틀리면 여기에 자동으로 모여요. 다시 맞히면 빠져요.</p><div class="row"><button class="gbtn sm" onclick="go('setup')">문제 풀러 가기</button><button class="obtn sm" onclick="go('list')">지문 공부하기</button></div></div>`};
+
+/* 채점 + 반짝임 */
+confirmQ=function(){const Z=S.play;const q=Z.list[Z.i];if(Z.sel[Z.i]==null)return;Z.done[Z.i]=true;const ok=Z.sel[Z.i]===q.a;Z.res[Z.i]=ok;ST.tt=ST.tt||{};const tt=ST.tt[q.t]=ST.tt[q.t]||[0,0];tt[1]++;if(ok)tt[0]++;saveST();
+ const w=loadW();if(Z.mode==='wrong'){if(ok&&q.wid){const k=w.findIndex(x=>x.wid===q.wid);if(k>=0){w.splice(k,1);saveW(w)}}}
+ else if(!ok){w.unshift({...q,wid:Date.now()+'-'+rnd(1e6),at:Date.now()});saveW(w.slice(0,200))}
+ vPlay();if(ok){ST.pp=ST.pp||{};const pp=ST.pp[q.pid]=ST.pp[q.pid]||[];if(!pp.includes(q.t)){pp.push(q.t);saveST()}bump('correct');if(Z.mode==='wrong')bump('fixed');const el=document.querySelector('.opt.ok');if(el){const r=el.getBoundingClientRect();burstAt(r.left+40,r.top+r.height/2)}}};
+const _finish=finish;finish=function(){if(S.play&&S.play.done.every(Boolean))bump('sets');_finish();if(S.play&&S.play.res.every(Boolean))setTimeout(()=>burstAt(innerWidth/2,200,20),150)};
+
+/* ===== 개념 노트 (카드형) ===== */
+const NS=[['sum','요약'],['read','본문·해석'],['flow','흐름'],['conf','헷갈림'],['gram','어법'],['voc','어휘'],['word','단어'],['trap','함정 문장'],['ox','OX 점검']];
+function jumpTo(k,b){const el=document.getElementById('ns-'+k);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.jump button').forEach(x=>x.classList.toggle('on',x===b))}
+function ctxMark(p){const b=p.indexOf('[');if(b<0)return esc(p);const e=p.indexOf(']');return esc(p.slice(0,b))+'<mark>'+esc(p.slice(b+1,e))+'</mark>'+esc(p.slice(e+1))}
+function oxAns(btn,ok){const c=btn.closest('.ox');if(c.classList.contains('done'))return;const right=c.dataset.t==='1';const sel=ok===right;btn.classList.add(sel?'ok':'ng');if(!sel)c.querySelectorAll('.bt button')[right?0:1].classList.add('ok');c.classList.add('done')}
+noteHTML=function(p){const t=full(p);const sec=(k,title,sub,body)=>`<section class="nsec" id="ns-${k}"><h3>${title}${sub?` <small>${sub}</small>`:''}</h3>${body}</section>`;
+ let h=`<nav class="jump">${NS.filter(([k])=>k!=='trap'||(p.irr&&p.irr.length)).map(([k,n],i)=>`<button class="${i?'':'on'}" onclick="jumpTo('${k}',this)">${n}</button>`).join('')}</nav>`;
+ h+=`<section class="nsec" id="ns-sum" style="margin-top:8px"><div class="gist2"><small>이 글이 하려는 말</small><p>${esc(p.gist)}</p></div></section>`;
+ h+=sec('read','본문·해석','문장을 누르면 해석이 나와요',`<div style="text-align:right;margin:-4px 0 10px"><button class="chip ${S.showKo?'on':''}" onclick="S.showKo=!S.showKo;document.getElementById('rd').classList.toggle('showko');this.classList.toggle('on');this.textContent=S.showKo?'해석 숨기기':'해석 다 보기'">${S.showKo?'해석 숨기기':'해석 다 보기'}</button></div><div id="rd" class="${S.showKo?'showko':''}">${p.s.map((x,i)=>`<button class="sc" onclick="this.classList.toggle('open')"><div class="num">${i+1}</div><div class="eng">${esc(x[0])}</div><div class="kr">${esc(x[1])}</div></button>`).join('')}</div>`);
+ h+=sec('flow','글의 흐름','',`<div class="tl">${p.flow.map(f=>`<div class="st3"><small>${esc(f[0])}</small><div>${esc(f[1])}</div></div>`).join('')}</div><div class="ana2"><i>${IC.bulb2}</i><div>${esc(p.ana)}</div></div>`);
+ h+=sec('conf','헷갈림 포인트',p.conf.length+'개',p.conf.map((c,i)=>`<div class="pc"><div class="h"><i>${i+1}</i><span>${esc(c[0])}</span></div><div class="b">${esc(c[1])}</div></div>`).join(''));
+ h+=sec('gram','어법 포인트','밑줄 나올 자리',p.gram.map(g=>{const l=loc(t,g.p);return`<div class="gc"><div class="ctx eng">… ${ctxMark(g.p)} …</div><div class="pair"><span class="ok">${IC.chk2} ${esc(l?l.inner:'')}</span><span class="ng">${esc(g.w)}</span></div><div class="why">${esc(g.e)}</div></div>`}).join(''));
+ h+=sec('voc','어휘 함정','반의어로 바꿔 내는 자리',`<div class="pc">${p.voc.map(v=>{const l=loc(t,v.p);return`<div class="vr"><div class="pair"><span class="ok">${esc(l?l.inner:'')}</span><span class="ng">${esc(v.w)}</span></div><div class="why">${esc(v.e)}</div></div>`}).join('')}</div>`);
+ h+=sec('word','꼭 알아야 할 단어',p.w.length+'개',`<div class="wd">${p.w.map(x=>`<div><b>${esc(x[0])}</b><span>${esc(x[1])}</span></div>`).join('')}</div>`);
+ if(p.irr&&p.irr.length)h+=sec('trap','무관한 문장 함정','이런 문장이 끼어들어요',p.irr.map(x=>`<div class="trap"><small>끼어든 문장</small><div class="eng">${esc(x.s)}</div><div class="b">${esc(x.e)}</div></div>`).join(''));
+ h+=sec('ox','OX 점검','눌러서 바로 확인',p.tf.map((x,i)=>`<div class="ox" data-t="${x[1]?1:0}"><div class="q"><em>Q${i+1}</em>${esc(x[0])}</div><div class="bt"><button onclick="oxAns(this,true)">O</button><button onclick="oxAns(this,false)">X</button></div><div class="a">정답 <b>${x[1]?'O':'X'}</b> · ${esc(x[2])}</div></div>`).join(''));
+ h+=`<div style="margin-top:28px"><button class="gbtn" onclick="setTab('quiz');scrollTo(0,0)">이 지문 문제 풀기</button></div>`;
+ return h};
+addEventListener('scroll',()=>{const nav=document.querySelector('.jump');if(!nav)return;let cur=null;document.querySelectorAll('.nsec').forEach(s=>{if(s.getBoundingClientRect().top<150)cur=s.id.slice(3)});if(!cur)return;nav.querySelectorAll('button').forEach(b=>{const on=b.getAttribute('onclick').includes(`'${cur}'`);if(on&&!b.classList.contains('on')){b.classList.add('on');b.scrollIntoView({inline:'center',block:'nearest'})}else if(!on)b.classList.remove('on')})},{passive:true});
+/* ===== 짧게 끊어 쓴 헷갈림 포인트·비유 ===== */
+const SHORT={
+'7-1':{conf:[['상관관계 ≠ 인과관계','같이 움직임(상관) ≠ A 때문에 B(인과)','반대자도 상관관계는 인정 → "상관관계가 없다" 선지는 X'],['the former / the latter','former = 앞(동물 실험), latter = 뒤(의학 발전)','순서를 바꾼 함정 주의'],['this inference','= "상관관계가 강하니 동물 실험이 원인"','함축 의미 단골'],['not as ~ as','"옹호자 말만큼은 아니다" (정도만 낮춤)','"전혀 기여 안 했다" 선지는 X']],
+ ana:['시험 날 전교생이 교복을 입음 → "성적 좋은 학생 = 교복" 상관관계','그렇다고 교복이 성적을 올린 건 아님 (교칙이라 입었을 뿐)','교칙 = 법, 교복 = 동물 실험']},
+'7-3':{conf:[['Conversely = 방향만 반대','AI → 인간, 그다음 인간 → AI','삽입 문제: "AI가 주는 영향" 바로 뒤에 들어감'],['AI = 파트너','의식 있는 존재 + 권리 인정','"통제해야 할 도구" 선지는 X'],['the point at which','특이점 = AI가 인간 지능을 넘는 순간','함축 의미로 출제 (시험지 20번)'],['which의 선행사','= our interactions with AI','지적 자극을 주는 건 "상호 작용"']],
+ ana:['둘이 추는 춤: 내 스텝이 바뀌면 상대도 바뀜','그게 다시 나에게 영향','누가 조종하는 게 아니라 같이 만드는 관계 = 공진화']},
+'7-5':{conf:[['voter vs voting','"유권자"(정체성) > "투표"(행동)','둘을 뒤바꾼 일치 선지 주의'],['Doing the right thing','= 정체성에 맞는 행동','"도덕적 결정" 선지는 함정 (시험지 10번)'],['themselves = the person','성별 없이 단수 사람을 받는 they','재귀대명사 자리 체크'],['no longer pursuing','변화하려고 애쓸 필요가 없다는 뜻','변화를 포기한다는 뜻 X']],
+ ana:['"나는 매일 단어 외우는 사람" → 의지력 없이도 단어장을 폄','"외워야 하는데…" → 매일 자신과 싸움','앞 = 정체성, 뒤 = 행동 변화 추구']},
+'7-7':{conf:[['reduce vs enhance','같은 자극 반복 → 반응 ↓','변하는 자극 → 반응 ↑ (둘을 바꾼 선지 단골)'],['turns down = 낮추다','신경 흥분 수준을 낮춤','볼륨 줄이는 이미지 (시험지 19번)'],['they occur의 they','= stimuli (자극)','nerve cells 아님! 지칭 함정'],['반딧불이 비유','현관 불 = 계속되는 배경 자극','불 끄기(지루함) → 반딧불이(새 자극)가 보임']],
+ ana:['교실 에어컨 소리: 5분 지나면 안 들림 = 나무','뒷문 드르륵: 바로 고개가 돌아감 = 퓨마','뇌가 에어컨 소리를 꺼 줘서 문소리를 잡아냄']},
+'7-9':{conf:[['However가 전환점','앞: 가난 → 스트레스 (누구나 아는 말)','뒤: 부자 나라도 스트레스 ← 진짜 주제'],['time-poor','돈이 아니라 시간이 가난한 상태','함축 의미 후보'],['which의 선행사','= 빠른 삶의 속도','생활 수준 ↑ + 촉박함 + 심장병'],['국적 함정','Levine = 미국, Norenzayan = 캐나다','"둘 다 미국" 선지는 X']],
+ ana:['학원 4개 다니는 친구: 성적(부)은 오름','대신 쉴 시간이 없어 늘 쫓김','= time-poor']},
+'7-11':{conf:[['"옳다"를 비난하는 글이 아님','You may be correct → 인정은 함','문제는 확신 때문에 다른 관점을 닫는 것'],['see their side','= 상대 관점을 이해하다','visit, join 같은 선지는 함정 (시험지 5번)'],['the way you do','do = see and experience (대동사)','are로 바꾼 어법 함정'],['at worse','= 아무리 못해도','최소한 상대의 시각은 배움']],
+ ana:['수학 문제를 내 방식으로 맞힘','친구 풀이를 들어 보면 더 빠른 방법이 있을 수도','최소한 "저렇게도 생각하네"는 배움']},
+'14-1':{conf:[['역설 구조','재생 에너지로 빨리 갈수록','→ 화석 연료를 더 빨리 씀'],['연결사 3종 세트','(A) However (B) For instance (C) Thus','시험지 7번'],['seldom = 거의 ~않는','비용이 거의 계산되지 않음','"항상 계산된다" 선지는 X'],['제안들이 집중하는 것','= 에너지 공급 요구','"건설 비용에 집중" 선지는 X']],
+ ana:['방 대청소: 서랍을 다 꺼내면 방이 더 엉망','깨끗한 방 = 재생 에너지','중간의 엉망 = 화석 연료 사용']},
+'14-3':{conf:[['들을 수 있다? 없다?',"can't hear → 사람은 못 들음",'시험지 15번 ① 함정'],['고통 ≠ 생존 반응','전문가: 울부짖음 X','자동적인 생존 반응 O'],['냄새"로만"?','냄새 + 소리 두 가지','"냄새로만" 선지는 X'],['they의 정체','to see if they → 연구자들','나머지 their, it은 식물']],
+ ana:['자동차 도난 경보: 건드리면 자동으로 울림','차가 아파서 우는 게 아님','식물의 냄새·소리도 똑같음']}};
+const _noteL=noteHTML;noteHTML=function(p){let h=_noteL(p);const s=SHORT[p.id];if(!s)return h;
+ const ana=`<div class="ana3"><div class="ah">${IC.bulb2}<span>비유로 이해하기</span></div><ul>${s.ana.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`;
+ h=h.replace(/<div class="ana2">[\s\S]*?<\/div><\/div>/,ana);
+ const conf=s.conf.map((c,i)=>`<div class="pc"><div class="h"><i>${i+1}</i><span>${esc(c[0])}</span></div><ul class="ln">${c.slice(1).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`).join('');
+ h=h.replace(/(<section class="nsec" id="ns-conf"><h3>[\s\S]*?<\/h3>)[\s\S]*?(<\/section>)/,(m,a,b)=>a+conf+b);
+ return h};
+/* ===== 큐노트 디자인: 지문(폴더) 화면 · 설정·도움 · 학습 리포트 ===== */
+IC.book2='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M5 4h6v16H5zM11 4h8v16h-8"/></svg>';
+IC.copy='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>';
+IC.star='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>';
+IC.starf=IC.star.replace('fill="none"','fill="currentColor"');
+IC.user='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5c1.3-2 3.2-3 5.5-3s4.2 1 5.5 3"/></svg>';
+IC.sun='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>';
+IC.gear2='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>';
+IC.calb='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>';
+IC.trash='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';
+IC.chart='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20h16M7 16v-4M12 16V8M17 16v-6"/></svg>';
+let FAV=[];try{FAV=JSON.parse(localStorage.getItem('finale_fav')||'[]')}catch(e){}
+function togFav(id){FAV=FAV.includes(id)?FAV.filter(x=>x!==id):[...FAV,id];try{localStorage.setItem('finale_fav',JSON.stringify(FAV))}catch(e){}const b=document.getElementById('favb');if(b)b.innerHTML=FAV.includes(id)?IC.starf:IC.star}
+let PICK=false;
+
+/* 지문 = 큐노트 폴더 화면 */
+vPassage=function(){const p=byId(S.pid);const nT=TYPES.length-(p.ref?0:1);const wn=loadW().filter(q=>q.pid===p.id).length;
+ let h=`<div class="fhd"><button class="crumb" style="margin:0" onclick="go('list')">‹ 지문</button></div>
+ <div class="ftl">${IC.doc}<h1>${esc(p.name)}</h1><button id="favb" class="fav" onclick="togFav('${p.id}')" aria-label="즐겨찾기">${FAV.includes(p.id)?IC.starf:IC.star}</button></div>
+ <p class="fmeta">올림포스 ${p.L}강 ${p.n}번 · ${p.s.length}문장 · 문제 ${nT}유형 · 맞힘 ${pctOf(p)}%</p>
+ <div class="ftab"><button class="${S.ptab==='note'?'on':''}" onclick="setTab('note')">${IC.book2}<span>개념 노트</span></button><button class="${S.ptab==='quiz'?'on':''}" onclick="setTab('quiz')">${IC.copy}<span>문제 <small>${nT}유형</small></span></button></div>`;
+ h+=S.ptab==='note'?noteHTML(p):quizHub(p,nT,wn);app.innerHTML=h};
+quizHub=function(p,nT,wn){const avail=TYPES.filter(([n])=>!(n==='지칭'&&!p.ref));
+ let h=`<div class="grid2 k" style="margin-top:14px"><button class="ftile" onclick="PICK=!PICK;render();fadeApp()"><b>유형 골라 풀기</b><span>원하는 유형만 5문항</span></button><button class="ftile" onclick="playPassage('${p.id}')"><b>${IC.target.replace('<svg','<svg width="18" height="18"')} 바로 풀기</b><span>${nT}유형에서 한 문제씩</span></button></div>`;
+ if(PICK)h+=`<div class="chips" style="margin-top:4px">${avail.map(([n])=>`<button class="chip" onclick="playType('${p.id}','${n}')">${n}</button>`).join('')}</div>`;
+ h+=`<div class="sec">지문 안 세트</div>`;
+ const sets=[['기본 세트',`${nT}문항 · 유형마다 하나씩`,`playPassage('${p.id}')`],['두 바퀴 세트',`${nT*2}문항 · 위치·선지 새로 섞음`,`playPassage('${p.id}',2)`]];
+ if(wn)sets.push(['이 지문 오답',`${wn}문항 · 맞히면 빠져요`,`startPlay('${pLabel(p)} 오답',loadW().filter(q=>q.pid==='${p.id}'),'wrong')`]);
+ h+=sets.map(([t,m,f])=>`<div class="setc"><b>${t}</b><small>${m}</small><button class="gbtn" onclick="${f}">풀기</button></div>`).join('');
+ return h};
+
+/* 설정·도움 (큐노트 설정 화면) */
+const FAQ=[['문제는 매번 똑같아요?','아니요. 풀 때마다 밑줄 위치·선지 순서·(A)(B)(C) 배치가 새로 섞여요.'],['오답은 언제 빠져요?','오답 노트에서 다시 풀어 맞히면 자동으로 빠져요.'],['폰이랑 기록을 맞추려면?','설정 → 계정에서 구글로 로그인하면 오답·포인트·리포트·설정이 자동으로 동기화돼요.']];
+vMore=function(){S.tab='more';
+ app.innerHTML=`<h1 class="t">설정·도움</h1><p class="st">화면과 기록을 관리해요.</p>
+ <div class="sec" style="margin-top:6px">자주 묻는 것</div>
+ ${FAQ.map(f=>`<button class="faq" onclick="this.classList.toggle('open')"><div><b>${f[0]}</b><span>${f[1]}</span></div><i>›</i></button>`).join('')}
+ <div class="sec">설정</div>
+ <div class="grid2 k">${[['screen','화면',IC.sun],['quiz','문제 기본값',IC.gear2],['exam','시험 날짜',IC.calb],['data','기록 관리',IC.trash]].map(([k,n,i])=>`<button class="stile" onclick="S.sub='${k}';go('setv')">${i}<b>${n}</b></button>`).join('')}</div>
+ <div class="sec">기록</div>
+ <button class="faq" onclick="go('report')"><div><b>학습 리포트</b><span>유형별로 얼마나 맞혔는지</span></div><i>›</i></button>
+ <button class="faq" onclick="go('quest')"><div><b>퀘스트</b><span>오늘 할 것과 이번 주 도장</span></div><i>›</i></button>
+ <button class="gbtn" style="margin-top:22px" onclick="quickMix()">섞어 풀기 10문항</button>
+ <div class="foot">finale · 올림포스 ${lessons().map(l=>l+'강').join('·')} ${P.length}지문 · 기록은 이 기기에만 저장</div>`};
+function vSetv(){const k=S.sub;window._fs=v=>{PR.fs=v;applyPR();render()};window._th=v=>{PR.theme=v;applyPR();render()};
+ const back=`<button class="crumb" onclick="go('more')">‹ 설정·도움</button>`;let h='';
+ if(k==='screen')h=`${back}<h1 class="t">화면</h1><p class="st">글자 크기와 테마를 바꿔요.</p><div class="card w"><div class="pv"><b>미리보기</b><span>이 카드처럼 글자 크기가 적용돼요.</span></div><div class="lab">글자 크기</div><div class="seg p">${[['m','보통'],['l','크게'],['xl','더 크게']].map(([a,n])=>`<button class="${PR.fs===a?'on':''}" onclick="_fs('${a}')">${n}</button>`).join('')}</div><div class="lab">테마</div><div class="seg p" style="margin:0">${[['light','라이트'],['dark','다크'],['auto','기기 설정']].map(([a,n])=>`<button class="${PR.theme===a?'on':''}" onclick="_th('${a}')">${n}</button>`).join('')}</div></div>`;
+ if(k==='quiz'){window._mn=v=>{S.setup.n=v;render()};h=`${back}<h1 class="t">문제 기본값</h1><p class="st">모의고사를 열 때 처음 골라져 있는 값이에요.</p><div class="card w"><div class="lab" style="margin-top:0">모의고사 문항 수</div><div class="seg p" style="margin:0">${[10,20,30,50].map(n=>`<button class="${S.setup.n===n?'on':''}" onclick="_mn(${n})">${n}문항</button>`).join('')}</div></div>`}
+ if(k==='exam'){window._ex=v=>{if(!v)return;const [y,m,d]=v.split('-').map(Number);EXAM.setFullYear(y,m-1,d);try{localStorage.setItem('finale_exam',v)}catch(e){}saveST();render()};const v=EXAM.getFullYear()+'-'+String(EXAM.getMonth()+1).padStart(2,'0')+'-'+String(EXAM.getDate()).padStart(2,'0');h=`${back}<h1 class="t">시험 날짜</h1><p class="st">상단의 D-day가 이 날짜로 계산돼요.</p><div class="card w"><div class="lab" style="margin-top:0">영어 기말고사</div><input type="date" class="inp" value="${v}" onchange="_ex(this.value)"><p class="st" style="margin:12px 0 0">지금: <b style="color:var(--pri)">${dday()}</b></p></div>`}
+ if(k==='data'){window._cw=()=>{if(confirm('오답 노트를 비울까요?')){saveW([]);render()}};window._cs=()=>{if(confirm('포인트·퀘스트·리포트 기록을 지울까요?')){ST={pts:0,days:{},cur:{}};saveST();render()}};h=`${back}<h1 class="t">기록 관리</h1><p class="st">지운 기록은 되살릴 수 없어요.</p><div class="card w"><div class="drow"><div><b>오답 노트</b><span>${loadW().length}문제 저장됨</span></div><button class="obtn sm" onclick="_cw()">비우기</button></div><div class="drow" style="border:0"><div><b>포인트·리포트</b><span>${ST.pts}P · 푼 문제 ${Object.values(ST.tt||{}).reduce((a,x)=>a+x[1],0)}개</span></div><button class="obtn sm" onclick="_cs()">초기화</button></div></div>`}
+ app.innerHTML=h}
+
+/* 학습 리포트 */
+function vReport(){const tt=ST.tt||{};const tot=Object.values(tt).reduce((a,x)=>a+x[1],0),cor=Object.values(tt).reduce((a,x)=>a+x[0],0);const need=Math.max(0,15-tot);
+ let h=`<h1 class="t">학습 리포트</h1><p class="st">내 풀이를 분석해서 약한 유형과 공부 방법을 알려 줘요.</p>`;
+ if(need){app.innerHTML=h+`<div class="rhd"><span>문제를 풀면 리포트가 자동으로 만들어져요.</span><button class="rpill" onclick="quickMix()">첫 리포트까지 ${need}문항</button></div><div class="rcard">문제를 ${need}개 더 풀면 첫 리포트를 만들 수 있어요. 풀이가 쌓여야 분석할 게 생겨요.</div>`;return}
+ const rows=Object.entries(tt).map(([t,[c,n]])=>[t,c,n,Math.round(c/n*100)]).sort((a,b)=>a[3]-b[3]);const weak=rows.filter(r=>r[2]>=2).slice(0,2);
+ h+=`<div class="hero" style="color:#fff"><small>전체 정답률</small><div class="big">${Math.round(cor/tot*100)}%</div><p>${tot}문항 중 ${cor}문항 맞힘</p></div>`;
+ if(weak.length)h+=`<div class="sec">약한 유형</div>${weak.map(r=>`<div class="pc"><div class="h"><i>!</i><span>${r[0]} · ${r[3]}%</span></div><ul class="ln"><li>${esc(TIP[r[0]]||'')}</li></ul></div>`).join('')}<button class="gbtn" onclick="S.setup.T=${JSON.stringify(weak.map(r=>r[0]))};S.setup.n=10;startMock()">약한 유형만 10문항 풀기</button>`;
+ h+=`<div class="sec">유형별 정답률</div>${rows.map(r=>`<div class="rrow"><span>${r[0]}</span><div class="rb"><i style="width:${r[3]}%"></i></div><b>${r[3]}%</b><small>${r[1]}/${r[2]}</small></div>`).join('')}`;
+ app.innerHTML=h}
+try{const ex=localStorage.getItem('finale_exam');if(ex){const [y,m,d]=ex.split('-').map(Number);EXAM.setFullYear(y,m-1,d)}}catch(e){}
+/* ===== 로그인·동기화 (Firebase 구글 로그인 + Firestore) ===== */
+/* ↓↓ VOCAP에서 쓰는 firebaseConfig를 그대로 붙여 넣으면 돼요 ↓↓ */
+const FB_CONFIG=null;
+/* ↑↑ 예: {apiKey:"...",authDomain:"vocap-xxxx.firebaseapp.com",projectId:"vocap-xxxx",...} ↑↑ */
+const SYNC_KEYS=['efinal_wrong_v1','glint_stats_v1','efinal_prefs_v1','finale_fav','finale_exam'];
+const SY={user:null,ready:false,busy:false,last:null,err:null,timer:null,applying:false};
+try{SY.last=localStorage.getItem('finale_synced_at')}catch(e){}
+function fbOK(){return !!(FB_CONFIG&&window.firebase&&firebase.initializeApp)}
+function localBundle(){const o={};SYNC_KEYS.forEach(k=>{try{o[k]=localStorage.getItem(k)}catch(e){}});return o}
+function localStamp(){try{return +(localStorage.getItem('finale_local_at')||0)}catch(e){return 0}}
+/* 우리 기록이 바뀔 때마다 표시해 두고 잠시 뒤 올림 */
+(function(){try{const _s=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){_s.call(this,k,v);if(this===localStorage&&SYNC_KEYS.includes(k)&&!SY.applying){_s.call(this,'finale_local_at',String(Date.now()));queuePush()}}}catch(e){}})();
+function queuePush(){if(!SY.user)return;clearTimeout(SY.timer);SY.timer=setTimeout(pushNow,1500)}
+function doc(){return firebase.firestore().collection('finale').doc(SY.user.uid)}
+async function pushNow(){if(!SY.user)return;try{SY.busy=true;const at=Date.now();await doc().set({data:localBundle(),updatedAt:at});SY.last=String(at);localStorage.setItem('finale_synced_at',SY.last);SY.err=null}catch(e){SY.err='올리기 실패: '+(e.code||e.message)}SY.busy=false;refreshAcct()}
+function mergeWrong(a,b){const A=JSON.parse(a||'[]'),B=JSON.parse(b||'[]');const m=new Map();[...A,...B].forEach(q=>{const k=q.wid||JSON.stringify([q.pid,q.t,q.q]);if(!m.has(k))m.set(k,q)});return JSON.stringify([...m.values()].sort((x,y)=>(y.at||0)-(x.at||0)).slice(0,200))}
+async function pullNow(first){if(!SY.user)return;try{SY.busy=true;refreshAcct();const s=await doc().get();
+ if(!s.exists){await pushNow();return}
+ const r=s.data(),rd=r.data||{},remoteNewer=(r.updatedAt||0)>localStamp();
+ SY.applying=true;
+ SYNC_KEYS.forEach(k=>{if(k==='efinal_wrong_v1'){localStorage.setItem(k,mergeWrong(localStorage.getItem(k),rd[k]));return}if(remoteNewer&&rd[k]!=null)localStorage.setItem(k,rd[k])});
+ localStorage.setItem('finale_local_at',String(Math.max(r.updatedAt||0,localStamp())));
+ SY.applying=false;await pushNow();
+ if(remoteNewer&&first){sessionStorage.setItem('finale_after_pull','1');location.reload();return}
+}catch(e){SY.applying=false;SY.err='불러오기 실패: '+(e.code||e.message)}SY.busy=false;refreshAcct()}
+function initSync(){if(!fbOK())return;try{if(!firebase.apps.length)firebase.initializeApp(FB_CONFIG);
+ firebase.auth().getRedirectResult().catch(e=>{SY.err='로그인 실패: '+(e.code||e.message);refreshAcct()});
+ firebase.auth().onAuthStateChanged(u=>{SY.user=u;SY.ready=true;refreshAcct();if(u)pullNow(!sessionStorage.getItem('finale_after_pull'));sessionStorage.removeItem('finale_after_pull')})}catch(e){SY.err=String(e.message||e)}}
+async function login(){if(!fbOK()){toast('로그인 설정이 아직 안 돼 있어요');return}const pv=new firebase.auth.GoogleAuthProvider();
+ try{await firebase.auth().signInWithPopup(pv)}catch(e){if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment','auth/cancelled-popup-request'].includes(e.code))firebase.auth().signInWithRedirect(pv);else if(e.code!=='auth/popup-closed-by-user'){SY.err='로그인 실패: '+(e.code||e.message);refreshAcct()}}}
+async function logout(){if(!confirm('로그아웃할까요? 이 기기 기록은 그대로 남아요.'))return;await firebase.auth().signOut();SY.user=null;refreshAcct()}
+function ago(t){if(!t)return'아직 안 함';const s=Math.round((Date.now()-+t)/1000);return s<60?'방금':s<3600?Math.floor(s/60)+'분 전':s<86400?Math.floor(s/3600)+'시간 전':Math.floor(s/86400)+'일 전'}
+function refreshAcct(){if(S.view==='setv'&&S.sub==='account')render();const p=document.getElementById('drawer');if(p){const c=p.querySelector('.prof');if(c)c.outerHTML=profHTML()}}
+function profHTML(){const lv=Math.floor(ST.pts/100)+1;const u=SY.user;
+ return `<div class="prof">${u&&u.photoURL?`<img class="av" src="${esc(u.photoURL)}" alt="">`:`<div class="av">${u?esc((u.displayName||'민')[0]):'민'}</div>`}<div><b>${u?esc(u.displayName||'민서'):'민서'}</b><small>${u?'동기화 켜짐 · '+ago(SY.last):'로그인하면 폰·패드 동기화'}</small></div>${u?`<button class="pill" onclick="go('quest')">${ST.pts}P</button>`:`<button class="pill" onclick="login()">로그인</button>`}</div>`}
+/* 설정 → 계정 화면 */
+const _vSetvA=vSetv;vSetv=function(){if(S.sub!=='account')return _vSetvA();const u=SY.user;
+ let h=`<button class="crumb" onclick="go('more')">‹ 설정·도움</button><h1 class="t">계정</h1><p class="st">로그인하면 오답 노트·포인트·리포트·설정이 폰이랑 패드에서 똑같이 보여요.</p>`;
+ if(!fbOK())h+=`<div class="card w"><b>로그인 준비가 아직 안 됐어요</b><p class="st" style="margin:6px 0 0">${FB_CONFIG?'인터넷에 연결되면 다시 시도해요.':'앱 코드에 Firebase 설정을 넣으면 켜져요.'}</p></div>`;
+ else if(!u)h+=`<div class="card w" style="text-align:center"><div class="ico" style="color:var(--pri);margin-bottom:8px">${IC.user}</div><b>로그인하고 동기화하기</b><p class="st" style="margin:4px 0 18px">VOCAP이랑 같은 구글 계정을 쓰면 돼요.</p><button class="gbtn" onclick="login()">구글로 로그인</button></div>`;
+ else h+=`<div class="card w"><div class="prof" style="background:none;padding:0">${u.photoURL?`<img class="av" src="${esc(u.photoURL)}" alt="">`:`<div class="av">${esc((u.displayName||'민')[0])}</div>`}<div><b>${esc(u.displayName||'')}</b><small>${esc(u.email||'')}</small></div></div>
+  <div class="drow" style="margin-top:14px"><div><b>마지막 동기화</b><span>${SY.busy?'동기화 중…':ago(SY.last)}</span></div><button class="obtn sm" onclick="pullNow(false)">지금 동기화</button></div>
+  <div class="drow" style="border:0"><div><b>로그아웃</b><span>이 기기 기록은 지워지지 않아요</span></div><button class="obtn sm" onclick="logout()">로그아웃</button></div></div>`;
+ if(SY.err)h+=`<p class="st" style="color:var(--bad);margin-top:12px">${esc(SY.err)}</p>`;
+ app.innerHTML=h};
+/* 설정 타일에 '계정' 추가, 서랍 프로필을 로그인 상태로 */
+const _vMoreA=vMore;vMore=function(){_vMoreA();const g=app.querySelector('.grid2.k');if(g)g.insertAdjacentHTML('afterbegin',`<button class="stile" onclick="S.sub='account';go('setv')">${IC.user}<b>계정</b></button>`)};
+const _openDA=openDrawer;openDrawer=function(){_openDA();const c=document.querySelector('#drawer .prof');if(c)c.outerHTML=profHTML()};
+/* 화면 넘어갈 때 로딩 화면: 서서히 덮고 → 그 사이 화면 교체 → 서서히 걷힘 */
+let SPL=false;
+const SPH='<div class="lg">finale</div><div class="lb"><i></i></div><small>불러오는 중…</small>';
+function showSplash(action,hold=380){if(SPL){action();return}SPL=true;
+ const s=document.createElement('div');s.id='splash';s.className='splash';s.style.setProperty('--d',(hold+200)/1000+'s');s.innerHTML=SPH;document.body.appendChild(s);
+ requestAnimationFrame(()=>requestAnimationFrame(()=>s.classList.add('in')));
+ setTimeout(()=>{action();const a=document.getElementById('app');a.classList.remove('enter','fade');
+  setTimeout(()=>{void a.offsetWidth;a.classList.add('enter');s.classList.add('out');setTimeout(()=>{s.remove();SPL=false},360)},hold)},200)}
+function fadeApp(){const a=document.getElementById('app');a.classList.remove('enter','fade');void a.offsetWidth;a.classList.add('fade')}
+const _goT=go;go=function(v,arg){if(S.view==='play'&&v!=='play'){const f=document.getElementById('pfoot');if(f)f.remove()}showSplash(()=>_goT(v,arg))};
+const _spT=startPlay;startPlay=function(t,l,m,back){showSplash(()=>{_spT(t,l,m);if(back&&S.play)S.play.back=back})};
+const _fiT=finish;finish=function(){showSplash(()=>_fiT())};
+
+/* 같은 화면 안에서는 다시 그리지 않고 바뀐 부분만 */
+pickOpt=function(i){const Z=S.play;if(Z.done[Z.i]||Z.cut[Z.i].includes(i))return;Z.sel[Z.i]=i;document.querySelectorAll('.opt').forEach((b,k)=>b.classList.toggle('sel',k===i));const c=document.getElementById('cfm');if(c)c.disabled=false};
+const _mv=moveQ;moveQ=function(d){_mv(d);fadeApp()};
+function setTab(k){S.ptab=k;render();fadeApp()}
+
+/* 모의고사 설정: 칩·체크 누를 때 화면이 안 튀게 */
+vSetup=function(){const s=S.setup;
+ app.innerHTML=`<h1 class="t">실전 모의고사</h1><p class="st">범위와 유형을 고르면 문제를 새로 섞어서 만들어요.</p>
+ <div class="card w">
+ <div class="lab" style="margin-top:0">범위</div><div class="chips">${lessons().map(l=>`<button class="chip ${s.L.includes(l)?'on':''}" data-l="${l}" onclick="tgL(this)">올림포스 ${l}강</button>`).join('')}</div>
+ <div class="lab">문제 개수</div><div class="chips" id="ncs">${[10,20,30,50].map(n=>`<button class="chip ${s.n===n?'on':''}" data-n="${n}" onclick="setN(this)">${n}개</button>`).join('')}</div>
+ <div class="lab ty">유형 <button class="chip" id="allb" style="padding:3px 10px;margin-left:6px;font-size:.8rem" onclick="tgAll()"></button></div>
+ <div id="cbs">${TYPES.map(([n])=>`<button class="cb ${s.T.includes(n)?'on':''}" data-t="${n}" onclick="tgT(this)"><i></i>${n}</button>`).join('')}</div>
+ <div class="est"><span id="estl"></span><b id="estv"></b></div>
+ <button class="gbtn" id="mkb" onclick="startMock()">문제 만들기</button></div>`;updSetup()};
+function updSetup(){const s=S.setup;const g=id=>document.getElementById(id);g('estl').textContent=`예상 풀이 시간 (${s.n}문항)`;g('estv').textContent=`약 ${Math.round(s.n*1.6)}분`;g('mkb').disabled=!s.L.length||!s.T.length;g('allb').textContent=s.T.length===TYPES.length?'모두 해제':'모두 선택'}
+function tgL(b){const s=S.setup,l=+b.dataset.l;s.L=s.L.includes(l)?s.L.filter(x=>x!==l):[...s.L,l];b.classList.toggle('on');updSetup()}
+function tgT(b){const s=S.setup,t=b.dataset.t;s.T=s.T.includes(t)?s.T.filter(x=>x!==t):[...s.T,t];b.classList.toggle('on');updSetup()}
+function setN(b){S.setup.n=+b.dataset.n;document.querySelectorAll('#ncs .chip').forEach(x=>x.classList.toggle('on',x===b));updSetup()}
+function tgAll(){const s=S.setup;const all=s.T.length===TYPES.length;s.T=all?[]:TYPES.map(x=>x[0]);document.querySelectorAll('#cbs .cb').forEach(x=>x.classList.toggle('on',!all));updSetup()}
+
+/* 앱 설치(PWA) */
+let INSTALL=null;addEventListener('beforeinstallprompt',ev=>{ev.preventDefault();INSTALL=ev;if(S.view==='more')render()});
+addEventListener('appinstalled',()=>{INSTALL=null;toast('앱으로 설치됐어요')});
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){navigator.serviceWorker.register('sw.js',{scope:'./'}).then(r=>{r.update();r.addEventListener('updatefound',()=>{const w=r.installing;w&&w.addEventListener('statechange',()=>{if(w.state==='activated'&&navigator.serviceWorker.controller&&!sessionStorage.getItem('finale_sw_reloaded')){sessionStorage.setItem('finale_sw_reloaded','1');location.reload()}})})}).catch(()=>{})}
+const _vMoreI=vMore;vMore=function(){_vMoreI();if(INSTALL){const g=app.querySelector('.grid2.k');if(g)g.insertAdjacentHTML('beforebegin',`<button class="setc" style="display:flex;align-items:center;gap:14px;width:100%;text-align:left" onclick="INSTALL.prompt();INSTALL.userChoice.then(()=>{INSTALL=null;render()})"><img src="icon-192.png" alt="" style="width:46px;height:46px;border-radius:12px"><span style="flex:1"><b>앱으로 설치하기</b><small style="margin:2px 0 0">홈 화면에 finale 아이콘이 생겨요</small></span><span style="color:var(--pri);font-weight:600">설치</span></button>`)}};
+saveST();initSync();(function(){render();document.getElementById('app').classList.add('enter');const s=document.createElement('div');s.className='splash in';s.style.setProperty('--d','.7s');s.innerHTML=SPH;document.body.appendChild(s);setTimeout(()=>{s.classList.add('out');setTimeout(()=>s.remove(),360)},750)})();
+</script></body></html>

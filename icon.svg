@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="112" fill="#F4F8F5"/>
+<g transform="translate(256 262) scale(1) translate(-256 -262)">
+<path d="M118 296c92-14 190-17 278-5" stroke="#9FD8B0" stroke-width="74" stroke-linecap="round" fill="none"/>
+<text x="256" y="312" text-anchor="middle" font-family="'Liberation Serif',Georgia,serif" font-size="178" font-style="italic" font-weight="700" fill="#1F3A2A" letter-spacing="-4">fin.</text></g></svg>
