@@ -1398,7 +1398,7 @@ function vReport(){const tt=ST.tt||{};const tot=Object.values(tt).reduce((a,x)=>
 try{const ex=localStorage.getItem('finale_exam');if(ex){const [y,m,d]=ex.split('-').map(Number);EXAM.setFullYear(y,m-1,d)}}catch(e){}
 /* ===== 로그인·동기화 (Firebase 구글 로그인 + Firestore) ===== */
 /* ↓↓ VOCAP에서 쓰는 firebaseConfig를 그대로 붙여 넣으면 돼요 ↓↓ */
-const FB_CONFIG=null;
+const FB_CONFIG={ apiKey: "AIzaSyBX63hV8FnrkrtAuh9644yw4BSV2GTUPv4", authDomain: "vocap-e3e9e.firebaseapp.com", projectId: "vocap-e3e9e", storageBucket: "vocap-e3e9e.firebasestorage.app", messagingSenderId: "322645613396", appId: "1:322645613396:web:9b73e58558018c972fc6c1" };
 /* ↑↑ 예: {apiKey:"...",authDomain:"vocap-xxxx.firebaseapp.com",projectId:"vocap-xxxx",...} ↑↑ */
 const SYNC_KEYS=['efinal_wrong_v1','glint_stats_v1','efinal_prefs_v1','finale_fav','finale_exam'];
 const SY={user:null,ready:false,busy:false,last:null,err:null,timer:null,applying:false};
