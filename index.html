@@ -560,6 +560,10 @@ img.av{object-fit:cover;width:46px;height:46px;border-radius:50%}
 .vsw{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:.92rem}
 .vsw s{color:var(--sub)}
 .vsw b{color:var(--pri)}
+.lvt{font-size:.8rem;font-weight:700;padding:3px 9px;border-radius:6px}
+.lvt.l1{background:var(--soft);color:var(--sub)}
+.lvt.l2{background:var(--soft2);color:var(--pri)}
+.lvt.l3{background:var(--pri);color:#fff}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 @media (max-width:480px){h1.t{font-size:1.5rem}.grid2{grid-template-columns:1fr}}
 </style>
@@ -1437,7 +1441,7 @@ function vReport(){const tt=ST.tt||{};const tot=Object.values(tt).reduce((a,x)=>
 try{const ex=localStorage.getItem('finale_exam');if(ex){const [y,m,d]=ex.split('-').map(Number);EXAM.setFullYear(y,m-1,d)}}catch(e){}
 /* ===== 로그인·동기화 (Firebase 구글 로그인 + Firestore) ===== */
 /* ↓↓ VOCAP에서 쓰는 firebaseConfig를 그대로 붙여 넣으면 돼요 ↓↓ */
-const FB_CONFIG=null;
+const FB_CONFIG={apiKey:"AIzaSyBX63hV8FnrkrtAuh9644yw4BSV2GTUPv4",authDomain:"vocap-e3e9e.firebaseapp.com",projectId:"vocap-e3e9e",storageBucket:"vocap-e3e9e.firebasestorage.app",messagingSenderId:"322645613396",appId:"1:322645613396:web:9b73e58558018c972fc6c1"};
 /* ↑↑ 예: {apiKey:"...",authDomain:"vocap-xxxx.firebaseapp.com",projectId:"vocap-xxxx",...} ↑↑ */
 const SYNC_KEYS=['efinal_wrong_v1','glint_stats_v1','efinal_prefs_v1','finale_fav','finale_exam'];
 const SY={user:null,ready:false,busy:false,last:null,err:null,timer:null,applying:false};
@@ -1448,7 +1452,7 @@ function localStamp(){try{return +(localStorage.getItem('finale_local_at')||0)}c
 /* 우리 기록이 바뀔 때마다 표시해 두고 잠시 뒤 올림 */
 (function(){try{const _s=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){_s.call(this,k,v);if(this===localStorage&&SYNC_KEYS.includes(k)&&!SY.applying){_s.call(this,'finale_local_at',String(Date.now()));queuePush()}}}catch(e){}})();
 function queuePush(){if(!SY.user)return;clearTimeout(SY.timer);SY.timer=setTimeout(pushNow,1500)}
-function doc(){return firebase.firestore().collection('finale').doc(SY.user.uid)}
+function doc(){return firebase.firestore().doc('data/users/'+SY.user.uid+'/finale')}
 async function pushNow(){if(!SY.user)return;try{SY.busy=true;const at=Date.now();await doc().set({data:localBundle(),updatedAt:at});SY.last=String(at);localStorage.setItem('finale_synced_at',SY.last);SY.err=null}catch(e){SY.err='올리기 실패: '+(e.code||e.message)}SY.busy=false;refreshAcct()}
 function mergeWrong(a,b){const A=JSON.parse(a||'[]'),B=JSON.parse(b||'[]');const m=new Map();[...A,...B].forEach(q=>{const k=q.wid||JSON.stringify([q.pid,q.t,q.q]);if(!m.has(k))m.set(k,q)});return JSON.stringify([...m.values()].sort((x,y)=>(y.at||0)-(x.at||0)).slice(0,200))}
 async function pullNow(first){if(!SY.user)return;try{SY.busy=true;refreshAcct();const s=await doc().get();
@@ -2322,7 +2326,7 @@ function gConn(p){let cs=connsIn(p).filter(([i,w])=>!['But','So','Yet'].includes
  q.e=wrapE(q,right.join(' — '),stp(1,'빈칸 앞뒤 문장의 관계 보기',`<div class="xb">${cs.map(([i,w],k)=>`<div class="xev"><div class="xt" style="margin:0 0 4px">${cs.length>1?L[k]+' ':''}앞 문장</div><div class="kr" style="color:var(--ink)">${esc(p.s[i-1]?p.s[i-1][1]:'')}</div><div class="xt" style="margin:8px 0 4px">빈칸 문장</div><div class="kr" style="color:var(--ink)">${esc(p.s[i][1])}</div><p class="xr" style="margin-top:6px"><b class="okc">${esc(w)}</b>: ${CK[catOf(w)]}</p></div>`).join('')}</div>`)+stp(2,'연결사 종류 정리',`<div class="xb"><p class="xr" style="margin:0">역접: However, In contrast, On the other hand / 인과: Thus, Therefore, As a result / 예시: For example, For instance / 첨가: Moreover, In addition / 환언: In other words / 유사: Similarly</p></div>`));return q}
 /* ===== 새 유형: 문맥상 어휘 의미 ===== */
 function gWord(p){const t=full(p),tl=t.toLowerCase();const ok=p.w.filter(([w])=>!/[~\-]|\(/.test(w)&&tl.indexOf(w.toLowerCase())>=0);if(ok.length<1||p.w.length<5)return null;const [w,m]=ok[rnd(ok.length)];
- const st=tl.indexOf(w.toLowerCase());const others=shuf(p.w.filter(x=>x[0]!==w)).slice(0,4);const all=shuf([[m,'정답.',1],...others.map(x=>[x[1],`이건 "${x[0]}"의 뜻이에요. 같은 지문 단어라 헷갈리게 섞었어요.`])]);const a=all.findIndex(x=>x[2]);
+ const st=tl.indexOf(w.toLowerCase());const others=[...new Map(shuf(p.w.filter(x=>x[0]!==w&&x[1]!==m)).map(x=>[x[1],x])).values()].slice(0,4);if(others.length<4)return null;const all=shuf([[m,'정답.',1],...others.map(x=>[x[1],`이건 "${x[0]}"의 뜻이에요. 같은 지문 단어라 헷갈리게 섞었어요.`])]);const a=all.findIndex(x=>x[2]);
  const si=p.s.findIndex(x=>x[0].toLowerCase().includes(w.toLowerCase()));
  const q={t:'어휘 의미',q:`밑줄 친 <i>${esc(t.slice(st,st+w.length))}</i>의 문맥상 의미로 가장 적절한 것은?`,body:mark(t,[{st,en:st+w.length}]),o:all.map(x=>esc(x[0])),a};
  q.e=wrapE(q,`${esc(w)} = ${esc(m)}`,stp(1,'밑줄 문장 해석',`<div class="xb">${sen(p,si)}</div>`)+stp(2,'선지 보기',optsBox(q.o,all.map(x=>x[1]),a)));return q}
@@ -2717,8 +2721,8 @@ Object.assign(DV,{
  a:[[3,`We may feel as if the characters on screen are part of our own social circle.`,`화면 속 인물들이 우리 인간관계의 일부인 것처럼 느낄 수도 있다.`],[5,`Over time, this can leave us lonelier than before.`,`시간이 지나면 이것이 우리를 전보다 더 외롭게 만들 수 있다.`]]}});
 /* 변형 지문 만들기 */
 function deepVariant(p){const d=DV[p.id];if(!d)return null;const s0=p.s.map(x=>[x[0],x[1]]);const changed=[];
- d.p.forEach(([i,en,ko])=>{if(Math.random()<.6&&s0[i]){s0[i]=[en,ko];changed.push(i)}});
- const adds=d.a.filter(()=>Math.random()<.7);const ns=[],map=[],added=[];
+ d.p.forEach(([i,en,ko])=>{if(Math.random()<(window.HARDV?.95:.6)&&s0[i]){s0[i]=[en,ko];changed.push(i)}});
+ const adds=d.a.filter(()=>Math.random()<(window.HARDV?.95:.7));const ns=[],map=[],added=[];
  s0.forEach((x,i)=>{map[i]=ns.length;ns.push(x);adds.filter(a=>a[0]===i).forEach(a=>{added.push(ns.length);ns.push([a[1],a[2]])})});
  if(!changed.length&&!added.length)return null;
  const v=Object.assign(Object.create(Object.getPrototypeOf(p)),p,{s:ns,deep:{changed:changed.map(i=>map[i]),added}});
@@ -2754,6 +2758,210 @@ const _vSetvV=vSetv;vSetv=function(){_vSetvV();if(S.sub==='quiz'){const c=docume
 /* 섞인 선지 번호와 안 맞는 옛 번호(①~⑤) 언급 지우기 */
 const dropNum=s=>typeof s==='string'?s.split(/(?<=[.!?])\s+/).filter(x=>!/[①②③④⑤]/.test(x)).join(' ').trim():s;
 P.forEach(p=>{['title','topic','imp','sum'].forEach(k=>{if(p[k])p[k].e=dropNum(p[k].e)});(p.imps||[]).forEach(m=>m.e=dropNum(m.e));(p.sums||[]).forEach(m=>m.e=dropNum(m.e));p.blanks.forEach(b=>b.e=dropNum(b.e));['title','topic','imp','sum'].forEach(k=>{if(p[k]&&p[k].x)p[k].x=p[k].x.map(dropNum)});p.blanks.forEach(b=>{if(b.x)b.x=b.x.map(dropNum)})});
+/* ===== 고난도 ===== */
+const GX={
+'7-1':[[`동물 실험은 의학 발전에 전혀 관련이 없었다.`,`과장이에요. 상관관계는 인정해요. 부정하는 건 "인과"뿐.`],[`법을 바꾸면 의학이 더 빨리 발전할 것이다.`,`법 개정 제안은 없어요. 법은 상관관계가 생긴 이유로만 나와요.`]],
+'7-3':[[`AI가 인간의 의식을 대신하게 될 것이다.`,`대신이 아니라 서로 영향을 주며 함께 진화해요.`],[`AI의 권리를 인정하면 AI는 진화를 멈춘다.`,`멈춘다는 말은 없어요. 공존을 위한 인정이에요.`]],
+'7-5':[[`행동을 반복하면 결국 정체성이 생긴다.`,`방향이 반대예요. 정체성이 먼저, 행동은 그 표현.`],[`운동을 꾸준히 하려면 의지력을 키워야 한다.`,`정체성이 맞으면 설득할 필요조차 없다고 했어요.`]],
+'7-7':[[`지루함은 우리가 새 자극을 피하게 만든다.`,`반대예요. 새 자극을 더 잘 보게 해요.`],[`뉴런은 모든 자극에 똑같이 반응한다.`,`같은 자극엔 줄이고, 변하는 것엔 키워요.`]],
+'7-9':[[`부유한 나라의 스트레스는 가난한 나라보다 더 심하다.`,`비교 우열은 없어요. "그 나름의" 스트레스예요.`],[`빠른 삶의 속도는 부를 만들지 못한다.`,`부는 만들어요. 대신 시간 부족을 느끼게 해요.`]],
+'7-11':[[`옳은 사람은 남의 말을 들을 필요가 없다.`,`정반대예요.`],[`다른 관점을 들으면 반드시 생각이 바뀐다.`,`"반드시"가 함정. 최소한 그 사람의 시각을 배운다고 했어요.`]],
+'14-1':[[`재생 에너지 전환은 화석 연료 없이 빠르게 이뤄질 수 있다.`,`반대예요.`],[`태양광 패널은 환경에 전혀 부담을 주지 않는다.`,`희귀 광물·화석 연료가 필요해요.`]],
+'14-3':[[`식물은 고통을 느끼고 그것을 소리로 표현한다.`,`전문가가 "고통"은 부정했어요.`],[`식물의 소리는 사람에게 도움을 청하는 신호다.`,`사람을 향한 신호라는 말은 없어요. 생존 도구예요.`]],
+'14-5':[[`개념은 과학에 해롭기 때문에 버려야 한다.`,`생존에 필수라고 했어요. 조심하라는 것뿐.`],[`에테르는 결국 발견되었다.`,`없던 물질이에요.`]],
+'14-7':[[`브레인스토밍은 아이디어가 많이 나와서 효과적이다.`,`브레인라이팅으로 바꾸라는 글이에요.`],[`아이디어는 처음부터 다 같이 토론해야 한다.`,`먼저 혼자 쓰고, 익명 공유 후 각자 평가.`]],
+'14-9':[[`관점을 많이 겹칠수록 대상을 온전히 볼 수 있다.`,`한 번에 하나만 가능해요.`],[`오리너구리는 생태계 수준에서 보는 것이 가장 정확하다.`,`어느 관점이 최고라는 말은 없어요.`]],
+'14-11':[[`행복하면 저절로 웃게 된다.`,`순서가 반대예요. 몸 → 감정.`],[`남의 미소는 우리 감정에 영향을 주지 않는다.`,`메아리처럼 영향을 줘요.`]],
+'14-13':[[`성공은 우연히 찾아오는 경우가 많다.`,`마음속 설계가 먼저라는 글이에요.`],[`계획은 만들면서 즉흥적으로 세워야 한다.`,`만들기 "전"에 다듬어 완성해요.`]],
+'14-15':[[`신선한 음식을 먹으면 환경 보호에 도움이 된다.`,`반대로 숨은 환경 비용이 있어요.`],[`음식 낭비는 소비자의 부주의 때문이다.`,`과잉 주문·라벨 등 제도·업계 관행 탓이에요.`]],
+'16-1':[[`마찰력은 브레이크를 걸 때만 생긴다.`,`브레이크 없어도 축·공기 마찰이 있어요.`],[`공기 저항은 자전거를 앞으로 밀어 준다.`,`뒤로 밀어요.`]],
+'16-3':[[`똑똑하다는 칭찬은 아이의 자신감을 높여 성과를 올린다.`,`오히려 성과가 떨어졌어요.`],[`아이에게는 칭찬을 하지 않는 것이 좋다.`,`칭찬 자체가 아니라 무엇을 칭찬하느냐예요.`]],
+'16-5':[[`녹음기는 목소리를 실제보다 높게 바꾼다.`,`녹음이 바꾸는 게 아니라 내가 뼈로 다르게 들어요.`],[`다른 사람은 내 목소리를 나보다 더 깊게 듣는다.`,`반대예요.`]],
+'16-7':[[`토종 다람쥐가 외래종을 몰아냈다.`,`주체가 반대예요.`],[`두 다람쥐는 먹이를 나누며 평화롭게 공존했다.`,`경쟁했어요.`]],
+'16-9':[[`청소년은 어른보다 논리적으로 결정한다.`,`감정에 더 끌려요.`],[`전전두엽이 먼저 발달해 감정을 억누른다.`,`전전두엽은 나중에 성숙해요. 대상 뒤집기.`]],
+'16-11':[[`농사 이후 사람들은 각자 혼자 일했다.`,`나누고 함께 일했어요.`],[`구석기 시대 무리가 가장 효율적이었다.`,`효율은 정착 후 공동체에서 나왔어요.`]],
+'16-13':[[`강한 나무가 약한 나무의 당을 빼앗는다.`,`넉넉한 나무가 나눠 줘요.`],[`나무마다 광합성 비율이 다르다.`,`예상만 그렇고 실제론 같아요.`]],
+'16-15':[[`흡혈귀는 한때 세상을 지배했다.`,`가정(would have)을 사실로 읽은 함정.`],[`인구가 너무 많아서 흡혈귀가 살아남지 못했다.`,`논리가 달라요. 인류가 멀쩡하니 없다는 것.`]],
+'17-1':[[`선형 편집이 비선형 편집보다 정확하다.`,`근거 없어요. 비선형의 장점 글이에요.`],[`비선형 편집은 특수 효과만을 위한 기술이다.`,`"만"이 함정. 장점 중 하나예요.`]],
+'17-3':[[`잠수 반사는 몸 전체가 물에 잠겨야 일어난다.`,`얼굴만 잠겨도 돼요.`],[`인간은 침팬지처럼 물속에서 심장이 빨리 뛴다.`,`사람은 느려져요.`]],
+'17-5':[[`같은 기능을 하는 기관은 같은 조상에서 왔다.`,`그건 상사 형질이라 조상이 달라요.`],[`쓸모 있는 특징이 공통 조상의 증거다.`,`쓸모없는 특징이 증거예요.`]],
+'17-7':[[`본능이 강한 동물이 변화에 더 잘 적응한다.`,`반대예요.`],[`철새는 부모 없이 이동할 때 가장 효율적이다.`,`부모와 함께일 때 가장 효율적.`]],
+'17-9':[[`빨간색 유니폼은 어느 팀이든 승리를 보장한다.`,`일반화 함정. 쿠바의 전통 이야기예요.`],[`팀은 시대가 바뀌어도 아무것도 바꾸면 안 된다.`,`조정은 가능, 뿌리만 버리지 말 것.`]],
+'17-11':[[`거울은 얼굴 변화를 정확히 보여 준다.`,`매일 봐서 오히려 못 느껴요.`],[`얼굴은 나이가 들 때만 변한다.`,`순간순간 변해요.`]],
+'17-13':[[`탄수화물은 모두 살이 찌므로 피해야 한다.`,`좋은 탄수화물도 있어요.`],[`단순당은 오랫동안 에너지를 공급한다.`,`그건 복합 탄수화물.`]],
+'17-15':[[`TV는 외로움을 해결하는 가장 좋은 방법이다.`,`단기적으로 "어느 정도"일 뿐이에요.`],[`외로운 사람은 TV를 덜 본다.`,`더 봐요.`]]};
+const _gGistH=gGist;gGist=function(p){const q=_gGistH(p);if(!q||!GX[p.id])return q;
+ if(Math.random()<.75){const k=shuf([...Array(q.o.length).keys()].filter(i=>i!==q.a))[0];const nm=GX[p.id][rnd(2)];q.o[k]=esc(nm[0]);q.e=q.e.replace(/<div class="xo[^"]*"><span class="xn">[^<]*<\/span><div><div class="eng xot">[^<]*<\/div><div class="xr">[^]*?<\/div><\/div><\/div>/g,m=>m);q.e+=`<div class="xb" style="margin-top:8px"><div class="xt">가장 헷갈리는 선지</div><div class="xot">${esc(nm[0])}</div><div class="xr"><b class="xx">✕</b> ${esc(nm[1])}</div></div>`}return q};
+/* 모두 고르기형 (조합 선지) */
+function comboOpts(ans,n){const key=a=>a.slice().sort((x,y)=>x-y).join(',');const seen=new Set([key(ans)]);const out=[ans];let g=0;
+ while(out.length<5&&g<300){g++;let c=ans.slice();const r=Math.random();if(r<.45&&c.length>1){c.splice(rnd(c.length),1);const add=[...Array(n).keys()].filter(i=>!c.includes(i));c.push(add[rnd(add.length)])}else if(r<.75){const add=[...Array(n).keys()].filter(i=>!c.includes(i));if(add.length)c.push(add[rnd(add.length)])}else if(c.length>1)c.splice(rnd(c.length),1);c.sort((x,y)=>x-y);if(c.length&&!seen.has(key(c))){seen.add(key(c));out.push(c)}}
+ const o=shuf(out);return{o,a:o.findIndex(x=>key(x)===key(ans))}}
+function gPickAll(p,items,kind){const t=full(p);const sp=pick(t,items,5);if(sp.length<5)return null;const k=2+rnd(2);const wr=shuf([0,1,2,3,4]).slice(0,k).sort();
+ const body=mark(t,sp.map((x,i)=>({st:x.l.st,en:x.l.en,label:CL[i],rep:wr.includes(i)?x.it.w:null})));const r=comboOpts(wr,5);
+ const q={t:kind+' 고르기',q:`다음 글의 밑줄 친 ⓐ~ⓔ 중, ${kind==='어법'?'어법상 틀린':'문맥상 쓰임이 적절하지 않은'} 것만을 <u>모두</u> 고른 것은?`,body,o:r.o.map(c=>c.map(i=>CL[i]).join(', ')),a:r.a,};
+ q.e=wrapE(q,`${wr.map(i=>CL[i]).join(', ')}`,stp(1,'밑줄 다섯 개 전부 판정',`<div class="xb">${sp.map((x,i)=>{const bad=wr.includes(i);return`<div class="xo ${bad?'':'ok'}"><span class="xn">${CL[i]}</span><div><div class="eng xot">${esc(bad?x.it.w:x.l.inner)}${bad?` → <b class="okc">${esc(x.l.inner)}</b>`:''}</div><div class="xr">${bad?'<b class="xx">✕</b> 틀림. ':IC.chk2+' 맞음. '}${esc(x.it.e)}</div></div></div>`}).join('')}</div>`)+stp(2,'조합 선지 함정',`<div class="xb"><p class="xr" style="margin:0">선지들이 정답과 한 개씩만 달라요. 하나라도 판정을 틀리면 바로 오답이니, 확실한 것부터 지우고 애매한 하나는 앞뒤 문장으로 다시 확인하세요.</p></div>`));return q}
+function gTFAll(p){const T=shuf(p.tf.filter(x=>x[1])),F=shuf(p.tf.filter(x=>!x[1]));if(T.length<2||F.length<2)return null;const nt=2+rnd(2);const set=shuf([...T.slice(0,nt),...F.slice(0,5-nt)]);const ans=set.map((x,i)=>x[1]?i:-1).filter(i=>i>=0);const r=comboOpts(ans,5);
+ const q={t:'일치 고르기',q:'다음 글의 내용과 일치하는 것만을 &lt;보기&gt;에서 <u>모두</u> 고른 것은?',body:esc(full(p)),after:`<ul class="tf">${set.map((x,i)=>`<li>${CL[i]} ${esc(x[0])}</li>`).join('')}</ul>`,o:r.o.map(c=>c.map(i=>CL[i]).join(', ')),a:r.a,};
+ q.e=wrapE(q,ans.map(i=>CL[i]).join(', '),stp(1,'보기마다 본문 근거 대기',`<div class="xb">${set.map((x,i)=>`<div class="xo ${x[1]?'ok':''}"><span class="xn">${CL[i]}</span><div><div class="xot">${esc(x[0])}</div><div class="xr">${x[1]?IC.chk2+' 일치':'<b class="xx">✕</b> 불일치'} · ${esc(x[2])}</div></div></div>`).join('')}</div>`)+stp(2,'자주 바뀌는 곳',`<div class="xb"><p class="xr" style="margin:0">주체 바꾸기, 숫자, 순서(먼저/나중), "항상·전혀·만" 같은 과장 표현을 의심하세요.</p></div>`));return q}
+TYPES.push(['어법 고르기',p=>gPickAll(p,p.gram,'어법')],['어휘 고르기',p=>gPickAll(p,p.voc,'어휘')],['일치 고르기',gTFAll]);S.setup.T=TYPES.map(x=>x[0]);
+TIP['어법 고르기']=TIP['어휘 고르기']='다섯 개를 모두 판정한 다음 선지를 보세요. 선지부터 보면 조합에 끌려가요.';TIP['일치 고르기']='보기 하나씩 본문 문장을 찾아 맞대 보고, 표시한 다음 선지를 고르세요.';
+/* 고난도 출제 */
+const HARD_T=['어법 고르기','어휘 고르기','일치 고르기','빈칸','함축 의미','요약','순서','삽입','무관한 문장','어법','어휘','요지','제목','주제','연결사','지칭'];
+const HW={'어법 고르기':3,'어휘 고르기':3,'일치 고르기':3,'빈칸':3,'함축 의미':2,'요약':2,'순서':2,'삽입':2,'무관한 문장':2};
+function hardGen(p,t){const v0=PR.vary;PR.vary='on';window.HARDV=1;try{let q=null;for(let k=0;k<4&&!q;k++)q=gen(p,t);if(q)q.hard=1;return q}finally{PR.vary=v0;window.HARDV=0}}
+function hardList(ps,n){const bag=[];HARD_T.forEach(t=>{for(let i=0;i<(HW[t]||1);i++)bag.push(t)});const list=[];let g=0;while(list.length<n&&g<n*20){g++;const q=hardGen(ps[rnd(ps.length)],bag[rnd(bag.length)]);if(q)list.push(q)}return list}
+function startHard(n){const ps=P.filter(p=>S.setup.L.includes(p.L));startPlay(`고난도 모의고사 ${n}문항`,hardList(ps.length?ps:P,n),'mock')}
+function playHardP(id){const p=byId(id);const list=[];HARD_T.forEach(t=>{for(let i=0;i<(HW[t]||1)+1;i++){const q=hardGen(p,t);if(q)list.push(q)}});startPlay(`${pLabel(p)} 고난도`,shuf(list),'set')}
+const hardCard=()=>`<div class="card w"><div class="lab" style="margin-top:0">고난도 모의고사</div><p class="st" style="margin:0 0 12px">모두 고르기·개수형·변형 지문 위주로 어렵게 나와요. 선지가 정답과 한 끗 차이예요.</p><div class="chips">${[20,30,50,100].map(n=>`<button class="chip" onclick="startHard(${n})">${n}문항</button>`).join('')}</div></div>`;
+/* ===== 문장 넣기 · 같은 뜻 문장 ===== */
+const NOVARY=['문장 넣기','같은 뜻 문장'];
+function gSentFill(p){const o0=P.find(x=>x.id===p.id)||p;const s=o0.s,n=s.length;if(n<5)return null;const i=1+rnd(n-2);const d=DV[o0.id];
+ const para=d?d.p.find(x=>x[0]===i):null;const useP=para&&Math.random()<.5;const right=useP?para[1]:s[i][0];
+ const wr=[];shuf(o0.irr).slice(0,2).forEach(r=>wr.push([r.s,'본문에 없는 내용이에요. '+r.e]));
+ if(d)shuf(d.p.filter(x=>x[0]!==i)).slice(0,3).forEach(x=>wr.push([x[1],`본문 ${x[0]+1}번째 문장을 바꿔 쓴 말이에요. 이미 글에 있는 내용이라 이 자리에 오면 같은 말이 반복되고, 앞뒤 연결도 끊겨요.`]));
+ shuf([...Array(n).keys()].filter(j=>Math.abs(j-i)>1)).slice(0,2).forEach(j=>wr.push([s[j][0],`본문 ${j+1}번째 자리의 문장이에요. 위치 함정!`]));
+ const pickW=shuf(wr).slice(0,4);if(pickW.length<4)return null;const all=shuf([[right,'정답. 앞 문장과 뒤 문장을 그대로 이어 줘요.',1],...pickW]);const a=all.findIndex(x=>x[2]);
+ const t=s.map(x=>x[0]).join(' ');const st=t.indexOf(s[i][0]);
+ const q={t:'문장 넣기',q:'다음 빈칸에 들어갈 문장으로 가장 적절한 것은?',body:mark(t,[{st,en:st+s[i][0].length,cls:'blank',html:'&nbsp;'.repeat(12)}]),o:all.map(x=>esc(x[0])),a};
+ q.e=wrapE(q,useP?'원래 문장을 바꿔 쓴 형태로 나왔어요.':'',stp(1,'빈칸 앞뒤 문장',`<div class="xb">${sen(o0,i-1)}${sen(o0,i+1)}</div>`)+stp(2,'원래 들어 있던 문장',`<div class="xb">${sen(o0,i)}</div>`)+stp(3,'선지 하나씩',optsBox(q.o,all.map(x=>x[1]),a)));return q}
+function gSame(p){const o0=P.find(x=>x.id===p.id)||p;const d=DV[o0.id];if(!d)return null;const [i,en,ko]=d.p[rnd(d.p.length)];
+ const wr=[];d.p.filter(x=>x[0]!==i).forEach(x=>wr.push([x[1],`본문 ${x[0]+1}번째 문장("${o0.s[x[0]][1]}")과 같은 뜻이에요. 밑줄 문장이 아니에요.`]));
+ shuf(o0.irr).slice(0,2).forEach(r=>wr.push([r.s,'본문에 없는 내용이에요. 소재만 겹쳐요.']));
+ (d.a||[]).slice(0,1).forEach(x=>wr.push([x[1],'본문 내용을 보충하는 말일 뿐, 밑줄 문장과 뜻이 달라요.']));
+ const pickW=shuf(wr).slice(0,4);if(pickW.length<4)return null;const all=shuf([[en,'정답. '+ko,1],...pickW]);const a=all.findIndex(x=>x[2]);
+ const t=o0.s.map(x=>x[0]).join(' ');const st=t.indexOf(o0.s[i][0]);
+ const q={t:'같은 뜻 문장',q:'밑줄 친 문장과 의미가 가장 가까운 것은?',body:mark(t,[{st,en:st+o0.s[i][0].length}]),o:all.map(x=>esc(x[0])),a};
+ q.e=wrapE(q,'',stp(1,'밑줄 문장 해석',`<div class="xb">${sen(o0,i)}</div>`)+stp(2,'선지 하나씩',optsBox(q.o,all.map(x=>x[1]),a))+`<div class="xb"><p class="xr" style="margin:0">오답도 전부 이 글에 어울리는 문장이라 헷갈려요. "주제가 같은가"가 아니라 "밑줄 문장과 같은 말인가"로 판단해요.</p></div>`);return q}
+TYPES.push(['문장 넣기',gSentFill],['같은 뜻 문장',gSame]);S.setup.T=TYPES.map(x=>x[0]);
+TIP['문장 넣기']='빈칸 앞 문장의 마지막 말과 뒤 문장의 첫 말(지시어·연결사)을 둘 다 이어 주는 문장을 고르세요. 본문 다른 곳과 같은 말이면 반복이라 오답!';
+TIP['같은 뜻 문장']='선지를 우리말로 짧게 줄여 보고, 밑줄 문장의 주어·동사·방향(늘다/줄다, 먼저/나중)이 같은지 하나씩 맞대 보세요.';
+/* ===== 난이도 상·중·하 ===== */
+const LV_T={'제목':1,'주제':1,'요지':1,'어휘 의미':1,'문장 배열':1,'내용 일치':1,'어법':2,'어휘':2,'빈칸':2,'무관한 문장':2,'연결사':2,'지칭':2,'순서':2,'삽입':2,'함축 의미':2,'요약':2,'어법 고르기':3,'어휘 고르기':3,'일치 고르기':3,'문장 넣기':3,'같은 뜻 문장':3};
+function levelOf(q){let lv=LV_T[q.t]||2;const qq=String(q.q||''),e=String(q.e||'');
+ if(/개수|모두|네모/.test(qq))lv=3;else if(/일치하지|않는/.test(qq)&&q.t==='내용 일치')lv=Math.max(lv,2);
+ if(/바꿔 쓴 문장|새로 추가된 문장/.test(e))lv=Math.min(3,lv+1);else if(q.vary)lv=Math.min(3,lv+(lv===1?1:0));
+ return lv}
+const _genL=gen;gen=function(p,t){let q;if(NOVARY.includes(t)){const v=PR.vary;PR.vary='off';try{q=_genL(p,t)}finally{PR.vary=v}}else q=_genL(p,t);if(q&&!q.lv)q.lv=levelOf(q);return q};
+const LVN=['','하','중','상'];
+const _vPlayL=vPlay;vPlay=function(){_vPlayL();const q=S.play&&S.play.list[S.play.i];if(!q)return;const lv=q.lv||levelOf(q);const tg=document.querySelector('.qhead .tg');if(tg&&!document.querySelector('.qhead .lvt'))tg.insertAdjacentHTML('beforebegin',`<span class="lvt l${lv}">${LVN[lv]}</span>`)};
+/* ===== 고쳐 쓰기 · 해석 고르기 ===== */
+function gFix(p,items,kind){const t=full(p);const sp=pick(t,items,5);if(sp.length<5)return null;const w=rnd(5);
+ const body=mark(t,sp.map((x,i)=>({st:x.l.st,en:x.l.en,label:CL[i],rep:i===w?x.it.w:null})));
+ const all=sp.map((x,i)=>i===w?[`${CL[i]} ${x.it.w} → ${x.l.inner}`,'정답. '+x.it.e,1]:[`${CL[i]} ${x.l.inner} → ${x.it.w}`,`원래 맞는 표현이에요. 고치면 오히려 틀려요. ${x.it.e}`]);
+ const a=w;const q={t:kind+' 고쳐 쓰기',q:`다음 글의 밑줄 친 ⓐ~ⓔ 중 ${kind==='어법'?'어법상':'문맥상'} 틀린 것을 찾아 바르게 고친 것은?`,body,o:all.map(x=>esc(x[0])),a};
+ q.e=wrapE(q,'',stp(1,'밑줄 하나씩 판정',optsBox(q.o,all.map(x=>x[1]),a))+`<div class="xb"><p class="xr" style="margin:0">오답 선지는 전부 "맞는 걸 틀리게 고친" 거예요. 고친 뒤 표현이 그럴듯해 보여도, 원래 표현이 맞는지부터 확인해야 해요.</p></div>`);return q}
+function gKo(p){const o0=P.find(x=>x.id===p.id)||p;const s=o0.s;const i=rnd(s.length);const d=DV[o0.id]||{p:[],a:[]};
+ const wr=[];s.forEach((x,j)=>{if(Math.abs(j-i)===1)wr.push([x[1],`바로 ${j<i?'앞':'뒤'} 문장의 해석이에요. 위치 함정!`])});
+ d.a.forEach(x=>wr.push([x[2],'본문 흐름엔 어울리지만 밑줄 문장의 뜻이 아니에요.']));o0.irr.forEach(r=>wr.push([r.k,'소재만 같은 다른 내용이에요.']));
+ const fs=o0.tf.filter(x=>!x[1]).map(x=>[x[0],`본문과 다른 내용이에요. ${x[2]}`]);wr.push(...fs);
+ const pickW=shuf(wr).slice(0,4);if(pickW.length<4)return null;const all=shuf([[s[i][1],'정답.',1],...pickW]);const a=all.findIndex(x=>x[2]);
+ const t=s.map(x=>x[0]).join(' ');const st=t.indexOf(s[i][0]);
+ const q={t:'해석 고르기',q:'밑줄 친 문장의 우리말 해석으로 가장 적절한 것은?',body:mark(t,[{st,en:st+s[i][0].length}]),o:all.map(x=>esc(x[0])),a};
+ q.e=wrapE(q,'',stp(1,'밑줄 문장',`<div class="xb">${sen(o0,i)}</div>`)+stp(2,'선지 하나씩',optsBox(q.o,all.map(x=>x[1]),a)));return q}
+TYPES.push(['어법 고쳐 쓰기',p=>gFix(p,p.gram,'어법')],['어휘 고쳐 쓰기',p=>gFix(p,p.voc,'어휘')],['해석 고르기',gKo]);S.setup.T=TYPES.map(x=>x[0]);
+NOVARY.push('해석 고르기');Object.assign(LV_T,{'어법 고쳐 쓰기':3,'어휘 고쳐 쓰기':3,'해석 고르기':2});
+TIP['어법 고쳐 쓰기']=TIP['어휘 고쳐 쓰기']='고친 결과가 아니라 원래 표현부터 판정하세요. 맞는 걸 틀리게 고친 선지가 대부분이에요.';
+TIP['해석 고르기']='주어·동사부터 찾고, 앞뒤 문장 해석이 섞여 있으니 밑줄 문장 안의 단어로만 판단하세요.';
+/* ===== 문제 추가: 새 빈칸·함축·무관한 문장·삽입 ===== */
+const Q4NB={
+'7-1':[`independent reasons to expect these phenomena to be correlated`,[[`no reason to doubt the defenders' claim`,`반대예요. 의심할 이유를 대는 중이에요.`],[`strong proof that animal testing works`,`반대자 쪽 말이 아니에요.`],[`clear evidence that the law is unfair`,`법이 부당하다는 말은 없어요.`],[`good reasons to stop all medical research`,`과장이에요.`],[`enough data to prove causation`,`인과를 부정하는 글이에요.`]],`After all + 다음 문장(법 규정) → 둘이 함께 나타날 "별개의 이유".`],
+'7-3':[`inspire new insights and creativity`,[[`replace human creativity entirely`,`대체가 아니라 자극해요.`],[`limit our ability to think freely`,`반대예요.`],[`make human emotions unnecessary`,`근거 없어요.`],[`slow down the growth of technology`,`근거 없어요.`],[`reduce our need for education`,`근거 없어요.`]],`intellectual stimulation과 짝 → 새 통찰·창의성.`],
+'7-5':[`doesn't have to convince themselves to train`,[[`has to set a strict training schedule`,`의지로 계획을 짜야 한다는 건 반대 방향.`],[`needs a coach to keep motivated`,`근거 없어요.`],[`must reward themselves after every workout`,`근거 없어요.`],[`finds it hard to start exercising`,`반대예요.`],[`trains only when others are watching`,`근거 없어요.`]],`다음 문장 "옳은 일이 쉽다" → 스스로 설득할 필요 없음.`],
+'7-7':[`attending to what was moving in a tree`,[[`studying the shape of each tree`,`나무 자체는 덜 중요했어요.`],[`resting under the shade of a tree`,`근거 없어요.`],[`remembering where trees were planted`,`근거 없어요.`],[`ignoring everything that moved`,`반대예요.`],[`climbing as high as possible`,`근거 없어요.`]],`than to the tree itself와 대조 → 나무에서 움직이는 것.`],
+'7-9':[`more prone to heart disease`,[[`less likely to feel stressed`,`반대예요.`],[`more satisfied with their free time`,`시간이 부족하다고 느껴요.`],[`healthier than people in poor countries`,`근거 없어요.`],[`more interested in traditional culture`,`근거 없어요.`],[`better at managing their time`,`근거 없어요.`]],`as well as 앞 "늘 쫓기는 느낌"과 같은 방향의 부정적 결과.`],
+'7-11':[`learn something about how the other person looks at life`,[[`prove that you were right from the start`,`옳음 증명이 목적이 아니에요.`],[`make the other person agree with you`,`반대 방향이에요.`],[`forget your own opinion`,`근거 없어요.`],[`avoid any further discussion`,`반대예요.`],[`win the argument easily`,`근거 없어요.`]],`at worse(최악이라도) → 최소한 상대 시각을 배움.`],
+'14-1':[`scarce and expensive minerals`,[[`cheap and common materials`,`반대예요.`],[`only recycled metals`,`근거 없어요.`],[`no natural resources at all`,`반대예요.`],[`energy produced by the sun`,`근거 없어요.`],[`materials that are easy to find`,`희귀하다고 했어요.`]],`must be excavated(캐내야) + 화석 연료가 또 필요 → 희귀하고 비싼 광물.`],
+'14-3':[`a high-frequency clicking noise`,[[`a low humming sound that people can hear`,`사람은 못 듣는 주파수예요.`],[`a loud scream like a human`,`고통의 외침이 아니라고 했어요.`],[`no sound at all`,`반대예요.`],[`a sweet smell`,`이 문장은 소리 이야기예요.`],[`a song similar to birds`,`근거 없어요.`]],`앞: 우리가 못 듣는 주파수 → 고주파 딸깍 소리.`],
+'14-5':[`a mysterious substance that was thought to fill the universe`,[[`a type of light that scientists could see`,`빛이 지나갈 매질이었어요.`],[`a real material that was finally found`,`없던 물질이에요.`],[`a dark room used for experiments`,`비유를 실제로 읽은 함정.`],[`a famous cat in an old story`,`비유를 실제로 읽은 함정.`],[`a theory that has been proven true`,`반대예요.`]],`so that light would have a medium → 우주를 채운다고 여겨진 물질.`],
+'14-7':[`evaluates them on their own`,[[`discusses them with the whole group`,`그건 마지막 단계예요. 순서 함정!`],[`votes on them out loud`,`독립적 판단을 지키려는 단계예요.`],[`asks the leader for advice`,`근거 없어요.`],[`copies the best idea`,`근거 없어요.`],[`throws them away`,`근거 없어요.`]],`To preserve independent judgment → 각자 혼자 평가.`],
+'14-9':[`zoom in so closely to their fur that each hair appears different`,[[`study the platypus from far away`,`그건 다음 문장(줌아웃)이에요.`],[`ignore the platypus's fur`,`근거 없어요.`],[`compare platypuses with ducks`,`근거 없어요.`],[`count how many platypuses there are`,`근거 없어요.`],[`treat the platypus as a species`,`그건 4번째 문장 관점이에요.`]],`다음 문장 also zoom out과 짝 → 확대.`],
+'14-11':[`judge cartoons funnier`,[[`remember cartoons better`,`기억이 아니라 판단(재미)이에요.`],[`find cartoons boring`,`반대예요.`],[`draw cartoons more quickly`,`근거 없어요.`],[`feel more tired`,`근거 없어요.`],[`refuse to watch cartoons`,`근거 없어요.`]],`미소 모양 → 기분 좋아짐 → 만화가 더 웃기다고 판단.`],
+'14-13':[`began with an idea`,[[`began with a nail`,`못은 아이디어 다음이에요.`],[`were made by accident`,`반대예요.`],[`were designed by machines`,`근거 없어요.`],[`started without any plan`,`반대예요.`],[`began with a piece of cloth`,`천 자르기는 나중 단계예요.`]],`첫 문장: 만들기 전에 창조자 마음속에서 완성.`],
+'14-15':[`the widespread use of hot houses in cold climates`,[[`a decrease in the use of pesticides`,`살충제 사용은 늘었어요.`],[`the return to traditional farming`,`마케팅 표어일 뿐 실제는 반대.`],[`less dependence on technology`,`위성·컴퓨터 의존이 늘었어요.`],[`lower energy use in winter`,`반대예요.`],[`a ban on imported vegetables`,`근거 없어요.`]],`연중 신선 농산물 요구 → 추운 지역 온실 확대.`],
+'16-1':[`friction in the wheels rubbing on the axles`,[[`the force of gravity pulling you down`,`마찰 이야기예요.`],[`the push from your legs`,`페달을 멈췄어요.`],[`the wind blowing from behind`,`그러면 빨라져요.`],[`the weight of the bicycle frame`,`근거 없어요.`],[`the light from the sun`,`근거 없어요.`]],`One of these(다른 마찰력) → 축의 마찰.`],
+'16-3':[`underperform in future tasks`,[[`perform better in future tasks`,`actually가 반전 신호. 반대예요.`],[`enjoy harder challenges`,`그건 성장 사고방식.`],[`work harder than others`,`근거 없어요.`],[`become more confident`,`근거 없어요.`],[`learn faster than others`,`근거 없어요.`]],`쉬운 과제만 고름 → 실제로는 성과가 낮음.`],
+'16-5':[`your voice is higher than it seems to your own ears`,[[`your voice is deeper than you expected`,`내 귀에 더 깊게 들려요. 녹음은 반대.`],[`your accent disappears completely`,`오히려 두드러져요.`],[`your voice sounds exactly the same`,`그럼 놀랄 이유가 없어요.`],[`your voice is louder than usual`,`크기 이야기 아님.`],[`you can't hear your voice at all`,`근거 없어요.`]],`뼈 경로가 낮은 소리 강조 → 녹음은 더 높게.`],
+'16-7':[`live more densely and in varied habitats`,[[`only live in old forests`,`다양한 서식지예요.`],[`need more space than red squirrels`,`더 빽빽하게 살아요.`],[`avoid places where trees are cut down`,`근거 없어요.`],[`live alone in small areas`,`근거 없어요.`],[`sleep through the winter`,`근거 없어요.`]],`so 숲 파괴에도 더 쉽게 생존.`],
+'16-9':[`preventing you from sending off an initial angry text`,[[`helping you write angry texts faster`,`반대예요.`],[`making you feel strong emotions`,`그건 대뇌변연계예요.`],[`remembering old messages`,`근거 없어요.`],[`reading texts from friends`,`근거 없어요.`],[`choosing emojis`,`근거 없어요.`]],`and modifying it with kinder words와 짝 → 보내지 못하게 막음.`],
+'16-11':[`wandered from place to place in search of food`,[[`lived in large cities`,`근거 없어요.`],[`grew crops near rivers`,`농사는 다음 문장.`],[`built permanent houses`,`정착은 농사 이후예요.`],[`traded tools with other villages`,`근거 없어요.`],[`kept animals on farms`,`근거 없어요.`]],`다음 Once people began farming과 대조 → 이동 생활.`],
+'16-13':[`underground through the roots`,[[`in the air through the leaves`,`근거 없어요.`],[`inside each tree's trunk`,`나무 "사이"의 이동이에요.`],[`on the surface of the soil`,`근거 없어요.`],[`through the branches`,`근거 없어요.`],[`with the help of animals`,`근거 없어요.`]],`나무끼리 당을 옮기는 통로 = 땅속 뿌리.`],
+'16-15':[`there would have been two vampires by February 1st, 1600`,[[`there would have been ten vampires by February 1st`,`한 달에 한 명이면 2명.`],[`no humans would have been bitten`,`근거 없어요.`],[`the vampire would have died`,`근거 없어요.`],[`there would still be only one vampire`,`한 명을 물었으니 2명.`],[`the population would have doubled`,`두 배가 되는 건 흡혈귀예요.`]],`1 + 물린 1명 = 2.`],
+'17-1':[`find desired shots or scenes`,[[`delete all special effects`,`근거 없어요.`],[`print the video script`,`근거 없어요.`],[`record new videotapes`,`테이프 감기가 필요 없어요.`],[`copy scenes to a typewriter`,`비유를 섞은 함정.`],[`slow down the whole video`,`근거 없어요.`]],`임의 접근 → 원하는 장면을 쉽게 찾음.`],
+'17-3':[`narrows the small air-passages in the lungs`,[[`opens the airway wider`,`기도는 닫아요.`],[`fills the lungs with water`,`반대예요.`],[`speeds up breathing`,`숨은 멈춰요.`],[`makes the lungs bigger`,`근거 없어요.`],[`stops blood from moving`,`혈액은 중요 장기로 보내져요.`]],`기도를 닫는 것과 같은 방향 → 폐 공기 통로를 좁힘.`],
+'17-5':[`the number of bones and the ways they are connected`,[[`the ability to fly`,`말은 못 날아요.`],[`their use in running`,`기능은 다르다고 했어요.`],[`the color of their skin`,`근거 없어요.`],[`the speed of their movement`,`근거 없어요.`],[`the size of their wings`,`근거 없어요.`]],`비기능적 특징의 예 = 뼈 개수·연결 방식.`],
+'17-7':[`the most efficient migration routes`,[[`the longest migration routes`,`근거 없어요.`],[`no migration routes at all`,`근거 없어요.`],[`the most dangerous routes`,`근거 없어요.`],[`routes chosen by instinct`,`그건 비효율적인 쪽이에요.`],[`the oldest migration routes`,`옛 지도대로 가는 건 타고난 새.`]],`By comparison → 타고난 새의 비효율과 반대.`],
+'17-9':[`a strong contrast to the more conservative North American style`,[[`a copy of the North American style`,`반대예요.`],[`a style borrowed from Europe`,`근거 없어요.`],[`the same color as other teams`,`대조였어요.`],[`a design that changed every year`,`근거 없어요.`],[`a style chosen by fans`,`근거 없어요.`]],`빨간색 vs 회색·흰 바지 → 강한 대조.`],
+'17-11':[`probably appeared no different`,[[`looked much older`,`매일 봐서 차이를 못 느껴요.`],[`appeared completely different`,`반대예요.`],[`seemed younger than before`,`근거 없어요.`],[`showed many new wrinkles`,`근거 없어요.`],[`looked like someone else`,`그건 10년 뒤 이야기예요.`]],`다음 Yet(그러나 같을 수 없다) → 앞은 "달라 보이지 않음".`],
+'17-13':[`very difficult to break down`,[[`very easy to break down`,`그건 단순당이에요.`],[`quickly turned into fat`,`그건 단순당.`],[`free of any nutrients`,`영양소를 가둬요.`],[`bad for your body`,`좋은 탄수화물이에요.`],[`made of simple sugars`,`복합 당이에요.`]],`다음 slowly break down → 분해되기 어려움.`],
+'17-15':[`the less likely we are to volunteer our time`,[[`the more likely we are to volunteer our time`,`반대예요.`],[`the more friends we make in real life`,`반대예요.`],[`the happier we become`,`근거 없어요.`],[`the less lonely we feel`,`장기적으로 반대예요.`],[`the more we exercise`,`근거 없어요.`]],`crowd out(밀어냄) → 봉사·만남이 줄어듦.`]};
+const Q4NI={
+'7-1':[`played [a more substantial role]`,`contributed more to medical discoveries`,[`was more expensive to carry out`,`required more animals`,`was easier to explain to the public`,`was protected more strongly by law`,`had a longer history than animal research`],`임상적 발견이 동물 연구보다 더 큰 역할을 했다.`],
+'7-3':[`it will be [a conscious being, not just a machine]`,`an entity with its own awareness and goals`,[`a powerful tool that obeys human commands`,`a machine that copies human feelings`,`a robot that looks like a human`,`a program that can never make mistakes`,`a dangerous enemy of humanity`],`self-aware + 자기 목표 추구 = 의식 있는 존재.`],
+'7-5':[`[an indication of the type of person you believe that you are]`,`a sign of how you see yourself`,[`a prediction of who you will become later`,`a reflection of what others expect of you`,`proof that your beliefs are always correct`,`a habit you copied from your parents`,`a choice made without any thought`],`행동 = 스스로를 어떤 사람이라 믿는지의 표시.`],
+'7-7':[`[lies buried deep in our nerve cells]`,`is found in the way our nerve cells work`,[`has been lost over time`,`is hidden in ancient history books`,`can only be found by surgery`,`is too complex for anyone to explain`,`depends on what toys we had as children`],`답은 신경 세포의 작동 방식에 있다.`],
+'7-9':[`have [their own distinct stresses]`,`face kinds of stress that are different from poverty`,[`suffer from the same stress as poor countries`,`have no stress at all`,`create stress for other countries`,`feel stress only at work`,`solve the problem of stress with money`],`가난과 다른, 부유한 나라만의 스트레스(시간 압박).`],
+'7-11':[`it would [eliminate all new opportunities]`,`there would be no chance for anything new to appear`,[`people would have more opportunities than before`,`everyone would become more creative`,`new ideas would be easier to accept`,`opportunities would be shared equally`,`inventions would be made faster`],`모두 같은 시각이면 새로운 것이 사라진다.`],
+'14-1':[`This transformation [cannot happen without fossil fuels]`,`depends on the use of oil, coal, and gas`,[`will stop the use of fossil fuels immediately`,`needs no energy at all`,`can be finished using only solar power`,`happens naturally over time`,`is impossible for any country`],`전환 과정 자체가 화석 연료에 의존.`],
+'14-3':[`Some [express their discontent through scents]`,`show that they are being harmed by giving off smells`,[`attract bees with pleasant smells`,`enjoy the smell of fresh grass`,`hide their feelings from animals`,`communicate with humans through perfume`,`grow faster when they smell good`],`잔디 깎은 냄새 = SOS → 해를 입었다는 신호.`],
+'14-5':[`concepts [open the door to essentialism]`,`make it easy for us to believe in hidden essences`,[`help us find truth more quickly`,`lead us to new scientific tools`,`protect us from wrong ideas`,`make science boring`,`allow us to avoid mistakes`],`다음 문장: 없는 것을 보게 만든다.`],
+'14-7':[`teams can [surface and advance possibilities]`,`bring out and develop ideas that might be overlooked`,[`make decisions faster than before`,`choose only the leader's ideas`,`reduce the number of ideas`,`keep all ideas secret`,`avoid working together at all`],`that might not get attention otherwise와 연결.`],
+'14-9':[`[look at what unites them into a single species]`,`focus on what the animals have in common`,[`study how each animal behaves differently`,`see how they fit into the ecosystem`,`separate them into different groups`,`count every hair on their bodies`,`make them live together in one place`],`unite = 공통점으로 묶기. 개체 관점(①)·생태계 관점(②)과 구별.`],
+'14-11':[`[The primacy of the body]`,`the idea that the body comes before the emotion`,[`the idea that emotions control the body`,`the importance of exercise for health`,`the strength of the human body`,`the idea that the mind is more important`,`the beauty of the human body`],`"달리니까 두렵다" = 몸이 먼저.`],
+'14-13':[`[every thought, decision and activity are all working in harmony]`,`everything we do moves toward the same goal`,[`we stop thinking about the future`,`our decisions often conflict with each other`,`we act without any plan`,`we depend on others to decide`,`we change our goals every day`],`모든 생각·결정·행동이 마음속 결론을 향해 조화.`],
+'14-15':[`to avoid [the appearance of empty shelf space]`,`shelves looking empty to customers`,[`a lack of storage space in the factory`,`customers leaving the store early`,`too much food on the shelves`,`the cost of building new shelves`,`rules about how shelves must look`],`빈 진열대처럼 보이는 것을 피하려고 과잉 주문.`],
+'16-1':[`[they must be exerting a force]`,`the brakes are pushing against the bicycle's movement`,[`the brakes are making the bike go faster`,`the brakes are broken`,`the rider is pedalling harder`,`the wheels are getting bigger`,`the road is becoming steeper`],`움직임을 바꿈 → 힘을 가하는 중.`],
+'16-3':[`a way to [continually grow, learn, and persevere]`,`keep improving without giving up`,[`become smarter than others quickly`,`avoid difficult work`,`rest after each success`,`win every competition`,`depend on praise from others`],`성장 사고방식 = 계속 성장·배움·인내.`],
+'16-5':[`Maybe [your accent is more pronounced]`,`your accent is easier to notice`,[`your pronunciation is more correct`,`your accent has completely disappeared`,`you speak more slowly`,`your voice is quieter`,`you use more difficult words`],`pronounced = 두드러진. "발음된"으로 읽으면 함정.`],
+'16-7':[`before red squirrels [even have a bite]`,`get any food at all`,[`bite the grey squirrels`,`finish eating their meal`,`learn to eat green acorns`,`attack the grey squirrels`,`start building nests`],`한 입 먹기도 전에 = 먹이를 하나도 못 얻음.`],
+'16-9':[`there is [an imbalance]`,`the two systems do not develop at the same pace`,[`the brain is physically tilted`,`teens cannot stand up straight`,`the two brain regions work equally`,`emotions disappear completely`,`teens make perfect decisions`],`감정 뇌는 성숙, 판단 뇌는 미성숙 → 불균형.`],
+'16-11':[`[share the work of making stone axes and knives]`,`divide the steps of making tools among themselves`,[`sell stone tools to other villages`,`use stone tools to cut crops`,`compete to make the best tools`,`teach children how to hunt`,`stop making tools completely`],`work together의 예 = 도구 제작을 나눠 함.`],
+'16-13':[`[Their network acts as a system]`,`the connected trees work together as one unit`,[`each tree works alone`,`the network belongs to humans`,`the trees compete in a system`,`the internet connects the trees`,`the roots stop sharing`],`뿌리로 연결된 나무들이 하나의 시스템처럼.`],
+'16-15':[`[Have vampires taken over the world?]`,`Is the world actually full of vampires now?`,[`Should vampires rule the world?`,`Did vampires ever travel the world?`,`Will vampires take over in the future?`,`How did vampires take over the world?`,`Have vampires disappeared from stories?`],`현실과 계산 결과를 대조하는 질문 → 답은 No.`],
+'17-1':[`with [a few keystrokes]`,`a small amount of typing`,[`many hours of work`,`a few new computers`,`rewriting the whole paper`,`pressing every key`,`a typewriter ribbon`],`키 몇 번 = 아주 적은 입력.`],
+'17-3':[`the [diving reflex is triggered]`,`the body's automatic underwater response starts`,[`we decide to dive deeper`,`the body stops working`,`we start to swim faster`,`the face becomes dry`,`the heart beats faster`],`반사 = 자동 반응이 시작됨.`],
+'17-5':[`[descended from a common ancestor]`,`come from the same earlier species`,[`have the same function`,`developed independently`,`were made by humans`,`appeared at the same time`,`live in the same habitat`],`공통 조상에서 내려옴 = 상동.`],
+'17-7':[`culture can [evolve faster than genes]`,`learned behavior changes more quickly than inherited traits`,[`genes change more quickly than culture`,`culture never changes`,`birds evolve into new species`,`culture is stored in genes`,`culture slows down evolution`],`배운 것은 유전보다 빨리 바뀜 → 유연성.`],
+'17-9':[`[A game would not even start]`,`even before the game began`,[`the game was cancelled`,`the game was delayed by rain`,`the players refused to play`,`the game ended early`,`no one came to watch`],`경기 시작도 전에 이미 상대가 겁먹음.`],
+'17-11':[`[After an interval of 10 years without seeing yourself]`,`if you haven't looked at yourself for ten years`,[`every ten years`,`after ten minutes in front of a mirror`,`if you look at old photos`,`ten years from now`,`after looking at yourself every day`],`10년 동안 자기를 안 보다가.`],
+'17-13':[`[other than the sugars from which they are made]`,`besides the sugars that make them up`,[`instead of the vitamins they trap`,`including vitamins and minerals`,`because they are made of fat`,`after they are broken down slowly`,`except when they are stored`],`구성하는 당 말고는 영양소가 거의 없음.`],
+'17-15':[`[more sustainable social contributions]`,`benefits to our relationships that last longer`,[`money that we donate to charity`,`short moments of fun`,`contributions to TV programs`,`activities that save energy`,`online friendships`],`TV의 단기 효과와 대비 → 오래가는 관계상 이익.`]};
+const Q4NR={
+'7-1':[[3,`Animal testing, however, has become far more humane in recent years.`,`하지만 동물 실험은 최근 훨씬 인도적으로 바뀌었다.`,`동물 실험 소재라 그럴듯하지만, "독립적 이유"를 말한 뒤엔 그 이유(법 규정)가 와야 해요. 동물 복지로 새요.`],[6,`As a result, most countries have now banned animal experiments completely.`,`그 결과 대부분의 나라가 동물 실험을 완전히 금지했다.`,`As a result로 결론처럼 보이지만 본문에 없는 사실이고, 다음 They claim(의사들의 주장)과 끊겨요.`]],
+'7-3':[[3,`Many people, however, still fear that AI will one day replace their jobs.`,`하지만 많은 사람은 여전히 AI가 일자리를 빼앗을까 두려워한다.`,`AI 이야기지만 "의식 있는 존재 → 공진화" 흐름과 무관해요.`],[7,`For this reason, governments should stop investing in AI research.`,`이런 이유로 정부는 AI 연구 투자를 멈춰야 한다.`,`결론처럼 들리지만 공존·지지라는 마지막 문장과 정반대예요.`]],
+'7-5':[[1,`Of course, changing your identity overnight is almost impossible.`,`물론 하룻밤에 정체성을 바꾸는 건 거의 불가능하다.`,`정체성 단어가 겹쳐 헷갈리지만, 다음 Research has shown(정체성 → 행동) 흐름을 끊어요.`],[5,`However, most people give up their new habits within a month.`,`하지만 대부분의 사람은 새 습관을 한 달 안에 포기한다.`,`"옳은 일이 쉽다" 바로 뒤에 반대 이야기라 흐름이 꼬여요.`]],
+'7-7':[[1,`Some people, however, never get bored of their favorite food.`,`하지만 어떤 사람들은 좋아하는 음식에 절대 질리지 않는다.`,`급식 예시를 받아서 그럴듯하지만, "우리는 쉽게 지루해한다"는 결론과 반대예요.`],[6,`Fireflies, in fact, use their light mainly to attract mates.`,`사실 반딧불이는 주로 짝을 유혹하려고 빛을 쓴다.`,`반딧불이를 이어 가지만 비유일 뿐인 소재의 생물학 정보예요.`]],
+'7-9':[[1,`Poorer nations, in fact, usually have stronger family ties.`,`사실 가난한 나라는 보통 가족 유대가 더 강하다.`,`나라 비교라 그럴듯하지만 "부유한 나라의 스트레스" 흐름을 끊어요.`],[4,`Therefore, most people in rich countries choose to work fewer hours.`,`그러므로 부유한 나라 사람들은 대부분 더 적게 일하기로 한다.`,`Therefore 결론처럼 보이지만 본문 내용과 반대 방향이에요.`]],
+'7-11':[[4,`Most experts agree that facts never change over time.`,`대부분의 전문가는 사실이 시간이 지나도 변하지 않는다고 동의한다.`,`"사실에 부합" 단어를 받았지만 논지와 무관하고, 다음 However와 연결이 안 돼요.`],[8,`That is why you should always trust your first impression.`,`그래서 항상 첫인상을 믿어야 한다.`,`결론처럼 들리지만 "다른 관점을 고려하라"와 정반대예요.`]],
+'14-1':[[2,`Many people already use electric cars in big cities.`,`많은 사람이 이미 대도시에서 전기차를 쓴다.`,`교통 기반 시설을 받아서 그럴듯하지만, "화석 연료 없이는 불가능" 흐름과 무관해요.`],[7,`Fortunately, the price of solar panels has dropped sharply in recent years.`,`다행히 태양광 패널 가격이 최근 크게 떨어졌다.`,`"비싸다"를 받아 반박하는 것 같지만 본문 논지(숨은 비용)를 흐려요.`]],
+'14-3':[[1,`Roses and lavender are popular because of their sweet scents.`,`장미와 라벤더는 달콤한 향기 때문에 인기가 많다.`,`향기 소재지만 "불만·SOS 신호"와 무관해요.`],[8,`Interestingly, some plants grow better when classical music is played.`,`흥미롭게도 어떤 식물은 클래식 음악을 틀면 더 잘 자란다.`,`소리 소재라 진짜 헷갈려요. 하지만 식물이 "내는" 소리 이야기이고, 다음 However(고통 아님)와 끊겨요.`]],
+'14-5':[[0,`Concepts are also useful for learning a new language.`,`개념은 새 언어를 배울 때도 유용하다.`,`개념의 장점 추가라 흐름이 반대 방향이에요(위험성을 말하는 중).`],[6,`Today, physicists know that light can travel through empty space.`,`오늘날 물리학자들은 빛이 빈 공간을 지날 수 있다는 걸 안다.`,`맞는 과학 사실이라 제일 헷갈려요. 하지만 글은 "없는 고양이를 찾은" 비유로 끝나는 흐름이에요.`]],
+'14-7':[[1,`Brainstorming was first made popular by an advertising executive in the 1940s.`,`브레인스토밍은 1940년대 한 광고 임원이 처음 유행시켰다.`,`브레인스토밍 역사는 단계 설명(먼저 혼자 → 다음 …) 흐름을 끊어요.`],[5,`However, choosing the best idea always takes a long time.`,`하지만 최고의 아이디어를 고르는 데는 항상 오래 걸린다.`,`선택 단계를 받아서 그럴듯하지만 단점 이야기라 방향이 반대예요.`]],
+'14-9':[[0,`Bateson was also famous for his studies of Pacific island cultures.`,`Bateson은 태평양 섬 문화 연구로도 유명했다.`,`인물 소개라 그럴듯하지만 관점 논지와 무관해요.`],[6,`Platypuses, however, are among the few mammals that lay eggs.`,`하지만 오리너구리는 알을 낳는 몇 안 되는 포유류다.`,`오리너구리 사실 정보라 헷갈리지만 "관점" 흐름을 끊어요.`]],
+'14-11':[[0,`Body language, however, differs greatly from culture to culture.`,`하지만 몸짓 언어는 문화마다 크게 다르다.`,`body language를 받았지만 "몸 → 감정" 논지와 무관해요.`],[3,`Scientists, however, still cannot measure happiness exactly.`,`하지만 과학자들은 여전히 행복을 정확히 측정하지 못한다.`,`다음 For example(입꼬리 예시)과 연결이 끊겨요.`]],
+'14-13':[[1,`Most clothes today, in fact, are made in factories overseas.`,`사실 오늘날 대부분의 옷은 해외 공장에서 만들어진다.`,`옷 예시를 받았지만 "마음속 설계" 논지와 무관해요.`],[4,`However, many people find it hard to imagine their future clearly.`,`하지만 많은 사람이 미래를 분명히 상상하기 어려워한다.`,`미래 소재라 그럴듯하지만 "같은 과정으로 설계" 흐름과 반대예요.`]],
+'14-15':[[2,`Many families now grow their own vegetables at home.`,`많은 가정이 이제 집에서 채소를 기른다.`,`채소 소재지만 숨은 비용·낭비 흐름과 무관해요.`],[5,`As a result, sandwiches have become the most popular lunch in Britain.`,`그 결과 샌드위치는 영국에서 가장 인기 있는 점심이 되었다.`,`샌드위치를 받아 결론처럼 보이지만 낭비 고발과 무관해요.`]],
+'16-1':[[4,`Many cyclists wear helmets to protect their heads.`,`많은 자전거 타는 사람이 머리 보호를 위해 헬멧을 쓴다.`,`자전거 소재지만 마찰 설명과 무관해요.`],[10,`Racing cyclists, therefore, wear tight clothes to reduce air resistance.`,`그래서 경주용 자전거 선수는 공기 저항을 줄이려 몸에 붙는 옷을 입는다.`,`공기 저항을 받아서 진짜 헷갈려요. 하지만 응용 사례로 새서 다음 카트 적용과 끊겨요.`]],
+'16-3':[[2,`Some schools now give awards only to the smartest students.`,`어떤 학교는 이제 가장 똑똑한 학생에게만 상을 준다.`,`"똑똑함" 소재지만 Dweck 연구 흐름을 끊어요.`],[5,`Still, most parents believe that talent matters more than effort.`,`그래도 대부분의 부모는 재능이 노력보다 중요하다고 믿는다.`,`마지막에 반대 의견을 붙여 논지를 흐려요.`]],
+'16-5':[[1,`Voice recording apps are now available on most smartphones.`,`음성 녹음 앱은 이제 대부분의 스마트폰에 있다.`,`녹음 소재지만 "왜 다르게 들리나" 흐름과 무관해요.`],[6,`Hearing loss, however, is becoming more common among young people.`,`하지만 청력 손실은 젊은 층에서 점점 흔해지고 있다.`,`귀 이야기라 그럴듯하지만 두 경로 설명을 끊어요.`]],
+'16-7':[[0,`Squirrels are found on every continent except Australia and Antarctica.`,`다람쥐는 호주와 남극을 뺀 모든 대륙에 산다.`,`다람쥐 정보지만 외래종 논지와 무관해요.`],[3,`Red squirrels, in fact, are better at climbing trees than greys.`,`사실 붉은 다람쥐는 회색보다 나무를 더 잘 탄다.`,`붉은 다람쥐 장점이라 흐름이 반대예요(회색의 우위를 설명 중).`]],
+'16-9':[[0,`Teenagers' brains are also more active at night than adults'.`,`십 대의 뇌는 또한 밤에 어른보다 더 활발하다.`,`청소년 뇌 소재지만 결정 불균형 논지와 무관해요.`],[7,`Parents, therefore, should never let teenagers make their own decisions.`,`그러므로 부모는 절대 십 대가 스스로 결정하게 두면 안 된다.`,`결론처럼 들리지만 과장이고 본문에 없는 주장이에요.`]],
+'16-11':[[3,`Some villages, in fact, were surrounded by walls for protection.`,`사실 일부 마을은 방어를 위해 성벽으로 둘러싸였다.`,`마을 소재지만 "효율적 조직" 흐름을 끊어요.`],[7,`Stone tools, however, broke easily and had to be replaced often.`,`하지만 돌 도구는 쉽게 부서져 자주 바꿔야 했다.`,`돌도끼를 받아 헷갈리지만 단점이라 방향이 반대예요.`]],
+'16-13':[[0,`Beech forests are common in many parts of Europe.`,`너도밤나무 숲은 유럽 여러 곳에 흔하다.`,`너도밤나무 정보지만 "토양 차이" 흐름을 끊어요.`],[8,`However, some trees refuse to share and grow faster than others.`,`하지만 어떤 나무는 나누기를 거부하고 다른 나무보다 빨리 자란다.`,`나눔을 받아 반대로 틀어서 헷갈려요. 마지막 "아무도 뒤처지지 않게"와 모순.`]],
+'16-15':[[3,`Vampire stories became especially popular after the novel Dracula was published.`,`흡혈귀 이야기는 소설 드라큘라 출간 이후 특히 인기를 끌었다.`,`흡혈귀 소재지만 계산 흐름과 무관해요.`],[7,`Of course, vampires may have avoided biting people in winter.`,`물론 흡혈귀는 겨울엔 사람을 물지 않았을 수도 있다.`,`계산의 허점처럼 보여 헷갈리지만 필자 결론으로 가는 흐름을 끊어요.`]],
+'17-1':[[2,`Professional editors usually work in quiet, dark rooms.`,`전문 편집자들은 보통 조용하고 어두운 방에서 일한다.`,`편집자 소재지만 비선형 장점과 무관해요.`],[5,`Typewriters are still used by some writers today.`,`타자기는 오늘날에도 일부 작가가 쓴다.`,`타자기를 받았지만 비유의 핵심(수정이 어려움)과 무관해요.`]],
+'17-3':[[0,`Some people can hold their breath for over ten minutes with training.`,`어떤 사람은 훈련으로 10분 넘게 숨을 참을 수 있다.`,`숨 참기라 그럴듯하지만 반사(자동 반응)와 무관해요.`],[3,`Cold water, however, is especially dangerous for small children.`,`하지만 찬물은 어린아이에게 특히 위험하다.`,`물 소재지만 반사 효과 설명을 끊어요.`]],
+'17-5':[[3,`Bats, in fact, are the only mammals that can truly fly.`,`사실 박쥐는 진짜로 날 수 있는 유일한 포유류다.`,`박쥐를 받았지만 상동 형질 설명과 무관해요.`],[6,`Today, most biologists use DNA tests instead of looking at organs.`,`오늘날 대부분의 생물학자는 기관을 보는 대신 DNA 검사를 쓴다.`,`구별 방법 이야기라 제일 헷갈리지만, 마지막 문장(구조를 본다)과 정면으로 어긋나요.`]],
+'17-7':[[1,`Some birds can fly for several days without landing.`,`어떤 새는 착륙하지 않고 며칠 동안 날 수 있다.`,`철새 소재지만 유년기 논지와 무관해요.`],[6,`However, young birds often get lost on their first migration.`,`하지만 어린 새는 첫 이동에서 자주 길을 잃는다.`,`부모와 이동을 받아 반대로 틀어서 헷갈려요. 유년기의 장점 흐름과 어긋나요.`]],
+'17-9':[[0,`Baseball is also very popular in Japan and South Korea.`,`야구는 일본과 한국에서도 매우 인기가 있다.`,`야구 소재지만 쿠바 전통 논지와 무관해요.`],[4,`Red is, in fact, the most common color among national sports teams.`,`사실 빨간색은 국가 대표 팀들 사이에서 가장 흔한 색이다.`,`빨간색을 받았지만 쿠바만의 상징이라는 흐름과 어긋나요.`]],
+'17-11':[[3,`Old photos, however, often lose their color over time.`,`하지만 오래된 사진은 시간이 지나면 색이 바래곤 한다.`,`사진을 받았지만 얼굴 변화 논지와 무관해요.`],[6,`That is why many people avoid looking in the mirror.`,`그래서 많은 사람이 거울 보기를 피한다.`,`결론처럼 들리지만 본문에 없는 내용이에요.`]],
+'17-13':[[0,`Rice is the main food for more than half of the world's people.`,`쌀은 세계 인구 절반 이상의 주식이다.`,`탄수화물 음식이지만 구조 설명과 무관해요.`],[5,`Brown sugar, however, contains more minerals than white sugar.`,`하지만 흑설탕은 백설탕보다 무기질이 많다.`,`당·무기질 단어가 겹쳐 진짜 헷갈리지만 단순당 설명 흐름을 끊어요.`]],
+'17-15':[[2,`Streaming services, in fact, release new shows every week.`,`사실 스트리밍 서비스는 매주 새 프로그램을 낸다.`,`프로그램 소재지만 외로움·관계 논지와 무관해요.`],[6,`Therefore, watching Friends with friends is the best way to relax.`,`그러므로 친구와 Friends를 보는 게 최고의 휴식이다.`,`말장난을 받아 결론처럼 보이지만 논지와 정반대예요.`]]};
+const Q4NS={'7-1':[[5,`Consequently: 앞의 법 규정이 만든 결과.`]],'7-3':[[6,`Conversely: AI → 인간(앞)에서 인간 → AI(뒤)로 방향 전환.`]],'7-5':[[4,`Similarly: 유권자 예(앞)와 같은 원리의 운동 예.`]],'7-7':[[4,`At the same time: 같은 자극엔 반응 ↓(앞)과 동시에 변화엔 반응 ↑.`]],'7-9':[[2,`The key issue: 앞의 "그 나름의 스트레스"가 무엇인지.`]],'7-11':[[6,`However: "당신이 맞을 수도"(앞) 다음 반전.`]],'14-1':[[6,`Thus: 앞의 예시들을 정리하는 결론.`]],'14-3':[[9,`However: 소리를 낸다(앞)는 사실에 "고통은 아님"을 덧붙임.`]],'14-5':[[5,`Firestein gives the example: 앞 "헛된 탐색 사례"의 구체적 예.`]],'14-7':[[5,`Only then: 혼자 평가(앞) 다음에야 함께 모임.`]],'14-9':[[6,`Crucially, however: 여러 관점 이동 가능(앞) → 한 번에 하나뿐.`]],'14-11':[[4,`For example: 앞 이론의 구체적 예(입꼬리).`]],'14-13':[[4,`much the same process: 앞의 물건 만들기 과정을 사람의 미래에 적용.`]],'14-15':[[2,`also: 환경 비용(앞)에 이어 음식 낭비 걱정 추가.`]],'16-1':[[10,`Another: One of these(축 마찰) 다음 또 다른 마찰.`]],'16-3':[[3,`They learn: They = 노력으로 칭찬받은 아이들.`]],'16-5':[[6,`One is the route: two pathways 중 첫 번째.`]],'16-7':[[5,`also: 먹이 우위(앞)에 이어 서식지 우위.`]],'16-9':[[8,`This may explain: 앞의 불균형이 잘못된 결정을 설명.`]],'16-11':[[4,`They could divide: 효율적 조직(앞)의 구체적 방법.`]],'16-13':[[8,`Whoever: 땅속 뿌리로 옮김(앞)의 구체적 방식.`]],'16-15':[[9,`No, because: 바로 앞 질문의 답.`]],'17-1':[[7,`If a mistake is made: 워드 비유(앞)의 구체 설명.`]],'17-3':[[2,`If we are in the water: 앞 "얼굴이 잠길 때만"의 예.`]],'17-5':[[4,`The wing of a bat: 상동 형질(앞)의 예.`]],'17-7':[[4,`So when lakes dry up: 적응 못 함(앞)의 결과.`]],'17-9':[[6,`The country that ruled: 앞 "쇠퇴"를 다시 강조.`]],'17-11':[[4,`If you lived: 사진 증거(앞)에 이은 가정 예시.`]],'17-13':[[6,`these carbohydrates: 앞의 단순당을 가리킴.`]],'17-15':[[3,`these social needs: 앞 문장의 사회적 관계 욕구.`]]};
+P.forEach(p=>{const b=Q4NB[p.id];if(b&&full(p).includes(b[0]))p.blanks.push({p:b[0],o:[b[0],...b[1].map(x=>x[0])],a:0,e:b[2],x:['정답.',...b[1].map(x=>x[1])]});
+ const m=Q4NI[p.id];if(m&&loc(full(p),m[0])){p.imps=p.imps||[p.imp];p.imps.push({p:m[0],o:[m[1],...m[2]],a:0,e:m[3],x:['정답. '+m[3],...m[2].map(()=>'본문 맥락과 맞지 않아요. 단어를 글자 그대로 읽거나 대상을 바꾼 함정이에요.')]})}
+ (Q4NR[p.id]||[]).forEach(([at,s,k,e])=>{if(at<p.s.length)p.irr.push({at,s,k,e})});(Q4NS[p.id]||[]).forEach(([i,e])=>{if(i<p.s.length&&!p.ins.some(x=>x.i===i))p.ins.push({i,e})})});
+/* 모의고사형만 남기기 */
+{const DROP=['문장 넣기','같은 뜻 문장','해석 고르기','어법 고쳐 쓰기','어휘 고쳐 쓰기','문장 배열','어휘 의미','연결사'];for(let i=TYPES.length-1;i>=0;i--)if(DROP.includes(TYPES[i][0]))TYPES.splice(i,1);S.setup.T=TYPES.map(x=>x[0]);try{const w=JSON.parse(localStorage.getItem('efinal_wrong_v1')||'[]');const w2=w.filter(q=>!DROP.includes(q.t));if(w2.length!==w.length)localStorage.setItem('efinal_wrong_v1',JSON.stringify(w2))}catch(e){}}
 /* 화면 넘어갈 때 로딩 화면: 서서히 덮고 → 그 사이 화면 교체 → 서서히 걷힘 */
 let SPL=false;
 const SPH='<div class="lg">finale</div><div class="lb"><i></i></div><small>불러오는 중…</small>';

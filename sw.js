@@ -1,5 +1,5 @@
 // finale 서비스 워커: 화면(HTML)은 항상 인터넷에서 최신 걸 먼저 받고, 안 되면 저장본을 보여 줌
-const VERSION = 'finale-v14';
+const VERSION = 'finale-v22';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon-32.png'];
 
 self.addEventListener('install', e => {
