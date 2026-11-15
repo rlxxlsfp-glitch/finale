@@ -4392,5 +4392,20 @@ function dropResume(){clearResume();render()}
   h.insertAdjacentHTML('beforebegin',`<div class="qcard rsm" id="rsm" role="button" tabindex="0" onclick="resumePlay()"><div class="tp"><span class="rt"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>이어서 풀기</span><b>${d} / ${n}</b></div><div class="rn">${esc(r.title)}</div><div class="rb"><i style="width:${Math.round(d/n*100)}%"></i></div><div class="rf"><span>${d?`맞힌 문제 ${ok}개`:'아직 안 푼 세트'}</span><button onclick="event.stopPropagation();dropResume()">지우기</button></div></div>`)}}
 {const s=document.createElement('style');s.textContent=`.rsm{margin:0 0 12px;cursor:pointer;border:1.5px solid var(--pri)}.rsm .rt{display:flex;align-items:center;gap:6px;color:var(--pri)}.rsm .rn{margin-top:6px;font-weight:600;color:var(--txt,inherit)}.rsm .rb{height:6px;border-radius:6px;background:var(--line,rgba(0,0,0,.08));margin-top:12px;overflow:hidden}.rsm .rb i{display:block;height:100%;background:var(--pri);border-radius:6px;transition:width .25s}.rsm .rf{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:.82rem;color:var(--sub)}.rsm .rf button{font:inherit;color:var(--sub);background:none;border:0;padding:4px 2px;text-decoration:underline}`;document.head.appendChild(s)}
 
+/* 선지 해석: 해설의 영어 선지 밑에 한국어 뜻 (자동 번역, 한 번 받은 건 기기에 저장) */
+const TRK='finale_tr_v1';let TRC={};try{TRC=JSON.parse(localStorage.getItem(TRK)||'{}')}catch(e){}
+const TRQ=new Set();let TRT=null,TRB=false;
+function trKey(s){return s.replace(/\s+/g,' ').trim()}
+function trNeed(s){return /[A-Za-z]{3}/.test(s)&&!/[가-힣]/.test(s)}
+function trPaint(){document.querySelectorAll('.xot').forEach(el=>{const s=trKey(el.textContent);if(!trNeed(s))return;let k=el.nextElementSibling;if(!k||!k.classList.contains('xko')){k=document.createElement('div');k.className='xko';el.after(k)}const v=TRC[s];if(v){k.textContent=v;k.classList.remove('wait')}else{k.textContent=navigator.onLine===false?'인터넷에 연결되면 해석이 보여요':'해석 불러오는 중…';k.classList.add('wait');TRQ.add(s)}});if(TRQ.size&&!TRB)trFetch()}
+async function trFetch(){TRB=true;const list=[...TRQ].slice(0,12);list.forEach(s=>TRQ.delete(s));
+ try{const r=await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q='+encodeURIComponent(list.join('\n')));if(!r.ok)throw 0;const j=await r.json();const out=(j[0]||[]).map(x=>x[0]||'').join('').split('\n').map(x=>x.trim());
+  if(out.length===list.length){list.forEach((s,i)=>{if(out[i])TRC[s]=out[i]})}else{for(const s of list){try{const r2=await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q='+encodeURIComponent(s));const j2=await r2.json();TRC[s]=(j2[0]||[]).map(x=>x[0]||'').join('').trim()}catch(e){}}}
+  try{localStorage.setItem(TRK,JSON.stringify(TRC))}catch(e){}}
+ catch(e){document.querySelectorAll('.xko.wait').forEach(k=>k.textContent='해석을 못 불러왔어요. 인터넷 연결을 확인해 주세요.');TRB=false;return}
+ TRB=false;trPaint()}
+{const mo=new MutationObserver(()=>{clearTimeout(TRT);TRT=setTimeout(trPaint,60)});mo.observe(document.getElementById('app')||document.body,{childList:true,subtree:true});addEventListener('online',trPaint);
+ const s=document.createElement('style');s.textContent=`.xko{font-size:.86em;color:var(--sub);margin-top:3px;line-height:1.5}.xko.wait{opacity:.6}`;document.head.appendChild(s)}
+
 saveST();initSync();(function(){render();document.getElementById('app').classList.add('enter');const s=document.createElement('div');s.className='splash in';s.style.setProperty('--d','.7s');s.innerHTML=SPH;document.body.appendChild(s);setTimeout(()=>{s.classList.add('out');setTimeout(()=>s.remove(),360)},750)})();
 </script></body></html>
