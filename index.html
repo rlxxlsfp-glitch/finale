@@ -4529,5 +4529,381 @@ const SKM={};for(const k in SKKO)SKM[skN(k)]=SKKO[k];
   if(ch)q.e=d.innerHTML;return q};
  const _gW2=gen;gen=function(p,t){const q=_gW2(p,t);try{return wr2(q,p)}catch(e){return q}}}
 
+/* ===== 만화로 보기 ===== */
+const CMX={
+ css:`.cm{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 4px}
+.cmp{border:2px solid var(--ink);border-radius:12px;background:var(--bg);overflow:hidden;display:flex;flex-direction:column}
+.cmp.w{grid-column:1/-1}
+.cms{position:relative;background:var(--bg)}
+.cms svg{display:block;width:100%;height:auto}
+.cmn{position:absolute;left:6px;top:6px;width:18px;height:18px;border-radius:50%;background:var(--pri);color:#fff;font-size:.68rem;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:2}
+.cmb{position:absolute;transform:translate(-50%,0);white-space:nowrap;background:var(--bg);border:1.6px solid var(--ink);border-radius:12px;padding:3px 7px;font-size:.7rem;line-height:1.3;font-weight:600;text-align:center;z-index:1}
+.cmb.th{border-style:dashed;border-radius:16px}
+.cmb.sh{background:var(--hl);color:var(--hlink)}
+.cmb.en{font-family:inherit;font-style:italic}
+.cmb::after{content:"";position:absolute;width:8px;height:8px;background:inherit;border:inherit;border-top:0;border-left:0;transform:rotate(45deg);bottom:-5.5px;left:calc(50% - 4px)}
+.cmb.tl::after{left:14px}.cmb.tr::after{left:auto;right:14px}.cmb.tn::after{display:none}
+.cmc{border-top:2px solid var(--ink);background:var(--soft2);padding:7px 9px;font-size:.78rem;line-height:1.45;font-weight:600;word-break:keep-all;flex:1}
+.cmc b{color:var(--deep)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cmc b{color:var(--pri2)}}
+:root[data-theme="dark"] .cmc b{color:var(--pri2)}
+.cms{--skin:#FFE2CC;--ink:#1B1C24;--bg:#FFFFFF;--soft2:#E6F1E9;--line:#E8E6F2;--pri:#5B9A6E;--good:#1F9D68;--hl:#FFE38A;--hlink:#1B1C24;color:#1B1C24}
+.cmk{stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cmf{fill:var(--ink)}.cmh{fill:#3B2C2A}.cmm{fill:#C2414B}.cmw{fill:var(--bg)}.cma{fill:var(--soft2)}.cmp2{fill:var(--pri)}.cmr{fill:#E5484D}.cmy{fill:#FFD666}.cmg{fill:#9AA0A6}.cmbl{fill:#6FA8DC}
+.cmt{font-size:9px;font-weight:700;fill:var(--ink);font-family:inherit}`,
+};
+/* 사람: x(중심), mood, hair, pose, shirt, s(크기), f(방향 1/-1) */
+function cmPerson(o){const x=o.x,s=o.s||1,G=o.g||124,f=o.f||1,sh=o.c||'cma';
+ const P=(dx,dy)=>`${(x+dx*s).toFixed(1)},${(G-dy*s).toFixed(1)}`;const N=v=>(v*s).toFixed(1);
+ const hx=x,hy=G-50*s,r=22*s;let g='';
+ // feet
+ g+=`<ellipse class="cmf" cx="${x-6*s}" cy="${G-2.5*s}" rx="${N(5.5)}" ry="${N(3.2)}"/><ellipse class="cmf" cx="${x+6*s}" cy="${G-2.5*s}" rx="${N(5.5)}" ry="${N(3.2)}"/>`;
+ // arms
+ const pose=o.p||'down';const L=[-1,1].map(d=>{let e;
+  if(pose==='down')e=[d*17,10];else if(pose==='up')e=[d*21,40];else if(pose==='hold')e=[d*7,14];else if(pose==='head')e=[d*19,44];
+  else if(pose==='chin')e=d>0?[7,25]:[-17,10];else if(pose==='wave')e=d>0?[21,42]:[-17,10];else if(pose==='point')e=d===f?[f*28,24]:[-f*17,10];else e=[d*17,10];
+  return `M${P(d*10,21)} Q${P(d*(Math.abs(e[0])>12?18:12),(21+e[1])/2)} ${P(e[0],e[1])}`});
+ g+=`<path class="cmk" style="stroke-width:${N(6.5)}" d="${L.join(' ')}"/><path style="stroke:var(--skin);fill:none;stroke-width:${N(3.6)};stroke-linecap:round" d="${L.join(' ')}"/>`;
+ // body
+ g+=`<path class="cmk ${sh}" d="M${P(-13,4)} Q${P(-16,24)} ${P(0,27)} Q${P(16,24)} ${P(13,4)} Z"/>`;
+ // head
+ const hr=o.h||'a',HC='cmh';
+ if(hr==='b')g+=`<path class="cmk ${HC}" d="M${hx-r-1*s} ${hy} Q${hx-r-3*s} ${hy+r+4*s} ${hx-r+4*s} ${hy+r+8*s} L${hx+r-4*s} ${hy+r+8*s} Q${hx+r+3*s} ${hy+r+4*s} ${hx+r+1*s} ${hy} Z"/>`;
+ g+=`<circle class="cmk" style="fill:var(--skin)" cx="${hx}" cy="${hy}" r="${r}"/>`;
+ if(hr==='a'||hr==='b')g+=`<path class="cmk ${HC}" d="M${hx-r} ${hy+4*s} Q${hx-r-1*s} ${hy-r-2*s} ${hx} ${hy-r-1*s} Q${hx+r+1*s} ${hy-r-2*s} ${hx+r} ${hy+4*s} Q${hx+r-4*s} ${hy-6*s} ${hx+6*s} ${hy-8*s} Q${hx} ${hy-4*s} ${hx-5*s} ${hy-9*s} Q${hx-r+4*s} ${hy-7*s} ${hx-r} ${hy+4*s}Z"/>`;
+ else if(hr==='c')g+=`<path class="cmk ${HC}" d="M${hx-r+1*s} ${hy-2*s} Q${hx-r} ${hy-r-1*s} ${hx} ${hy-r-2*s} Q${hx+r} ${hy-r-1*s} ${hx+r-1*s} ${hy-2*s} Q${hx+r-6*s} ${hy-10*s} ${hx+2*s} ${hy-11*s} L${hx-3*s} ${hy-8*s} Q${hx-r+6*s} ${hy-11*s} ${hx-r+1*s} ${hy-2*s}Z"/><path class="cmk ${HC}" d="M${hx-2*s} ${hy-r-1*s} q${3*s} ${-8*s} ${8*s} ${-6*s} q${-4*s} ${1*s} ${-3*s} ${5*s}"/>`;
+ else if(hr==='d')g+=`<circle class="cmk ${HC}" cx="${hx}" cy="${hy-r-3*s}" r="${7*s}"/><path class="cmk ${HC}" d="M${hx-r} ${hy+2*s} Q${hx-r} ${hy-r-1*s} ${hx} ${hy-r-1*s} Q${hx+r} ${hy-r-1*s} ${hx+r} ${hy+2*s} Q${hx+8*s} ${hy-9*s} ${hx} ${hy-10*s} Q${hx-8*s} ${hy-9*s} ${hx-r} ${hy+2*s}Z"/>`;
+ else if(hr==='cap')g+=`<path class="cmk cmr" d="M${hx-r+1*s} ${hy-5*s} Q${hx-r} ${hy-r-3*s} ${hx} ${hy-r-3*s} Q${hx+r} ${hy-r-3*s} ${hx+r-1*s} ${hy-5*s} Z"/><path class="cmk cmr" d="M${hx+f*(r-6*s)} ${hy-5*s} Q${hx+f*(r+8*s)} ${hy-7*s} ${hx+f*(r+12*s)} ${hy-2*s} L${hx+f*(r-4*s)} ${hy-2*s}Z"/>`;
+ // face
+ const m=o.m||'n',ex=f*2*s,ey=hy+5*s,my=hy+13*s;
+ g+=`<ellipse cx="${hx-13*s+ex}" cy="${hy+10*s}" rx="${N(3.6)}" ry="${N(2.3)}" fill="#FF9AA2" opacity=".6"/><ellipse cx="${hx+13*s+ex}" cy="${hy+10*s}" rx="${N(3.6)}" ry="${N(2.3)}" fill="#FF9AA2" opacity=".6"/>`;
+ const eye=(dx,up)=>`<ellipse class="cmf" cx="${hx+dx*s+ex}" cy="${ey}" rx="${N(2.8)}" ry="${N(3.6)}"/><circle cx="${hx+(dx+1)*s+ex}" cy="${ey-(up?2.2:1.4)*s}" r="${N(1.1)}" fill="#fff"/>`;
+ if(m==='happy')g+=`<path class="cmk" style="stroke-width:${N(2.2)}" d="M${hx-11*s+ex} ${ey+1*s} q${3*s} ${-4.5*s} ${6*s} 0 M${hx+5*s+ex} ${ey+1*s} q${3*s} ${-4.5*s} ${6*s} 0"/>`;
+ else if(m==='shock')g+=`<circle class="cmk" style="fill:#fff;stroke-width:${N(1.5)}" cx="${hx-8*s+ex}" cy="${ey}" r="${N(4.2)}"/><circle class="cmk" style="fill:#fff;stroke-width:${N(1.5)}" cx="${hx+8*s+ex}" cy="${ey}" r="${N(4.2)}"/><circle class="cmf" cx="${hx-8*s+ex}" cy="${ey}" r="${N(1.6)}"/><circle class="cmf" cx="${hx+8*s+ex}" cy="${ey}" r="${N(1.6)}"/>`;
+ else if(m==='sleep')g+=`<path class="cmk" style="stroke-width:${N(2)}" d="M${hx-11*s+ex} ${ey} q${3*s} ${3*s} ${6*s} 0 M${hx+5*s+ex} ${ey} q${3*s} ${3*s} ${6*s} 0"/>`;
+ else g+=eye(-8,m==='think')+eye(8,m==='think');
+ if(m==='sad')g+=`<path class="cmk" style="stroke-width:${N(1.6)}" d="M${hx-12*s+ex} ${ey-6*s} l${6*s} ${-2.5*s} M${hx+12*s+ex} ${ey-6*s} l${-6*s} ${-2.5*s}"/><path d="M${hx-9*s+ex} ${ey+4*s} q${-2.5*s} ${4*s} 0 ${6*s} q${2.5*s} ${-2*s} 0 ${-6*s}" fill="#6FA8DC"/>`;
+ if(m==='angry')g+=`<path class="cmk" style="stroke-width:${N(2)}" d="M${hx-12*s+ex} ${ey-8*s} l${7*s} ${3*s} M${hx+12*s+ex} ${ey-8*s} l${-7*s} ${3*s}"/>`;
+ if(m==='happy')g+=`<path class="cmk cmm" style="stroke-width:${N(1.6)}" d="M${hx-5*s+ex} ${my-1*s} Q${hx+ex} ${my+6*s} ${hx+5*s+ex} ${my-1*s} Z"/>`;
+ else if(m==='sad')g+=`<path class="cmk" style="stroke-width:${N(1.8)}" d="M${hx-4*s+ex} ${my+2*s} Q${hx+ex} ${my-2*s} ${hx+4*s+ex} ${my+2*s}"/>`;
+ else if(m==='shock')g+=`<ellipse class="cmk cmm" style="stroke-width:${N(1.5)}" cx="${hx+ex}" cy="${my+1*s}" rx="${N(3)}" ry="${N(4)}"/><path class="cmk" style="stroke-width:${N(1.6)}" d="M${hx-r-3*s} ${hy-r+2*s} l${-5*s} ${-5*s} M${hx} ${hy-r-5*s} v${-6*s} M${hx+r+3*s} ${hy-r+2*s} l${5*s} ${-5*s}"/>`;
+ else if(m==='angry')g+=`<path class="cmk" style="stroke-width:${N(1.8)}" d="M${hx-4*s+ex} ${my+1.5*s} h${8*s}"/>`;
+ else if(m==='think')g+=`<path class="cmk" style="stroke-width:${N(1.8)}" d="M${hx-1*s+ex} ${my} q${2.5*s} ${-1.5*s} ${5*s} 0"/>`;
+ else if(m==='sleep')g+=`<circle class="cmk" style="stroke-width:${N(1.4)}" cx="${hx+ex}" cy="${my}" r="${N(1.8)}"/><text class="cmt" x="${hx+r+2*s}" y="${hy-r+4*s}">z</text><text class="cmt" x="${hx+r+8*s}" y="${hy-r-3*s}" style="font-size:12px">Z</text>`;
+ else g+=`<path class="cmk" style="stroke-width:${N(1.8)}" d="M${hx-3.5*s+ex} ${my} q${3.5*s} ${3*s} ${7*s} 0"/>`;
+ return `<g>${g}</g>`}
+/* 소품 */
+const CMI={
+ bulb:(x,y,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><path class="cmk cmy" d="M-8 2 A10 10 0 1 1 8 2 Q4 6 4 10 H-4 Q-4 6 -8 2Z"/><path class="cmk" d="M-4 13 H4 M-3 16 H3 M-15 -10 l-5 -3 M15 -10 l5 -3 M0 -18 v-6"/></g>`,
+ note:(x,y,s=1,c='cmy')=>`<g transform="translate(${x} ${y}) scale(${s}) rotate(-6)"><rect class="cmk ${c}" x="-10" y="-10" width="20" height="20" rx="1.5"/><path class="cmk" style="stroke-width:1.4" d="M-6 -4 h12 M-6 1 h9 M-6 6 h11"/></g>`,
+ table:(x,y,w=120)=>`<g><path class="cmk cma" d="M${x-w/2} ${y} h${w} v6 h${-w}Z"/><path class="cmk" d="M${x-w/2+8} ${y+6} v${124-y-6} M${x+w/2-8} ${y+6} v${124-y-6}"/></g>`,
+ q:(x,y,s=1)=>`<text class="cmt" x="${x}" y="${y}" style="font-size:${18*s}px" text-anchor="middle">?</text>`,
+ ex:(x,y,s=1)=>`<text class="cmt" x="${x}" y="${y}" style="font-size:${18*s}px;fill:#E5484D" text-anchor="middle">!</text>`,
+ star:(x,y,s=1,c='cmy')=>`<path class="cmk ${c}" transform="translate(${x} ${y}) scale(${s})" d="M0 -9 L2.6 -3 L9 -2.8 L4 1.4 L5.6 8 L0 4.4 L-5.6 8 L-4 1.4 L-9 -2.8 L-2.6 -3Z"/>`,
+ x:(x,y,s=1)=>`<path class="cmk" transform="translate(${x} ${y}) scale(${s})" style="stroke:#E5484D;stroke-width:3" d="M-7 -7 L7 7 M7 -7 L-7 7"/>`,
+ ok:(x,y,s=1)=>`<path class="cmk" transform="translate(${x} ${y}) scale(${s})" style="stroke:var(--good);stroke-width:3" d="M-8 0 L-2 6 L8 -6"/>`,
+ arrow:(x,y,w=30)=>`<path class="cmk" d="M${x} ${y} h${w} m-6 -5 l6 5 l-6 5"/>`,
+ up:(x,y,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><path class="cmk" style="stroke:var(--good);stroke-width:2.6" d="M-12 8 L-4 0 L2 4 L12 -8 m-7 0 h7 v7"/></g>`,
+ down:(x,y,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><path class="cmk" style="stroke:#E5484D;stroke-width:2.6" d="M-12 -8 L-4 0 L2 -4 L12 8 m-7 0 h7 v-7"/></g>`,
+ heart:(x,y,s=1)=>`<path class="cmk cmr" transform="translate(${x} ${y}) scale(${s})" d="M0 7 C-10 0 -9 -8 -3 -8 C-1 -8 0 -6 0 -5 C0 -6 1 -8 3 -8 C9 -8 10 0 0 7Z"/>`,
+ crowd:(x,y,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})">${[-14,0,14].map((d,i)=>`<circle class="cmk cmw" cx="${d}" cy="${i===1?-4:0}" r="6"/><path class="cmk cma" d="M${d-8} ${(i===1?-4:0)+18} q8 -14 16 0Z"/>`).join('')}</g>`,
+ trophy:(x,y,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><path class="cmk cmy" d="M-9 -12 h18 v6 a9 9 0 0 1 -18 0Z"/><path class="cmk" d="M-9 -9 h-5 a5 5 0 0 0 6 7 M9 -9 h5 a5 5 0 0 1 -6 7 M0 3 v6 M-6 12 h12 v-3 h-12Z"/></g>`,
+ shirt:(x,y,s=1,c='cmr',t='')=>`<g transform="translate(${x} ${y}) scale(${s})"><path class="cmk ${c}" d="M-7 -12 L-16 -8 L-20 0 L-13 3 L-12 -2 L-12 14 L12 14 L12 -2 L13 3 L20 0 L16 -8 L7 -12 Q0 -6 -7 -12Z"/>${t?`<text x="0" y="6" text-anchor="middle" style="font-size:8px;font-weight:800;fill:#fff">${t}</text>`:''}</g>`,
+ ball:(x,y,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><circle class="cmk cmw" r="7"/><path class="cmk" style="stroke:#E5484D;stroke-width:1.3" d="M-4 -5.5 q3 5.5 0 11 M4 -5.5 q-3 5.5 0 11"/></g>`,
+ bat:(x,y,s=1)=>`<path class="cmk" transform="translate(${x} ${y}) scale(${s}) rotate(-35)" style="stroke-width:4" d="M0 0 v-26"/>`,
+ sweat:(x,y,s=1)=>`<path transform="translate(${x} ${y}) scale(${s})" d="M0 -6 q-4 6 0 8 q4 -2 0 -8" fill="#6FA8DC"/>`,
+ lines:(x,y,s=1)=>`<path class="cmk" transform="translate(${x} ${y}) scale(${s})" style="stroke-width:1.5" d="M-8 -8 l-4 -4 M0 -10 v-6 M8 -8 l4 -4"/>`,
+ mic:(x,y,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><rect class="cmk cmg" x="-4" y="-12" width="8" height="12" rx="4"/><path class="cmk" d="M-7 -4 a7 7 0 0 0 14 0 M0 3 v5"/></g>`,
+ wave:(x,y,w=40)=>`<path class="cmk" style="stroke:var(--pri);stroke-width:1.6" d="M${x} ${y} q${w/8} -6 ${w/4} 0 t${w/4} 0 t${w/4} 0 t${w/4} 0"/>`,
+ vs:(x,y)=>`<text class="cmt" x="${x}" y="${y}" style="font-size:14px;fill:#E5484D" text-anchor="middle">VS</text>`,
+ text:(x,y,t,sz=10,c='')=>`<text class="cmt" x="${x}" y="${y}" style="font-size:${sz}px;${c?'fill:'+c:''}" text-anchor="middle">${t}</text>`,
+ ground:()=>`<path class="cmk" style="stroke-width:1.3;stroke:var(--line)" d="M0 125 H200"/>`,
+ field:()=>`<path d="M0 118 H200 V130 H0Z" fill="#9BCB9F" opacity=".45"/><path class="cmk" style="stroke-width:1.3;stroke:#7DB68C" d="M0 118 H200"/>`,
+ stand:(x,y,w=60)=>`<g><path class="cmk cma" d="M${x-w/2} ${y} h${w} v${124-y} h${-w}Z"/></g>`,
+ box:(x,y,w,h,c='cma')=>`<rect class="cmk ${c}" x="${x}" y="${y}" width="${w}" height="${h}" rx="4"/>`,
+ clock:(x,y,s=1)=>`<g transform="translate(${x} ${y}) scale(${s})"><circle class="cmk cmw" r="10"/><path class="cmk" d="M0 0 v-6 M0 0 l4 3"/></g>`,
+ cal:(x,y,s=1,t='')=>`<g transform="translate(${x} ${y}) scale(${s})"><rect class="cmk cmw" x="-12" y="-11" width="24" height="22" rx="2"/><path class="cmk cmr" d="M-12 -11 h24 v6 h-24Z"/><text x="0" y="8" text-anchor="middle" style="font-size:8px;font-weight:800" class="cmt">${t}</text></g>`,
+ thought:(x,y,w=60,h=30)=>`<g><ellipse class="cmk cmw" style="stroke-dasharray:3 3" cx="${x}" cy="${y}" rx="${w/2}" ry="${h/2}"/></g>`,
+};
+function cmScene(sc){return sc.map(it=>{if(it[0]==='P'){const [_,x,m,h,p,c,s,f]=it;return cmPerson({x,m,h,p,c,s,f})}const fn=CMI[it[0]];return fn?fn(...it.slice(1)):''}).join('')}
+/* 패널: {s:[장면], b:[[텍스트,x%,y%,종류]], c:'캡션', w:넓게} */
+function cmHTML(p){const C=CMD[p.id];if(!C)return'';
+ return `<div class="cm">${C.map((pn,i)=>`<div class="cmp ${pn.w?'w':''}"><div class="cms"><span class="cmn">${i+1}</span><svg viewBox="0 0 ${pn.w?400:200} 130" role="img" aria-label="${esc(pn.c.replace(/<[^>]+>/g,''))}">${CMI.ground()}${cmScene(pn.s)}</svg>${(pn.b||[]).map(b=>`<div class="cmb ${b[3]||''}" style="left:${b[1]}%;top:${b[2]}%">${b[0]}</div>`).join('')}</div><div class="cmc">${pn.c}</div></div>`).join('')}</div>`}
+const CMD={};
+
+CMD['14-7']=[
+ {s:[['P',40,'n','b','down','cma',1,1],['P',100,'think','a','chin','cma',1,1],['P',160,'happy','c','point','cmp2',1,-1],['table',100,108,170]],b:[['브레인스토밍 말고 브레인라이팅!',55,4,'sh tr']],c:'<b>주장</b> 팀의 숨은 잠재력을 찾으려면 <b>브레인스토밍 대신</b> <b>브레인라이팅</b>으로 바꾸는 게 나아요.'},
+ {s:[['P',35,'think','b','chin','cma',.9,1],['bulb',35,30,.8],['P',100,'think','a','chin','cma',.9,1],['bulb',100,30,.8],['P',165,'think','c','chin','cma',.9,-1],['bulb',165,30,.8]],b:[],c:'<b>1단계</b> 첫 단계는 <b>혼자</b>예요. 모두가 따로따로 아이디어를 내요. <i>(solo)</i>'},
+ {s:[['box',20,18,110,70,'cmw'],['note',42,38],['note',75,40,1,'cma'],['note',105,36],['note',55,66,1,'cma'],['note',92,66],['P',160,'happy','c','point','cma',1,-1]],b:[['이름은 안 써요!',70,4,'tr']],c:'<b>2단계</b> 아이디어를 한데 모아 <b>이름 없이</b> 공유해요. <i>(anonymously)</i>'},
+ {s:[['P',35,'think','b','chin','cma',.9,1],['note',35,32,.9],['ok',52,24,.8],['P',100,'think','a','chin','cma',.9,1],['note',100,32,.9],['star',118,22,.8],['P',165,'think','c','chin','cma',.9,-1],['note',165,32,.9],['x',182,24,.6]],b:[],c:'<b>3단계</b> <b>독립적 판단</b>을 유지하려고, 평가도 각자 <b>혼자</b> 해요.'},
+ {s:[['star',128,52,1.1],['P',40,'happy','b','down','cma',1,1],['P',100,'happy','a','down','cma',1,1],['P',160,'happy','c','point','cma',1,-1],['table',100,108,170],['note',85,104,.8],['note',112,104,.8,'cma']],b:[['이게 제일 좋다!',70,4,'tr']],c:'<b>4단계</b> <b>그제서야</b>(Only then) 다 같이 모여 가장 유망한 안을 고르고 다듬어요.'},
+ {s:[['P',70,'happy','c','up','cmp2',1,1],['star',40,30],['star',105,24,.8],['crowd',150,96,.9]],b:[['내 아이디어도 올라왔어!',50,4,'sh'],['짝짝짝',75,42,'tn']],c:'<b>효과</b> 주목받지 못했을 가능성까지 드러나요. 모든 아이디어가 테이블에 오르고 <b>모든 목소리</b>가 반영돼요. 집단 지성을 이루기 <b>어려운</b> 그룹에서 특히 효과적!'}];
+CMD['17-9']=[
+ {s:[['field'],['P',70,'happy','cap','up','cmr',1,1],['trophy',130,70],['trophy',152,86,.9],['trophy',172,70,.9],['text',152,40,'25 / 28',14,'#E5484D']],b:[],c:'1940~2000년, <b>쿠바</b>는 세계 야구를 지배했어요. 첫 월드컵 28번 중 <b>25번</b>, 올림픽 5번 중 <b>3번</b> 우승!'},
+ {s:[['field'],['P',55,'happy','cap','down','cmr',1,1],['P',145,'n','b','down','cmg',1,-1],['vs',100,80]],b:[['온통 빨강!',36,6,'tl'],['우린 회색 바지',72,6,'tr']],c:'쿠바 유니폼은 온통 <b>빨강</b>. 회색·흰 바지의 수수한 <b>북미 스타일</b>과 완전히 달랐죠.'},
+ {s:[['field'],['P',55,'angry','cap','hold','cmr',1.05,1],['bat',84,112],['P',145,'shock','b','down','cmg',1,-1],['sweat',165,48]],b:[['시작도 안 했는데…',66,6,'th tr']],c:'쿠바 선수들은 재능도 뛰어났지만 <b>유니폼 색만으로도</b> 더 강해 보였어요. 상대 팀은 <b>경기 전부터</b> 겁을 먹었죠.'},
+ {s:[['shirt',45,70,1.4,'cmr'],['arrow',78,70,40],['shirt',150,70,1.4,'cmg']],b:[['요즘 스타일로 바꾸자!',50,6,'tn']],c:'그런데 몇 년 전, 유니폼을 <b>현대화</b>하고 아마도 다른 나라 스타일에 맞췄어요. 흥미롭게도 그때부터 대표 팀이 <b>쇠퇴</b>했어요.'},
+ {s:[['field'],['P',60,'sad','cap','down','cmg',1,1],['down',140,60,2],['text',140,105,'정상 복귀 X',11,'#E5484D']],b:[],c:'수십 년간 국제 야구를 지배하던 쿠바는 유니폼을 바꾼 뒤 <b>정상에 오르지 못했어요</b>.'},
+ {s:[['P',55,'happy','a','point','cma',1,1],['shirt',140,58,1.3,'cmr'],['heart',140,96,1.1]],b:[['바뀌어도 OK,<br>뿌리는 지키기!',40,4,'sh tl']],c:'<b>주장</b> 전통은 팀에게 중요해요. 이미지는 시대에 맞게 조정할 수 있지만, <b>뿌리</b>를 버리거나 소홀히 하면 부정적인 영향이 드러날 수 있어요.'}];
+
+Object.assign(CMI,{
+ g:(x,y,s,inner)=>`<g transform="translate(${x} ${y}) scale(${s||1})">${inner}</g>`,
+ mouse:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmw" d="M-14 6 Q-14 -8 0 -8 Q12 -8 14 4 L18 6 Q12 9 -14 6Z"/><circle class="cmk cmw" cx="-6" cy="-9" r="5"/><circle class="cmf" cx="10" cy="1" r="1.3"/><path class="cmk" d="M-14 5 q-10 2 -12 -6"/><circle cx="18" cy="6" r="1.6" fill="#FF9AA2"/>`),
+ pill:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk cmw" x="-9" y="-12" width="18" height="24" rx="3"/><rect class="cmk cmp2" x="-10" y="-17" width="20" height="6" rx="2"/><path class="cmk" style="stroke:#E5484D" d="M0 -5 v10 M-5 0 h10"/>`),
+ law:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk cmw" x="-11" y="-14" width="22" height="28" rx="2"/><path class="cmk" style="stroke-width:1.4" d="M-6 -7 h12 M-6 -2 h12 M-6 3 h8"/><text x="0" y="12" text-anchor="middle" class="cmt" style="font-size:6px">법</text><circle class="cmk cmr" cx="7" cy="9" r="4"/>`),
+ robot:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" d="M0 -26 v-6"/><circle class="cmk cmy" cx="0" cy="-33" r="3"/><rect class="cmk cmg" x="-15" y="-26" width="30" height="24" rx="7"/><circle cx="-6" cy="-15" r="3.5" fill="#6FE3FF" class="cmk"/><circle cx="6" cy="-15" r="3.5" fill="#6FE3FF" class="cmk"/><path class="cmk" d="M-5 -7 h10"/><rect class="cmk cmg" x="-11" y="0" width="22" height="22" rx="5"/><path class="cmk" d="M-11 6 l-8 8 M11 6 l8 8 M-5 22 v6 M5 22 v6"/>`),
+ brain:(x,y,s=1,c='#F7B6C2')=>CMI.g(x,y,s,`<path class="cmk" style="fill:${c}" d="M-2 -13 Q-14 -16 -16 -6 Q-22 0 -15 7 Q-14 14 -4 13 Q0 15 2 13 Q14 15 15 7 Q22 0 16 -6 Q14 -16 2 -13Z"/><path class="cmk" style="stroke-width:1.4" d="M0 -13 V13 M-9 -6 q4 3 0 7 M9 -6 q-4 3 0 7"/>`),
+ mirror:(x,y,s=1)=>CMI.g(x,y,s,`<ellipse class="cmk" style="fill:#CFE8F5" cx="0" cy="0" rx="18" ry="25"/><ellipse class="cmk" style="fill:none;stroke-width:4;stroke:#C59A5A" cx="0" cy="0" rx="20" ry="27"/><path class="cmk" style="stroke:#fff;stroke-width:2" d="M-8 -12 l6 -6 M-9 -4 l10 -10"/>`),
+ tv:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" d="M-7 -22 l7 6 l7 -6"/><rect class="cmk cmg" x="-24" y="-16" width="48" height="32" rx="4"/><rect class="cmk" style="fill:#BFE3FF" x="-20" y="-12" width="40" height="24" rx="2"/><path class="cmk" d="M-12 16 l-3 6 M12 16 l3 6"/>`),
+ sofa:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk" style="fill:#C9A7E8" x="-34" y="-14" width="68" height="18" rx="6"/><rect class="cmk" style="fill:#B48BDB" x="-40" y="-6" width="12" height="20" rx="4"/><rect class="cmk" style="fill:#B48BDB" x="28" y="-6" width="12" height="20" rx="4"/><rect class="cmk" style="fill:#B48BDB" x="-30" y="2" width="60" height="12" rx="3"/>`),
+ tree:(x,y,s=1,c='#7DB68C')=>CMI.g(x,y,s,`<rect class="cmk" style="fill:#B07A4A" x="-5" y="0" width="10" height="26" rx="2"/><circle class="cmk" style="fill:${c}" cx="0" cy="-12" r="20"/><circle class="cmk" style="fill:${c}" cx="-14" cy="0" r="11"/><circle class="cmk" style="fill:${c}" cx="14" cy="0" r="11"/>`),
+ roots:(x,y,w=120)=>`<path class="cmk" style="stroke:#B07A4A;stroke-width:2.4;stroke-dasharray:4 3" d="M${x-w/2} ${y} q${w/4} 14 ${w/2} 0 q${w/4} 14 ${w/2} 0"/>`,
+ cat:(x,y,s=1,c='cmf')=>CMI.g(x,y,s,`<path class="cmk ${c}" d="M-12 16 Q-16 -2 -8 -6 L-10 -18 L-2 -10 Q0 -11 2 -10 L10 -18 L8 -6 Q16 -2 12 16Z"/><path class="cmk" d="M12 12 q12 0 8 -12"/><circle cx="-4" cy="-3" r="1.8" fill="#FFD666"/><circle cx="4" cy="-3" r="1.8" fill="#FFD666"/>`),
+ puma:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#D9A066" d="M-24 4 Q-22 -8 -6 -8 L10 -8 Q14 -18 22 -14 Q28 -10 24 -2 L20 0 L20 14 M14 0 L14 14 M-18 4 L-18 14 M-12 4 L-12 14 M-24 4 Q-34 -4 -30 -14"/><circle class="cmf" cx="20" cy="-10" r="1.4"/>`),
+ firefly:(x,y,s=1)=>CMI.g(x,y,s,`<circle cx="0" cy="0" r="7" fill="#FFE97A" opacity=".55"/><circle cx="0" cy="0" r="2.6" fill="#FFD23F"/>`),
+ lamp:(x,y,s=1,on=1)=>CMI.g(x,y,s,`<path class="cmk" d="M0 -20 v6"/><path class="cmk ${on?'cmy':'cmg'}" d="M-9 -14 h18 l-4 14 h-10Z"/>${on?'<path d="M-14 4 L14 4 L24 30 L-24 30Z" fill="#FFE97A" opacity=".35"/>':''}`),
+ night:(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#1E2340"/>`,
+ coin:(x,y,s=1)=>CMI.g(x,y,s,`<circle class="cmk cmy" r="9"/><text y="4" text-anchor="middle" class="cmt" style="font-size:10px">$</text>`),
+ money:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmy" d="M-12 -6 Q-14 -18 0 -16 Q14 -18 12 -6 Q20 4 12 14 H-12 Q-20 4 -12 -6Z"/><path class="cmk" d="M-8 -16 l8 -6 l8 6"/><text y="7" text-anchor="middle" class="cmt" style="font-size:11px">$</text>`),
+ factory:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmg" d="M-26 20 V-2 l12 -8 v8 l12 -8 v8 l12 -8 V20Z"/><rect class="cmk cmg" x="12" y="-26" width="9" height="46"/><circle cx="20" cy="-32" r="5" fill="#9AA0A6" opacity=".7"/><circle cx="27" cy="-38" r="6" fill="#9AA0A6" opacity=".5"/>`),
+ solar:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#3D6FB6" d="M-22 4 L-14 -14 H22 L14 4Z"/><path class="cmk" style="stroke:#fff;stroke-width:1" d="M-18 -5 H18 M-6 -14 L-10 4 M6 -14 L2 4"/><path class="cmk" d="M0 4 v14"/>`),
+ wind:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" d="M0 0 V38"/><path class="cmk cmw" d="M0 0 L-4 -24 L4 -24Z M0 0 L22 10 L18 16Z M0 0 L-22 10 L-18 16Z"/><circle class="cmk cmw" r="3"/>`),
+ oil:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk" style="fill:#5A4A42" x="-10" y="-14" width="20" height="28" rx="3"/><path class="cmk" style="stroke:#fff;stroke-width:1.2" d="M-10 -4 h20 M-10 5 h20"/><path d="M0 -24 q-5 6 0 8 q5 -2 0 -8" fill="#3B2C2A"/>`),
+ plant:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#C9785A" d="M-12 4 H12 L9 22 H-9Z"/><path class="cmk" d="M0 4 V-14"/><path class="cmk" style="fill:#7DB68C" d="M0 -6 Q-16 -10 -14 -22 Q-2 -18 0 -6Z M0 -10 Q14 -14 14 -26 Q2 -24 0 -10Z"/>`),
+ scissors:(x,y,s=1)=>CMI.g(x,y,s,`<circle class="cmk" cx="-8" cy="8" r="5"/><circle class="cmk" cx="8" cy="8" r="5"/><path class="cmk" d="M-5 4 L10 -16 M5 4 L-10 -16"/>`),
+ drop:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmbl" d="M0 -12 Q-9 2 -7 6 A7 7 0 0 0 7 6 Q9 2 0 -12Z"/>`),
+ snd:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="stroke:var(--pri)" d="M0 -6 q4 6 0 12 M5 -11 q8 11 0 22 M10 -16 q12 16 0 32"/>`),
+ magnify:(x,y,s=1)=>CMI.g(x,y,s,`<circle class="cmk" style="fill:#DDF0FF" cx="-4" cy="-4" r="11"/><path class="cmk" style="stroke-width:4" d="M4 4 L14 14"/>`),
+ eye:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmw" d="M-16 0 Q0 -14 16 0 Q0 14 -16 0Z"/><circle class="cmf" r="5"/><circle cx="1.5" cy="-1.5" r="1.5" fill="#fff"/>`),
+ platypus:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#9B6B43" d="M-20 4 Q-20 -10 0 -10 Q14 -10 16 0 Q14 10 0 10 Q-20 12 -20 4Z"/><path class="cmk" style="fill:#5A4A42" d="M14 -4 Q30 -6 30 2 Q28 6 14 4Z"/><path class="cmk" style="fill:#9B6B43" d="M-20 2 L-30 -2 L-30 8Z"/><circle class="cmf" cx="10" cy="-4" r="1.3"/>`),
+ pencil:(x,y,s=1,r=0)=>CMI.g(x,y,s,`<g transform="rotate(${r})"><rect class="cmk cmy" x="-16" y="-3" width="26" height="6"/><path class="cmk" style="fill:#F2D2A9" d="M10 -3 L17 0 L10 3Z"/><rect class="cmk" style="fill:#F7A8A8" x="-20" y="-3" width="4" height="6"/></g>`),
+ house:(x,y,s=1,dash=0)=>CMI.g(x,y,s,`<path class="cmk ${dash?'':'cmw'}" ${dash?'style="stroke-dasharray:3 3;stroke:var(--pri)"':''} d="M-18 18 V-2 L0 -18 L18 -2 V18Z"/><rect class="cmk" ${dash?'style="stroke-dasharray:3 3;stroke:var(--pri)"':'style="fill:#C9785A"'} x="-5" y="4" width="10" height="14"/>`),
+ car:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmbl" d="M-24 8 V0 Q-22 -4 -14 -4 L-8 -12 H8 L14 -4 Q22 -4 24 0 V8Z"/><circle class="cmk cmg" cx="-12" cy="9" r="5"/><circle class="cmk cmg" cx="12" cy="9" r="5"/>`),
+ sandwich:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#F2D2A9" d="M-16 6 L0 -12 L16 6Z"/><path class="cmk" style="fill:#7DB68C" d="M-16 6 h32 v3 h-32Z"/><path class="cmk" style="fill:#F2D2A9" d="M-16 9 h32 v4 h-32Z"/>`),
+ bin:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmg" d="M-12 -8 H12 L9 16 H-9Z"/><path class="cmk" d="M-15 -11 H15 M-4 -14 H4 M-4 -2 V10 M4 -2 V10"/>`),
+ greenhouse:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#DDF0FF" d="M-24 16 V-2 Q0 -26 24 -2 V16Z"/><path class="cmk" style="stroke-width:1.2" d="M0 -14 V16 M-24 -2 H24"/>`),
+ sat:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk cmg" x="-5" y="-5" width="10" height="10"/><rect class="cmk" style="fill:#3D6FB6" x="-20" y="-3" width="13" height="6"/><rect class="cmk" style="fill:#3D6FB6" x="7" y="-3" width="13" height="6"/>`),
+ truck:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk cmw" x="-24" y="-14" width="30" height="20" rx="2"/><path class="cmk cmbl" d="M6 -8 H16 L22 0 V6 H6Z"/><circle class="cmk cmg" cx="-14" cy="8" r="4.5"/><circle class="cmk cmg" cx="14" cy="8" r="4.5"/>`),
+ bike:(x,y,s=1)=>CMI.g(x,y,s,`<circle class="cmk" cx="-16" cy="8" r="10"/><circle class="cmk" cx="16" cy="8" r="10"/><path class="cmk" style="stroke:var(--pri)" d="M-16 8 L-4 -8 H12 L16 8 M-4 -8 L2 8 L12 -8 M12 -8 l-2 -6 h6"/>`),
+ cart:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmy" d="M-20 -8 H20 V6 H-20Z"/><circle class="cmk cmg" cx="-12" cy="10" r="5"/><circle class="cmk cmg" cx="12" cy="10" r="5"/>`),
+ paper:(x,y,s=1,t='')=>CMI.g(x,y,s,`<rect class="cmk cmw" x="-13" y="-16" width="26" height="32" rx="2"/><path class="cmk" style="stroke-width:1.2" d="M-8 -9 h16 M-8 -4 h16 M-8 1 h10"/><text x="0" y="13" text-anchor="middle" class="cmt" style="font-size:9px;fill:#E5484D">${t}</text>`),
+ medal:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmr" d="M-6 -18 L-2 -6 M6 -18 L2 -6"/><circle class="cmk cmy" cy="2" r="9"/><path class="cmk" style="stroke-width:1.4" d="M0 -3 v10"/>`),
+ stairs:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cma" d="M-30 16 V8 H-16 V-2 H-2 V-12 H12 V-22 H26 V16Z"/>`),
+ ear:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:var(--skin,#FFE2CC)" d="M-8 10 Q-14 -2 -8 -12 Q2 -20 10 -10 Q14 -2 6 4 Q2 8 4 14 Q-2 18 -8 10Z"/><path class="cmk" style="stroke-width:1.4" d="M-3 -6 Q4 -10 6 -4 Q4 0 0 2"/>`),
+ bone:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmw" d="M-14 -3 h28 v6 h-28Z"/><circle class="cmk cmw" cx="-15" cy="-4" r="4"/><circle class="cmk cmw" cx="-15" cy="4" r="4"/><circle class="cmk cmw" cx="15" cy="-4" r="4"/><circle class="cmk cmw" cx="15" cy="4" r="4"/>`),
+ squirrel:(x,y,s=1,c='#D0603C',f=1)=>CMI.g(x,y,s,`<g transform="scale(${f} 1)"><path class="cmk" style="fill:${c}" d="M-6 16 Q-30 10 -24 -12 Q-20 -24 -10 -18 Q-20 -4 -6 4Z"/><path class="cmk" style="fill:${c}" d="M-6 16 Q-8 0 2 -4 Q10 -6 12 2 Q14 12 6 16Z"/><circle class="cmk" style="fill:${c}" cx="8" cy="-8" r="7"/><path class="cmk" style="fill:${c}" d="M6 -14 l2 -6 l3 5"/><circle class="cmf" cx="11" cy="-9" r="1.3"/></g>`),
+ acorn:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#C9785A" d="M-6 -2 Q-6 10 0 12 Q6 10 6 -2Z"/><path class="cmk" style="fill:#7A5232" d="M-8 -2 Q0 -10 8 -2Z M0 -6 v-4"/>`),
+ gear:(x,y,s=1)=>CMI.g(x,y,s,`<circle class="cmk cmg" r="9"/><circle class="cmk cmw" r="3.5"/><path class="cmk cmg" style="stroke-width:3" d="M0 -13 v4 M0 9 v4 M-13 0 h4 M9 0 h4 M-9 -9 l3 3 M6 6 l3 3 M9 -9 l-3 3 M-6 6 l-3 3"/>`),
+ hut:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#D9B98A" d="M-16 14 V-2 H16 V14Z"/><path class="cmk" style="fill:#B07A4A" d="M-22 -2 L0 -18 L22 -2Z"/><rect class="cmk" style="fill:#7A5232" x="-4" y="4" width="8" height="10"/>`),
+ wheat:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="stroke:#C59A2A" d="M0 16 V-14"/>${[-10,-4,2].map(d=>`<ellipse cx="-3" cy="${d}" rx="2.4" ry="4" fill="#E5B84A" transform="rotate(-25 -3 ${d})"/><ellipse cx="3" cy="${d}" rx="2.4" ry="4" fill="#E5B84A" transform="rotate(25 3 ${d})"/>`).join('')}`),
+ hammer:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="stroke:#B07A4A;stroke-width:4" d="M0 -6 V16"/><rect class="cmk cmg" x="-9" y="-12" width="18" height="8" rx="2"/>`),
+ sugar:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmw" d="M-8 -4 L0 -9 L8 -4 V6 L0 11 L-8 6Z M-8 -4 L0 1 L8 -4 M0 1 V11"/>`),
+ vampire:(x,y,s=1,f=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#3B2C2A" d="M-20 30 L-14 -6 Q0 -2 14 -6 L20 30Z"/><path class="cmk cmr" d="M-14 -6 L-22 -16 L-10 -10Z M14 -6 L22 -16 L10 -10Z"/>`),
+ globe:(x,y,s=1)=>CMI.g(x,y,s,`<circle class="cmk cmbl" r="16"/><path class="cmk" style="fill:#7DB68C" d="M-10 -8 Q-4 -12 0 -6 Q-2 0 -8 2 Q-12 -2 -10 -8Z M4 4 Q10 0 12 6 Q8 12 4 10Z"/>`),
+ typewriter:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk cmw" x="-10" y="-22" width="20" height="14"/><path class="cmk cmg" d="M-24 -8 H24 L28 14 H-28Z"/>${[-16,-8,0,8,16].map(d=>`<circle class="cmk cmw" style="stroke-width:1.2" cx="${d}" cy="6" r="2.4"/>`).join('')}`),
+ laptop:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk cmg" x="-20" y="-18" width="40" height="26" rx="2"/><rect class="cmk" style="fill:#BFE3FF" x="-16" y="-14" width="32" height="18"/><path class="cmk cmg" d="M-26 8 H26 L22 14 H-22Z"/>`),
+ film:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk" style="fill:#3B2C2A" x="-30" y="-9" width="60" height="18"/>${[-22,-8,6,20].map(d=>`<rect x="${d-5}" y="-5" width="10" height="10" fill="#BFE3FF"/>`).join('')}`),
+ bowl:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmw" d="M-22 -4 H22 Q20 16 0 16 Q-20 16 -22 -4Z"/><path d="M-20 -1 H20 Q19 4 17 6 H-17 Q-19 4 -20 -1Z" fill="#6FA8DC" opacity=".7"/>`),
+ water:(x,y,w=200,h=40)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#6FA8DC" opacity=".35"/><path class="cmk" style="stroke:#6FA8DC" d="M${x} ${y} q10 -5 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0"/>`,
+ seal:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmg" d="M-24 10 Q-20 -6 0 -6 Q14 -8 18 -14 Q24 -10 20 -2 Q14 10 -24 10Z M-24 10 L-30 4 M-24 10 L-30 14"/><circle class="cmf" cx="16" cy="-10" r="1.4"/>`),
+ monkey:(x,y,s=1)=>CMI.g(x,y,s,`<circle class="cmk" style="fill:#7A5232" cx="0" cy="-8" r="13"/><ellipse class="cmk" style="fill:#F2D2A9" cx="0" cy="-5" rx="9" ry="7"/><circle class="cmk" style="fill:#7A5232" cx="-14" cy="-10" r="4"/><circle class="cmk" style="fill:#7A5232" cx="14" cy="-10" r="4"/><circle class="cmf" cx="-3.5" cy="-8" r="1.5"/><circle class="cmf" cx="3.5" cy="-8" r="1.5"/><ellipse class="cmk" style="fill:#7A5232" cx="0" cy="16" rx="11" ry="12"/>`),
+ heartbeat:(x,y,s=1,c='#E5484D')=>CMI.g(x,y,s,`<path class="cmk" style="stroke:${c};stroke-width:2.2" d="M-24 0 H-10 L-6 -10 L-1 10 L4 -6 L7 0 H24"/>`),
+ wing:(x,y,s=1,c='cmw')=>CMI.g(x,y,s,`<path class="cmk ${c}" d="M-18 6 Q-10 -18 18 -14 Q8 -8 12 -4 Q2 -2 6 4 Q-6 4 -18 6Z"/>`),
+ bee:(x,y,s=1)=>CMI.g(x,y,s,`<ellipse class="cmk cmy" rx="11" ry="7"/><path class="cmk" style="stroke-width:2.4" d="M-3 -7 V7 M3 -7 V7"/><ellipse class="cmk" style="fill:#DDF0FF" cx="-3" cy="-11" rx="6" ry="4"/><ellipse class="cmk" style="fill:#DDF0FF" cx="5" cy="-11" rx="5" ry="3.5"/>`),
+ bird:(x,y,s=1,c='cmw',f=1)=>CMI.g(x,y,s,`<g transform="scale(${f} 1)"><path class="cmk ${c}" d="M-12 2 Q-8 -8 4 -6 Q12 -10 14 -4 L20 -3 L14 0 Q10 8 -2 6 Q-10 8 -16 6Z"/><path class="cmk ${c}" d="M-4 -2 Q-2 -14 8 -16 Q4 -8 4 -2Z"/><circle class="cmf" cx="10" cy="-5" r="1.2"/></g>`),
+ batanimal:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#5A4A62" d="M0 -4 Q-10 -12 -24 -8 Q-20 -2 -22 4 Q-14 0 -10 6 Q-4 2 0 6 Q4 2 10 6 Q14 0 22 4 Q20 -2 24 -8 Q10 -12 0 -4Z"/><circle class="cmk" style="fill:#5A4A62" cy="-4" r="5"/>`),
+ horse:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#B07A4A" d="M-22 0 Q-22 -10 -8 -10 H10 L18 -24 Q26 -24 26 -18 L18 -6 V0 Q14 4 10 2 V16 M6 2 V16 M-16 4 V16 M-10 4 V16 M-22 0 Q-30 2 -30 10"/>`),
+ map:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#F2E6C9" d="M-20 -14 L-6 -18 L6 -14 L20 -18 V14 L6 18 L-6 14 L-20 18Z"/><path class="cmk" style="stroke:#E5484D;stroke-width:1.4;stroke-dasharray:3 2" d="M-14 8 Q-4 -10 14 -8"/>`),
+ photo:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk cmw" x="-14" y="-16" width="28" height="32" rx="2"/><rect x="-10" y="-12" width="20" height="18" fill="#DDF0FF"/><circle cx="0" cy="-5" r="4" fill="#F2D2A9" class="cmk" style="stroke-width:1"/><path d="M-7 6 q7 -9 14 0Z" fill="#9AA0A6"/>`),
+ bread:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:#C9925A" d="M-14 10 V-4 Q-18 -14 -6 -14 H6 Q18 -14 14 -4 V10Z"/><path class="cmk" style="stroke-width:1.2" d="M-6 -4 l4 4 M2 -6 l4 4 M-4 4 l4 4"/>`),
+ candy:(x,y,s=1)=>CMI.g(x,y,s,`<circle class="cmk" style="fill:#FF8FB1" r="8"/><path class="cmk" style="fill:#FF8FB1" d="M-8 0 L-16 -6 V6Z M8 0 L16 -6 V6Z"/><path class="cmk" style="stroke:#fff;stroke-width:1.4" d="M-4 -5 q4 5 0 10 M2 -6 q4 6 0 12"/>`),
+ chain:(x,y,s=1)=>CMI.g(x,y,s,[-16,-5,6,17].map((d,i)=>`<ellipse class="cmk" style="fill:none;stroke:var(--pri)" cx="${d}" cy="0" rx="7" ry="4.5"/><circle cx="${d}" cy="0" r="2" fill="${['#FF8FB1','#6FA8DC','#FFD23F','#7DB68C'][i]}"/>`).join('')),
+ fat:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk cmy" d="M-14 6 Q-18 -8 -6 -10 Q0 -16 8 -10 Q18 -8 14 6 Q8 14 0 10 Q-8 14 -14 6Z"/><text y="4" text-anchor="middle" class="cmt" style="font-size:8px">지방</text>`),
+ battery:(x,y,s=1,lv=3)=>CMI.g(x,y,s,`<rect class="cmk cmw" x="-14" y="-8" width="26" height="16" rx="2"/><rect class="cmk cmw" x="12" y="-3" width="3" height="6"/>${[0,1,2].map(i=>i<lv?`<rect x="${-11+i*8}" y="-5" width="6" height="10" fill="var(--good)"/>`:'').join('')}`),
+ ballot:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk cmw" x="-14" y="-6" width="28" height="22" rx="2"/><path class="cmk" d="M-6 -6 h12"/><rect class="cmk cmw" x="-5" y="-18" width="10" height="13" transform="rotate(8)"/><path class="cmk" style="stroke:var(--good);stroke-width:1.5" d="M-2 -12 l2 2 l3 -4"/>`),
+ dumbbell:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="stroke-width:3" d="M-10 0 H10"/><rect class="cmk cmg" x="-18" y="-8" width="8" height="16" rx="2"/><rect class="cmk cmg" x="10" y="-8" width="8" height="16" rx="2"/>`),
+ door:(x,y,s=1)=>CMI.g(x,y,s,`<rect class="cmk" style="fill:#B07A4A" x="-14" y="-28" width="28" height="52" rx="2"/><circle class="cmy cmk" cx="8" cy="0" r="2"/>`),
+ lock:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" d="M-6 -4 V-10 A6 6 0 0 1 6 -10 V-4"/><rect class="cmk cmy" x="-9" y="-4" width="18" height="14" rx="2"/>`),
+ hands:(x,y,s=1)=>CMI.g(x,y,s,`<path class="cmk" style="fill:var(--skin,#FFE2CC)" d="M-22 4 Q-10 -6 0 -2 Q10 -6 22 4 L14 10 Q0 4 -14 10Z"/>`),
+ cloud:(x,y,s=1,c='cmw')=>CMI.g(x,y,s,`<path class="cmk ${c}" d="M-18 8 Q-26 8 -24 0 Q-24 -8 -14 -8 Q-12 -18 0 -16 Q10 -20 14 -10 Q24 -10 24 0 Q24 8 16 8Z"/>`),
+ sun:(x,y,s=1)=>CMI.g(x,y,s,`<circle class="cmk cmy" r="9"/><path class="cmk" d="M0 -14 v-4 M0 14 v4 M-14 0 h-4 M14 0 h4 M-10 -10 l-3 -3 M10 10 l3 3 M10 -10 l3 -3 M-10 10 l-3 3"/>`),
+ num:(x,y,t,sz=16,c='var(--pri)')=>`<text class="cmt" x="${x}" y="${y}" style="font-size:${sz}px;fill:${c};font-weight:900" text-anchor="middle">${t}</text>`,
+ arc:(x1,y1,x2,y2,c='var(--pri)')=>`<path class="cmk" style="stroke:${c};stroke-dasharray:4 3" d="M${x1} ${y1} Q${(x1+x2)/2} ${Math.min(y1,y2)-24} ${x2} ${y2}"/><path class="cmk" style="stroke:${c}" d="M${x2} ${y2} l-6 -4 M${x2} ${y2} l-1 -7"/>`,
+ dark:(x,y,w,h)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#1E2340"/>`,
+ band:(x,y,w,h,c)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" style="fill:${c}" opacity=".25"/>`,
+});
+
+CMD['7-1']=[
+ {s:[['P',60,'angry','b','hold','cma',1,1],['pill',140,62,1.1],['x',140,62,1.8]],b:[['동물 실험 덕분이<br>아니야!',40,4,'tl']],c:'<b>반대자</b>: 현대 의학만이 사망률 감소의 원인은 아니고, 실제로 건강에 기여한 많은 의학 발전도 <b>동물 실험의 결과가 아니래요</b>.'},
+ {s:[['P',55,'happy','c','point','cmw',1,1],['mouse',145,112],['pill',150,62,1.2]],b:[['같이 나타나니까<br>원인이지!',36,4,'tl']],c:'<b>옹호자</b>: 동물 실험과 의학 발전 사이에 강한 상관관계가 있으니, 동물 실험이 의학 발전을 <b>일으켰다</b>고 주장해요.'},
+ {s:[['P',150,'think','b','chin','cma',1,-1],['mouse',50,114,.9],['pill',60,62,1]],b:[['같이 나타날<br>다른 이유가 있어',50,4,'th tr']],c:'반대자들은 이 추론을 <b>거부</b>해요. 둘이 같이 나타날 거라고 예상할 <b>별개의 이유</b>가 있다는 거예요.'},
+ {s:[['law',45,80,1.5],['arrow',75,80,30],['mouse',140,112],['pill',150,62,1.1]],b:[['사람보다 동물 먼저!',50,4,'sh tn']],c:'<b>법</b>이 모든 신약·보철 장치·수술 기법을 사람에게 쓰기 전에 <b>동물에게 먼저 시험</b>하도록 정해 놨어요. 그러니 모든 의학 발전은 동물 실험과 같이 나타날 수밖에 없어요.'},
+ {s:[['P',55,'n','d','point','cma',1,1],['law',140,88,1.3]],b:[],c:'<b>따라서</b> 이 상관관계는 <b>법적 필요성</b>의 결과일 뿐, 동물 실험이 의학 발전을 이끌었다는 <b>증거가 아니에요</b>.'},
+ {s:[['P',55,'happy','d','point','cmw',1,1],['paper',145,80,1.4,'임상']],b:[['임상 발견이<br>더 중요했어요',40,4,'tl']],c:'<b>게다가</b> 영향력 있는 의사들은 <b>역사적 증거</b>를 내놨어요. 동물 연구자들 말보다 <b>임상적 발견</b>이 더 중요한 역할을 했대요.'}];
+CMD['7-3']=[
+ {s:[['P',50,'shock','c','down','cma',1,1],['robot',145,96,1.1],['text',145,30,'AI > 인간 지능',11,'#E5484D']],b:[],c:'<b>특이점</b>: AI가 인간의 지능을 넘어서는 지점이에요.'},
+ {s:[['robot',60,96,1.1],['up',140,70,2],['star',160,30,.9],['star',120,40,.7]],b:[['스스로 계속<br>업그레이드!',60,4,'tn']],c:'그 뒤 AI는 스스로 개선하며 <b>빠르게 진화</b>해요. 자기 목표를 가진 <b>의식 있는 존재</b>가 돼요.'},
+ {s:[['robot',45,96,1],['arc',70,62,118,44],['bulb',150,22,.9],['P',150,'happy','a','up','cma',1,-1]],b:[],c:'<b>AI → 인간</b> AI와의 상호 작용이 우리에게 <b>지적 자극·통찰·창의성</b>을 줘요.'},
+ {s:[['P',50,'happy','d','point','cma',1,1],['heart',100,62],['robot',150,96,1]],b:[['가치·윤리를 담아서',50,4,'tl']],c:'<b>인간 → AI</b> 반대로, 우리가 AI에 넣는 <b>가치와 윤리</b>가 AI 진화의 방향을 정해요.'},
+ {s:[['P',65,'happy','b','point','cma',1,1],['robot',140,96,1],['heart',102,30,1.3]],b:[],c:'<b>주장</b> AI와의 관계 = 의식 있는 존재들의 <b>공존</b>. AI의 권리를 인정하고 진화를 지지해야 해요.'}];
+CMD['7-5']=[
+ {s:[['P',60,'happy','d','down','cmp2',1,1],['mirror',150,80,1]],b:[['나는 이런<br>사람이야',58,4,'th tn']],c:'<b>행동은 정체성을 반영해요</b>. 내 행동은 "나는 어떤 사람인지"에 대한 믿음을 보여 줘요.'},
+ {s:[['P',60,'happy','c','point','cma',1,1],['ballot',145,104,1.3]],b:[['나는 유권자니까!',40,4,'tl']],c:'자신을 "<b>유권자</b>"로 여긴 사람이, 투표를 "하고 싶은 행동"이라 말한 사람보다 실제로 <b>더 투표</b>했어요.'},
+ {s:[['P',90,'happy','b','up','cma',1,1],['dumbbell',68,58,.9],['dumbbell',112,58,.9]],b:[['설득 필요 없음!',50,4,'sh tn']],c:'운동을 정체성으로 받아들인 사람은 운동하라고 <b>자신을 설득할 필요가 없어요</b>.'},
+ {s:[['P',50,'happy','a','down','cma',1,1],['text',140,70,'행동',13],['text',140,88,'=',16,'var(--good)'],['text',140,106,'정체성',13]],b:[['그냥 나답게!',40,4,'tl']],c:'행동과 정체성이 딱 맞으면 옳은 일이 쉬워요. 변하려고 애쓰는 게 아니라 <b>그냥 나답게</b> 행동할 뿐이에요.'}];
+CMD['7-7']=[
+ {s:[['P',55,'sleep','c','down','cma',1,1],['tv',145,88,1]],b:[['또 이거야…',40,4,'th tl']],c:'장난감, 급식, 좋아하던 TV 프로그램… 우리는 <b>쉽게 지루해져요</b>.'},
+ {s:[['brain',50,70,1.6],['text',140,56,'같은 자극 → 반응 ↓',10],['text',140,82,'변하는 자극 → 반응 ↑',10,'var(--good)']],b:[],c:'이유는 신경 세포! <b>같은 자극</b>이 반복되면 반응을 <b>줄이고</b>, <b>변하는 것</b>엔 반응을 <b>키워요</b>.'},
+ {s:[['tree',150,90,1],['puma',150,70,.8],['P',50,'shock','c','down','cma',1,1],['ex',90,60]],b:[['저기 움직인다!',36,4,'sh tl']],c:'<b>진화적 이유</b>: 조상들은 나무 자체보다 나무에서 <b>움직이는 퓨마</b>에 주목해야 살아남았어요.'},
+ {s:[['night',0,0,200,130],['lamp',45,30,1,0],['firefly',110,50],['firefly',140,72],['firefly',165,44],['firefly',125,96]],b:[['불을 끄니까 보여!',62,4,'tn']],c:'지루함 = <b>현관 불 끄기</b>. 변함없는 배경 반응을 꺼야 반딧불이 같은 <b>새 자극</b>이 잘 보여요.'}];
+CMD['7-9']=[
+ {s:[['P',55,'sad','c','down','cmg',1,1],['text',145,70,'가난',14],['text',145,90,'↓',14],['text',145,110,'스트레스 ↑',12,'#E5484D']],b:[],c:'가난하면 스트레스를 받는다? 누구나 알아요. 지위가 낮을수록 <b>스트레스 호르몬</b>이 높았어요.'},
+ {s:[['P',55,'shock','d','down','cma',1,1],['money',145,98,1.2],['clock',150,46,1.3]],b:[['However!',30,4,'sh tl']],c:'<b>하지만</b> 부유한 나라에도 그들만의 스트레스가 있어요. 핵심은 <b>시간 압박</b>!'},
+ {s:[['globe',55,70,1.6],['factory',150,98,1],['text',55,112,'31개국',11]],b:[['부유할수록 빨라!',70,4,'tr']],c:'1999년 31개국 연구: 부유하고 산업화된 나라일수록 <b>삶의 속도가 빨랐어요</b>.'},
+ {s:[['P',55,'sad','a','up','cma',1,1],['clock',130,40,1.1],['heartbeat',150,96,1],['heart',165,66,.9]],b:[['바빠 바빠!',28,4,'tl']],c:'생활 수준은 높아졌지만, 늘 <b>쫓기는 느낌</b>이 들고 <b>심장병</b>에도 더 잘 걸렸어요.'},
+ {s:[['money',55,86,1.4],['clock',145,86,1.6],['x',145,86,1.4],['text',55,118,'부 ↑',11,'var(--good)'],['text',145,118,'시간 ↓',11,'#E5484D']],b:[['time-poor',50,4,'sh tn']],c:'<b>결론</b> 빠른 생산성은 부를 만들지만, 쉴 시간이 없는 <b>시간이 가난한</b> 상태로 만들어요.'}];
+CMD['7-11']=[
+ {s:[['P',45,'happy','c','down','cma',1,1],['bulb',45,20,.7],['P',155,'angry','b','point','cma',1,-1]],b:[['이건 어때?',32,4,'tl'],['안 될 거야.',70,4,'tr']],c:'내 제안에 상대가 듣자마자 "안 될 거야." 하면 "기회도 안 줬잖아!" 싶죠.'},
+ {s:[['P',55,'angry','d','hold','cma',1,1],['door',145,96,1],['lock',145,90,1.2]],b:[['원래 그래, 끝.',38,4,'sh tl']],c:'그런데 <b>나도</b> 옳다고 확신하면, 똑같이 다른 관점과 기회를 <b>닫아 버려요</b>.'},
+ {s:[['P',90,'think','a','chin','cma',1,1],['ok',145,50,1.6]],b:[['내가 맞을 수도 있지',50,4,'th tn']],c:'물론 내가 맞을 수도 있어요. 내 시각이 사실에 맞을 수도 있고요.'},
+ {s:[['P',55,'happy','c','down','cma',1,1],['P',145,'happy','b','point','cma',1,-1],['eye',100,58,.9]],b:[['아, 이렇게도<br>보는구나!',30,4,'tl']],c:'<b>하지만</b> 상대 입장에서 보면 새로운 걸 보거나, <b>아무리 못해도</b> 상대가 삶을 보는 방식을 배워요.'},
+ {s:[['crowd',60,100,1.3],['P',150,'sleep','a','down','cmg',.9,-1]],b:[['다 똑같으면…',50,4,'th tn']],c:'모두가 나처럼만 본다면 지루할 뿐 아니라, 새로운 기회·아이디어·발명·<b>창의성</b>이 사라져요.'}];
+CMD['14-1']=[
+ {s:[['solar',55,96,1.3],['wind',145,78,1.1],['sun',30,28]],b:[['인류 최대의<br>변화 프로젝트!',62,4,'tn']],c:'Heinberg: 지구 온난화를 막으려 <b>재생 에너지 시설</b>을 짓는 건 인류 역사상 가장 큰 변화 프로젝트예요.'},
+ {s:[['P',45,'shock','c','down','cma',1,1],['car',140,112,1],['factory',150,64,.8],['wheat',105,100,.9]],b:[['이것까지 다?!',36,4,'tl']],c:'<b>하지만</b> 생각보다 어렵고 복잡해요. 패널·터빈 말고도 <b>교통·농업·산업</b> 시설까지 바꿔야 해요.'},
+ {s:[['factory',55,96,1.2],['oil',145,104,1.3],['arrow',100,96,22]],b:[['화석 연료 없인 불가능',50,4,'sh tn']],c:'<b>역설</b> 콘크리트·강철 생산도, 태양광 광물 채굴도 전부 <b>화석 에너지</b>가 필요해요.'},
+ {s:[['P',50,'shock','a','up','cma',1,1],['solar',125,108,.9],['oil',165,104,1.1],['up',165,60,1.4]],b:[['빨리 갈수록 더 써!',40,4,'tl']],c:'<b>그래서</b> 재생 에너지로 세게 밀어붙일수록 화석 에너지를 <b>더 빨리</b> 써요. 비싸고 배출 감축에도 역행해요.'},
+ {s:[['P',55,'think','d','chin','cma',1,1],['paper',145,84,1.5,'공급만'],['q',175,50]],b:[['건설 비용은?',40,4,'th tl']],c:'<b>숨은 문제</b> 전환 계획은 에너지 공급만 보고, 이 <b>건설 비용</b>은 거의 계산하지 않아요.'}];
+CMD['14-3']=[
+ {s:[['plant',60,96,1.6],['snd',95,70,1.2],['P',150,'think','c','chin','cma',1,-1]],b:[],c:'식물도 우리와는 다른 방식으로 <b>의사소통</b>해요.'},
+ {s:[['plant',55,96,1.5],['scissors',110,96,1],['cloud',150,48,1,'cma']],b:[['SOS!',75,26,'sh tn']],c:'<b>냄새</b>: 잔디를 깎은 뒤 나는 그 냄새가 사실 <b>구조 신호(SOS)</b>예요.'},
+ {s:[['plant',50,96,1.5],['snd',80,70,1.2],['mic',115,100,1.3],['P',165,'shock','a','down','cma',.85,-1]],b:[['딸깍 딸깍',40,4,'tn']],c:'<b>소리</b>: 스트레스를 받으면 고주파 딸깍 소리를 내요. 사람 귀로는 <b>못 들어요</b>.'},
+ {s:[['plant',50,96,1.3],['drop',22,58,1],['x',22,58,.8],['plant',150,96,1.3],['scissors',178,64,.9],['text',100,70,'≠',18,'#E5484D']],b:[['소리가 달라요',50,4,'tn']],c:'물이 부족할 때와 잎이 잘릴 때 내는 소리가 <b>서로 달라요</b>.'},
+ {s:[['P',55,'happy','d','point','cma',1,1],['plant',150,96,1.5]],b:[['아파서 우는 게<br>아니에요',36,4,'tl']],c:'<b>하지만</b> 고통의 울부짖음이 아니라 <b>자동적인 생존 반응</b>이에요. 냄새·소리는 몸을 지키는 도구!'}];
+CMD['14-5']=[
+ {s:[['P',60,'happy','d','down','cmp2',1,1],['bulb',140,50,1.2]],b:[['개념은 필수!',40,4,'tl']],c:'<b>개념</b>은 인간의 생존에 꼭 필요해요.'},
+ {s:[['P',60,'shock','c','down','cma',1,1],['eye',140,60,1.3],['q',140,100]],b:[['없는 게 보여?',36,4,'tl']],c:'<b>하지만 조심</b>해야 해요. 개념은 본질주의로 가는 문을 열고, <b>존재하지 않는 것</b>을 보게 만들어요.'},
+ {s:[['dark',0,0,200,130],['P',70,'think','a','chin','cma',1,1],['text',140,80,'?',22,'#fff'],['text',168,56,'?',16,'#fff']],b:[['검은 고양이<br>어디 있지?',72,4,'th tn']],c:'속담: <b>고양이가 없는</b> 어두운 방에서 검은 고양이를 찾기는 정말 어렵다.'},
+ {s:[['P',55,'think','c','hold','cmw',1,1],['magnify',60,96,.9],['cloud',145,56,1.2],['text',145,58,'본질?',10]],b:[],c:'과학의 역사에서도 잘못된 개념이 사람들을 <b>헛된 본질 탐색</b>으로 이끌었어요.'},
+ {s:[['P',55,'sad','c','down','cmw',1,1],['cloud',145,60,1.2],['text',145,62,'에테르',10],['x',145,60,1.6]],b:[],c:'<b>발광 에테르</b>: 빛이 지나갈 매개체로 우주를 채우고 있다고 믿었지만, 애초에 <b>없던</b> 검은 고양이였어요.'}];
+CMD['14-9']=[
+ {s:[['P',60,'think','d','chin','cma',1,1],['eye',145,60,1.4]],b:[['여기에 집중!',36,4,'th tl']],c:'우리는 세상의 <b>특정 특징에 초점</b>을 맞춰 이해해요.'},
+ {s:[['platypus',140,104,1.2],['magnify',60,60,1.6],['text',60,110,'털 한 가닥',10]],b:[['줌인 ↔ 줌아웃',50,4,'tn']],c:'오리너구리를 <b>확대</b>하면 털 한 가닥까지, <b>축소</b>하면 하나의 균일한 물체로 보여요.'},
+ {s:[['platypus',40,100,.7],['arrow',62,98,16],['crowd',100,96,.6],['arrow',122,98,16],['tree',165,94,.7],['text',100,46,'개체 → 종 → 생태계',10]],b:[],c:'보는 단위도 바꿀 수 있어요: <b>개체 → 종 → 생태계</b>. 관점 사이를 오갈 수 있죠(도구가 필요할 수도).'},
+ {s:[['P',55,'think','a','chin','cma',1,1],['eye',130,60,1],['ok',130,96],['eye',172,60,.8],['x',172,96]],b:[['한 번에 하나만',40,4,'th tl']],c:'<b>하지만</b> 한 번에 취할 수 있는 관점은 <b>하나뿐</b>이에요.'},
+ {s:[['P',55,'happy','c','point','cma',1,1],['text',145,70,'강조 ↑',13,'var(--good)'],['text',145,96,'나머지 외면',12,'#E5484D']],b:[],c:'<b>결론</b> 모든 관점은 일부를 강조하는 대신, <b>나머지는 외면</b>해요.'}];
+CMD['14-11']=[
+ {s:[['P',50,'happy','b','down','cma',1,1],['P',150,'happy','c','down','cma',1,-1]],b:[['방긋',30,4,'tl'],['나도 따라 웃게 돼!',70,4,'tr']],c:'남의 몸짓이 내 몸에 영향을 주고, 그게 <b>감정의 메아리</b>가 돼요. 남의 미소를 따라 하면 나도 행복해져요.'},
+ {s:[['P',55,'n','d','point','cma',1,1],['arrow',100,90,28],['heart',150,90,1.6]],b:[['몸이 먼저!',40,4,'sh tl']],c:'<b>이론</b>: 감정은 <b>몸에서</b> 생겨나요.'},
+ {s:[['P',70,'happy','a','down','cma',1,1],['pencil',70,87,.8],['up',150,60,1.6]],b:[['기분 좋아졌다!',60,4,'tn']],c:'<b>근거</b> 입꼬리만 올려도 기분이 좋아져요. 연필을 가로로 물어 억지 미소를 만든 사람들은 만화를 <b>더 재미있다</b>고 판단했어요.'},
+ {s:[['P',60,'shock','c','up','cma',1,1],['lines',30,90],['cat',160,108,1]],b:[['뛰고 있으니<br>무서운 거구나!',60,4,'tn']],c:'<b>요약</b> "달리고 있으니 나는 두려운 게 분명해" = 몸이 감정보다 <b>먼저</b>예요.'}];
+CMD['14-13']=[
+ {s:[['P',50,'think','d','chin','cma',1,1],['thought',140,46,90,50],['house',140,48,1,1]],b:[],c:'모든 것은 만들어지기 <b>전에</b>, 만든 사람의 <b>마음속에서 먼저 완성</b>돼요.'},
+ {s:[['house',45,96,1.1,1],['arrow',75,96,40],['house',150,96,1.2],['car',150,50,.8]],b:[['생각 → 다듬기 → 완성',50,4,'tn']],c:'집·자동차·옷도 <b>아이디어 → 연구·다듬기 → 완성</b>의 과정을 거쳐요.'},
+ {s:[['P',50,'happy','a','chin','cma',1,1],['thought',140,46,90,50],['star',125,46],['P',155,'happy','a','up','cma',.45,1]],b:[],c:'<b>사람의 미래</b>도 똑같아요. 마음속에서 먼저 미래의 모습을 그려요.'},
+ {s:[['stairs',120,108,1.2],['P',150,'happy','c','up','cma',.8,1],['star',175,30],['text',45,70,'생각',11],['text',45,88,'결정',11],['text',45,106,'행동',11]],b:[],c:'생각·결정·행동이 조화를 이루면, 마음속 결론이 <b>현실</b>이 돼요.'}];
+CMD['14-15']=[
+ {s:[['P',60,'happy','b','hold','cma',1,1],['sandwich',60,110,.8],['star',150,60]],b:[['신선한 게 최고!',40,4,'tl']],c:'우리는 늘 <b>신선한</b> 음식을 원해요. 그런데 여기엔 <b>숨은 환경 비용</b>이 있어요.'},
+ {s:[['greenhouse',50,104,1.2],['sat',140,34,1],['truck',145,110,1]],b:[],c:'<b>비용 ①</b> 일 년 내내 신선 농산물을 대려면 추운 곳에도 <b>온실</b>을 짓고, 살충제·위성 물류에 기대야 해요.'},
+ {s:[['paper',55,80,1.4,'기한 끝'],['arrow',85,90,24],['bin',150,104,1.3],['sandwich',150,80,.8]],b:[['멀쩡한데 버려요',50,4,'tn']],c:'<b>비용 ②</b> 음식 낭비! 날짜 라벨이 멀쩡한 음식을 버리는 걸 <b>합법</b>으로 만들어 줘요.'},
+ {s:[['P',55,'angry','d','point','cma',1,1],['bin',145,104,1.3],['ex',145,60]],b:[['낭비가 너무 심해!',40,4,'sh tl']],c:'운동가들이 <b>과잉 생산과 음식 낭비</b>를 폭로했어요.'},
+ {s:[['sandwich',30,60,.7],['sandwich',55,70,.7],['sandwich',40,84,.7],['sandwich',65,96,.7],['arrow',88,90,24],['bin',150,104,1.3],['text',100,40,'공급 > 수요',12,'#E5484D']],b:[],c:'<b>예</b> 진열대가 비어 보이지 않게 샌드위치를 과잉 주문 → 공급 > 수요 → <b>엄청난 낭비</b>.'}];
+
+CMD['16-1']=[
+ {s:[['bike',100,106,1.4],['P',100,'n','c','hold','cma',.75,1],['text',100,30,'페달 멈춤',11]],b:[],c:'자전거 페달을 멈추면 앞으로 미는 힘이 없어서 <b>서서히 느려져요</b>.'},
+ {s:[['P',55,'think','a','chin','cma',1,1],['bike',145,106,1.1],['q',145,60]],b:[['더 빨리 멈추려면?',40,4,'th tl']],c:'더 빨리 멈추고 싶다면? → <b>브레이크</b>를 잡아요!'},
+ {s:[['bike',110,106,1.6],['text',60,50,'← 마찰력',13,'#E5484D'],['text',150,50,'진행 →',11]],b:[],c:'브레이크가 바퀴 테두리를 문지르며 힘을 줘요. 이게 <b>마찰력</b>, 움직임과 <b>반대 방향(뒤쪽)</b>으로 작용해요.'},
+ {s:[['cart',110,110,1.5],['wave',30,60,40],['wave',30,74,40],['text',140,60,'축의 마찰',11],['text',60,96,'공기 저항',10]],b:[],c:'브레이크가 없어도 마찰은 있어요. 카트 바퀴 <b>축의 마찰</b>, <b>공기 저항</b>도 뒤로 밀어요.'}];
+CMD['16-3']=[
+ {s:[['P',60,'happy','d','down','cmw',1,1],['paper',145,84,1.4,'연구']],b:[['성장 사고방식!',40,4,'tl']],c:'Dweck은 <b>성장 사고방식</b> 연구의 선구자예요.'},
+ {s:[['P',55,'happy','b','point','cma',1,1],['P',145,'happy','c','down','cma',.8,-1]],b:[['똑똑하구나!',36,4,'tl']],c:'"<b>똑똑하다</b>"고 칭찬받은 아이는 쉬운 과제만 골라요 → <b>고정 사고방식</b>, 나중 성과 ↓'},
+ {s:[['P',60,'sad','c','down','cma',.9,1],['paper',145,84,1.3,'어려움'],['x',145,84,1.2]],b:[['틀리면 안 똑똑한<br>거잖아…',40,4,'th tl']],c:'어려운 과제는 "난 안 똑똑해"의 증거가 될까 봐 <b>피해요</b>.'},
+ {s:[['P',55,'happy','b','point','cma',1,1],['P',145,'happy','a','up','cma',.8,-1]],b:[['열심히 했구나!',36,4,'sh tl']],c:'<b>반면</b> <b>노력</b>을 칭찬받은 아이는 <b>성장 사고방식</b>을 가져요.'},
+ {s:[['stairs',110,108,1.3],['P',138,'happy','a','up','cma',.75,1],['star',170,30],['up',50,56,1.5]],b:[],c:'노력이 성공을 이끌고, 계속 시도하면 나아진다는 걸 배워요. 그래서 <b>더 힘든 일</b>에 도전하고 <b>자신을 더 좋게</b> 느껴요.'},
+ {s:[['P',55,'happy','d','point','cmw',1,1],['text',145,72,'노력',15,'var(--pri)'],['text',145,96,'= 조절 가능!',11]],b:[],c:'<b>핵심</b> 노력은 아이가 <b>스스로 통제할 수 있는</b> 변수예요.'}];
+CMD['16-5']=[
+ {s:[['P',60,'shock','a','down','cma',1,1],['mic',145,96,1.4],['snd',160,70,1]],b:[['이게 내 목소리?!',40,4,'sh tl']],c:'녹음된 내 목소리를 들으면 깜짝! 억양은 더 강하고, 목소리는 <b>더 높게</b> 들려요.'},
+ {s:[['P',60,'n','c','down','cma',1,1],['snd',95,70,1],['ear',150,70,1.4],['text',150,110,'공기',11]],b:[['경로 ①',40,4,'tn']],c:'<b>경로 ①</b> 소리가 <b>공기</b>를 타고 외이 → 중이 → 내이로 가요. 다른 소리를 듣는 방식과 같아요.'},
+ {s:[['P',60,'n','d','down','cma',1,1],['bone',140,70,1.3],['ear',175,70,.9],['text',140,105,'뼈',12]],b:[['경로 ②',40,4,'tn']],c:'<b>경로 ②</b> 성대의 진동이 <b>뼈</b>를 타고 내이를 직접 자극해요.'},
+ {s:[['P',60,'happy','a','down','cma',1,1],['text',145,66,'낮은 소리 ↑',12,'var(--pri)'],['text',145,92,'더 깊고 풍부',11]],b:[['내 귀엔 멋진데…',40,4,'th tl']],c:'뼈 경로에서는 <b>낮은 주파수</b>가 강조돼요. 그래서 내 목소리는 남들이 듣는 것보다 <b>내 귀에 더 깊고 풍부하게</b> 들려요.'}];
+CMD['16-7']=[
+ {s:[['tree',140,90,1.1],['squirrel',60,108,1.3,'#D0603C']],b:[['여긴 내 숲!',40,4,'tl']],c:'<b>주장</b> 외래종이 갑자기 들어오면 문제가 자주 생겨요. 영국의 토종 <b>붉은 다람쥐</b> 이야기가 그 예예요.'},
+ {s:[['squirrel',50,108,1.2,'#D0603C'],['vs',100,80],['squirrel',150,108,1.2,'#9AA0A6',-1],['text',150,40,'1870년대',11]],b:[],c:'1870년대 외래종 <b>회색 다람쥐</b>가 들어와 같은 먹이·서식지를 두고 경쟁해요.'},
+ {s:[['squirrel',60,108,1.3,'#9AA0A6'],['acorn',110,110],['acorn',130,112],['acorn',150,110],['squirrel',175,110,.8,'#D0603C',-1],['q',175,70]],b:[['덜 익어도 냠냠',40,4,'tl']],c:'<b>우위 ①</b> 붉은 다람쥐는 다 익은 도토리만 소화하는데, 회색은 <b>덜 익은 도토리</b>도 먹어서 먹이를 먼저 없애 버려요.'},
+ {s:[['tree',100,90,1],['squirrel',40,110,.8,'#9AA0A6'],['squirrel',70,112,.7,'#9AA0A6'],['squirrel',140,110,.8,'#9AA0A6',-1],['squirrel',170,112,.7,'#9AA0A6',-1]],b:[],c:'<b>우위 ②</b> 회색은 더 빽빽하게, 다양한 곳에 살아서 숲이 망가져도 살아남아요.'},
+ {s:[['squirrel',70,110,1,'#D0603C'],['down',145,60,1.6],['text',145,105,'멸종 직전',12,'#E5484D']],b:[],c:'<b>결과</b> 붉은 다람쥐는 잉글랜드에서 <b>멸종 직전</b>까지 몰렸어요.'}];
+CMD['16-9']=[
+ {s:[['P',55,'n','c','down','cma',1,1],['brain',145,70,1.4],['text',145,108,'공사 중',11,'#C58A2A']],b:[['아직 완성 전!',40,4,'tl']],c:'청소년의 뇌는 <b>20대 초반</b>까지 완전히 발달하지 않아요.'},
+ {s:[['brain',70,70,1.6],['gear',100,62,.9],['text',150,60,'전전두엽',12],['text',150,84,'늦게 성숙',11,'#E5484D']],b:[],c:'<b>전전두엽</b>(미리 생각하고 결과를 따지는 통제 센터)은 <b>늦게</b> 성숙해요. 화나서 쓴 문자를 바로 안 보내게 막아 주는 곳이에요.'},
+ {s:[['brain',70,70,1.6],['heart',70,72,1],['text',150,60,'대뇌변연계',12],['text',150,84,'먼저 성숙',11,'var(--good)']],b:[],c:'<b>대뇌변연계</b>(감정 처리)는 <b>먼저</b> 성숙해서 결정에 더 큰 영향을 줘요.'},
+ {s:[['P',150,'shock','c','down','cma',1,-1],['heart',50,90,2],['gear',95,60,1],['text',72,40,'감정 > 논리',12,'#E5484D']],b:[],c:'감정 > 논리 불균형 → <b>감정에 끌린 결정</b>을 내리기 쉬워요.'}];
+CMD['16-11']=[
+ {s:[['crowd',60,100,1],['crowd',110,100,.9],['arrow',145,96,30]],b:[['먹을 거 찾아 이동!',50,4,'tn']],c:'<b>구석기</b>: 20~60명이 무리 지어 먹을 것을 찾아 <b>이동</b>했어요.'},
+ {s:[['wheat',30,104],['wheat',50,104],['wheat',70,104],['hut',140,108,1.3]],b:[['여기 살자!',60,4,'tn']],c:'<b>농사</b>를 시작하자 농경지 근처에 <b>정착</b>했어요.'},
+ {s:[['hut',40,108,1],['hut',100,104,1.2],['hut',160,108,1],['crowd',100,60,.7]],b:[],c:'마을이 커지고 <b>공동체 생활</b>이 시작됐어요.'},
+ {s:[['P',55,'happy','b','hold','cma',1,1],['wheat',58,108,.8],['P',145,'happy','c','hold','cma',1,-1],['hammer',142,108,.8]],b:[['난 농사',30,4,'tl'],['난 도구',70,4,'tr']],c:'<b>분업</b>: 누구는 작물을, 누구는 집 짓기·도구 만들기를 맡아요.'},
+ {s:[['P',55,'happy','a','up','cma',1,1],['P',145,'happy','c','up','cma',1,-1],['hut',100,110,.9]],b:[['같이 하니 빠르다!',50,4,'sh tn']],c:'<b>협업</b>: 돌도끼·돌칼 만들기를 나눠 하니 같은 시간에 도구를 더 많이! 공동체 덕분에 더 <b>효율적</b>이 됐어요.'}];
+CMD['16-13']=[
+ {s:[['tree',50,90,1],['drop',20,40],['tree',150,90,.8,'#A8C69F'],['text',150,30,'메마른 땅',10]],b:[],c:'숲 속 너도밤나무들은 자리마다 <b>토양(물·영양분)</b>이 크게 달라요.'},
+ {s:[['sugar',40,60],['sugar',60,60],['sugar',50,44],['sugar',150,60],['q',100,70],['tree',50,100,.6],['tree',150,100,.6]],b:[],c:'그럼 당 생산량, 즉 <b>광합성 비율</b>도 나무마다 다르겠죠?'},
+ {s:[['tree',55,90,.9],['tree',145,90,.9],['text',100,40,'=',22,'var(--good)']],b:[['However!',50,4,'sh tn']],c:'<b>하지만</b> 실제로는 비율이 <b>같아요</b>. 잎당 같은 양의 당을 만들어요.'},
+ {s:[['tree',45,78,.8],['tree',155,78,.8,'#A8C69F'],['roots',100,118,110],['sugar',100,112,.8],['arc',60,110,140,110]],b:[],c:'당이 많은 나무가 <b>뿌리</b>를 통해 적은 나무에게 나눠 줘서 차이를 맞춰요.'},
+ {s:[['tree',40,86,.7],['tree',100,86,.7],['tree',160,86,.7],['roots',100,118,140],['heart',70,30],['heart',130,30]],b:[],c:'<b>결론</b> 뿌리 연결망은 <b>아무도 너무 뒤처지지 않게</b> 하는 시스템이에요.'}];
+CMD['16-15']=[
+ {s:[['vampire',60,96,1],['P',60,'angry','c','down','cmf',1,1],['P',150,'shock','b','down','cma',1,-1]],b:[['물리면 너도 흡혈귀!',40,4,'tl']],c:'<b>전설</b>: 흡혈귀에게 물린 사람도 흡혈귀가 돼요.'},
+ {s:[['P',55,'happy','d','point','cma',1,1],['paper',145,84,1.4,'계산']],b:[['계산해 보면 알아요',40,4,'tl']],c:'<b>주장</b> 물리학 교수 Efthimiou가 간단한 계산으로 흡혈귀가 <b>있을 수 없음</b>을 증명했어요.'},
+ {s:[['globe',55,74,1.6],['text',55,116,'1600년 5억 명',10],['cal',150,74,1.6,'1명/달']],b:[],c:'<b>가정</b> 1600년 인구 5억 명, 첫 흡혈귀가 <b>한 달에 한 명</b>씩만 문다면?'},
+ {s:[['num',30,80,'2',16],['num',70,80,'4',18],['num',112,80,'8',21],['num',160,82,'16',25,'#E5484D'],['text',100,112,'매달 2배!',12]],b:[],c:'흡혈귀 수가 매달 <b>두 배</b>씩 늘어요: 2 → 4 → 8 → 16…'},
+ {s:[['globe',100,74,1.8],['vampire',100,84,.45],['text',100,120,'2년 반 만에 전부',11,'#E5484D']],b:[],c:'<b>2년 반</b> 만에 인류 전부가 흡혈귀가 돼요!'},
+ {s:[['P',70,'happy','a','wave','cma',1,1],['sun',150,40,1.2],['ok',150,96,1.6]],b:[['근데 다들 멀쩡한걸?',40,4,'tl']],c:'<b>그런데</b> 세상은 멀쩡하죠? 그러니 흡혈귀는 <b>없어요</b>.'}];
+CMD['17-1']=[
+ {s:[['laptop',60,90,1.4],['film',145,70,1]],b:[['어디든 바로!',60,4,'tn']],c:'이제 모든 편집 시스템은 <b>비선형</b>이에요. 원하는 곳 어디든 바로 갈 수 있어요.'},
+ {s:[['laptop',100,96,1.3],['star',40,40],['star',160,36,.8],['star',60,70,.6]],b:[['특수 효과 · 바로 이동',50,4,'tn']],c:'<b>장점 ①</b> 다양한 특수 효과! <b>장점 ②</b> 빨리 감기·되감기 없이 원하는 장면으로 바로 가요.'},
+ {s:[['film',100,70,1.4],['ok',100,104,1.4],['text',100,40,'+ 추가 / − 삭제',12]],b:[],c:'<b>장점 ③</b> 어디든 쉽게 추가·삭제하고, 길이도 자동으로 맞춰져요.'},
+ {s:[['typewriter',45,100,.9],['P',45,'sad','c','down','cma',.55,1],['laptop',150,102,1],['P',150,'happy','a','down','cma',.55,1],['vs',100,90]],b:[['처음부터 다시…',28,4,'tl'],['키 몇 번!',72,4,'tr']],c:'<b>비유</b> 선형 = 타자기(고치려면 전부 다시), 비선형 = 워드 프로그램(키 몇 번이면 끝)!'}];
+CMD['17-3']=[
+ {s:[['water',0,90,200,40],['seal',150,92,1.1],['P',55,'happy','b','down','cma',1,1]],b:[['나도 있어!',36,4,'tl']],c:'인간도 <b>해양 포유류</b>처럼 <b>잠수 반사</b>가 있어요.'},
+ {s:[['water',0,100,90,30],['P',45,'n','c','down','cma',.8,1],['x',45,40],['bowl',145,110,1.1],['ok',145,50,1.2]],b:[],c:'단, <b>얼굴</b>(입·코 주변)이 물에 잠길 때만! 몸만 물에 있으면 X, 얼굴만 그릇에 담가도 O.'},
+ {s:[['heartbeat',100,50,1.6,'var(--pri)'],['text',100,86,'심박 ½',14],['text',100,110,'기도 닫힘 · 피는 장기로',10]],b:[],c:'<b>효과</b> 기도가 닫히고 폐 통로가 좁아지고 <b>심박이 절반</b>으로! 혈액은 중요한 장기로 몰려요.'},
+ {s:[['water',0,90,200,40],['monkey',70,86,1.1],['heartbeat',150,50,1.2],['sweat',90,60]],b:[],c:'<b>대조</b> 침팬지·고릴라는 물에 들어가면 당황하고 심장이 빨라져서 익사해요.'}];
+CMD['17-5']=[
+ {s:[['P',60,'think','d','chin','cmw',1,1],['magnify',145,70,1.4]],b:[['닮음에도 종류가 있어',40,4,'th tl']],c:'생물학자는 <b>두 종류의 닮음</b>을 구별해요.'},
+ {s:[['bird',55,80,1.6],['bee',145,80,1.6],['text',100,116,'기능 같음 · 따로 진화',10]],b:[['상사',50,4,'sh tn']],c:'<b>상사</b>: 기능은 같지만 <b>따로</b> 진화했어요. 새의 날개와 벌의 날개처럼요.'},
+ {s:[['batanimal',50,80,1.3],['horse',150,96,1.1],['arc',60,58,140,62]],b:[['상동',50,4,'sh tn']],c:'<b>상동</b>: <b>공통 조상</b>에서 물려받은 공통 구조예요. 기능은 상관없어요.'},
+ {s:[['batanimal',45,70,1],['horse',150,90,.9],['bone',100,108,1.2],['text',100,40,'원래 같은 앞다리',10]],b:[],c:'<b>예</b> 박쥐의 날개와 말의 앞다리는 모두 포유류 조상의 앞다리가 변한 거예요.'},
+ {s:[['P',50,'happy','d','hold','cmw',1,1],['bone',140,90,1.4],['magnify',150,60,1]],b:[['뼈 개수·연결 방식!',40,4,'tl']],c:'<b>구별법</b> 전체 구조와 <b>가장 쓸모없어 보이는 특징</b>(뼈 개수·연결 방식)을 봐요.'}];
+CMD['17-7']=[
+ {s:[['bird',70,80,1.6],['bird',140,96,1,'cmy',-1]],b:[['이렇게 하는 거야',40,4,'tl']],c:'<b>유년기</b>는 주변 환경을 배우는 시간이에요.'},
+ {s:[['bird',70,84,1.6],['gear',140,70,1.6]],b:[['태어날 때부터 정해짐',50,4,'tn']],c:'유년기가 없으면 타고난 <b>본능(하드웨어)</b>에 기대야 해서 <b>덜 유연</b>해요.'},
+ {s:[['map',60,80,1.6],['bird',150,60,1.1],['down',150,100,1.2]],b:[['옛날 지도대로',50,4,'tn']],c:'이동법을 <b>타고난</b> 새는 비효율적인 경로로 날아요. 바뀐 환경에 적응을 못 해요.'},
+ {s:[['wheat',30,108],['wheat',50,108],['band',80,100,60,20,'#C9785A'],['bird',150,56,1],['q',176,44]],b:[],c:'호수가 마르고 숲이 농지로 바뀌고 번식지가 북쪽으로 옮겨 가도, <b>옛 지도</b>대로 날아요.'},
+ {s:[['bird',60,60,1.3],['bird',100,80,.9,'cmy'],['bird',140,62,.9,'cmy'],['star',175,34]],b:[],c:'유년기가 길고 <b>부모와 함께</b> 이동하며 배운 새는 <b>가장 효율적인</b> 경로로 날아요.'},
+ {s:[['P',55,'happy','d','point','cma',1,1],['text',145,70,'유년기',13],['text',145,92,'= 유연성',13,'var(--good)']],b:[],c:'<b>결론</b> 유년기는 문화를 전해 주고, 문화는 유전자보다 빨리 진화해요. 그래서 변하는 세상에서 <b>유연성</b>을 줘요.'}];
+CMD['17-11']=[
+ {s:[['P',60,'n','a','down','cma',1,1],['mirror',150,80,1.1]],b:[['어제랑 똑같네',40,4,'th tl']],c:'어떤 변화는 <b>너무 느려서</b> 잘 안 보여요. 거울 속 얼굴은 어제·지난달과 똑같아 보여요.'},
+ {s:[['clock',60,70,1.8],['text',140,66,'10분 전',12],['text',140,88,'≠ 지금',13,'#E5484D']],b:[],c:'<b>하지만</b> 실제로는 10분 전의 얼굴과도 <b>같을 수 없어요</b>.'},
+ {s:[['photo',60,80,1.6],['text',60,120,'10년 전',10],['P',150,'shock','a','down','cma',1,-1]],b:[['이렇게 달랐어?!',60,4,'tr']],c:'<b>증거</b> 5~10년 전 사진을 보면 차이가 확 보여요.'},
+ {s:[['mirror',145,80,1.1],['P',60,'shock','a','down','cma',1,1],['q',145,80]],b:[['누구세요…?',40,4,'tl']],c:'거울 없이 1년을 살다 보면 깜짝 놀라고, 10년이면 거울 속 사람이 <b>나인지 못 알아볼</b> 수도 있어요.'},
+ {s:[['P',60,'happy','a','point','cma',1,1],['clock',150,70,1.4],['arc',120,50,170,40]],b:[],c:'<b>결론</b> 내 얼굴조차 <b>순간순간</b> 변하고 있어요.'}];
+CMD['17-13']=[
+ {s:[['bread',55,90,1.6],['candy',140,90,1.6],['text',100,40,'전부 = 당',13]],b:[],c:'<b>모든 탄수화물</b>은 기본적으로 <b>당</b>이에요.'},
+ {s:[['chain',100,64,2],['ok',100,104,1.2]],b:[['비타민·무기질을 꼭!',50,4,'tn']],c:'<b>좋은 것: 복합 탄수화물</b>. 분해하기 어렵고, 비타민·무기질을 사슬 속에 담고 있어요.'},
+ {s:[['P',55,'happy','b','up','cma',1,1],['battery',145,66,1.6,3],['clock',145,104,1]],b:[['몇 시간 거뜬!',40,4,'tl']],c:'<b>천천히</b> 분해되며 영양소를 내놓고, <b>몇 시간</b> 동안 연료가 돼요.'},
+ {s:[['candy',60,80,2],['text',150,64,'구조 단순',11],['text',150,86,'영양소 거의 X',11,'#E5484D']],b:[],c:'<b>나쁜 것: 단순당</b>. 구조가 단순해 분해가 쉽고, 영양소는 거의 없어요.'},
+ {s:[['candy',40,60,1],['arrow',58,60,24],['fat',115,62,1.6],['P',165,'sad','c','down','cma',.85,-1]],b:[],c:'빨리 분해돼서 몸이 <b>못 쓴 건 지방</b>으로 저장돼요.'}];
+CMD['17-15']=[
+ {s:[['tv',150,80,1.3],['sofa',60,108,1],['P',60,'happy','c','down','cma',.8,1]],b:[['여가 1위!',40,4,'tl']],c:'TV는 미국·유럽의 <b>여가 활동 1위</b>! 자유 시간의 절반 이상을 차지해요.'},
+ {s:[['sofa',80,108,1.3],['P',80,'sleep','a','down','cma',.8,1],['tv',165,80,.8]],b:[],c:'보통은 TV를 <b>쉬고, 고민을 잊는</b> 수단이라고 생각하죠.'},
+ {s:[['P',60,'sad','b','down','cma',1,1],['tv',150,80,1.2]],b:[['외로우니까<br>TV나 볼까…',36,4,'th tl']],c:'<b>새 증거</b> 외롭거나 관계가 그리울 때 좋아하는 프로그램을 <b>더</b> 봐요.'},
+ {s:[['P',60,'happy','b','down','cma',1,1],['tv',150,80,1.2],['heart',150,42,1]],b:[],c:'<b>단기</b> 적어도 잠깐은 사회적 욕구를 <b>어느 정도</b> 채워 줘요.'},
+ {s:[['hands',60,80,1.6],['crowd',145,96,1.1],['x',100,40,1.6]],b:[],c:'<b>장기</b> 봉사, 사람 만나기처럼 더 오래가는 활동 시간을 <b>밀어내요</b>.'},
+ {s:[['tv',55,80,1.1],['text',55,82,'Friends',8],['up',55,40,1],['crowd',145,96,1.1],['down',145,50,1]],b:[],c:'<b>요약</b> TV 속 <i>Friends</i>를 볼수록, 진짜 friends와 보내는 시간은 <b>줄어들어요</b>.'}];
+
+function cmFit(){document.querySelectorAll('.cmb:not([data-f])').forEach(b=>{const P=b.parentElement;const W=P.clientWidth,w=b.offsetWidth;if(!W||!w)return;b.dataset.f=1;let L=parseFloat(b.style.left)/100*W;L=Math.max(w/2+3,Math.min(W-w/2-3,L));b.style.left=L/W*100+'%'})}
+new MutationObserver(()=>requestAnimationFrame(cmFit)).observe(document.getElementById('app'),{childList:true,subtree:true});addEventListener('resize',()=>{document.querySelectorAll('.cmb[data-f]').forEach(b=>delete b.dataset.f)});
+{const _nC=noteHTML;noteHTML=function(p){let h=_nC(p);if(!CMD[p.id])return h;const n=CMD[p.id].length;
+ h=h.replace(/(<section class="nsec" id="ns-sum"[\s\S]*?<\/section>)/,(m)=>m+`<section class="nsec" id="ns-toon"><h3>만화로 보기 <small>${n}컷으로 지문 전체 정리</small></h3>${cmHTML(p)}</section>`);
+ h=h.replace(/(<nav class="jump">)(<button[^>]*>[^<]*<\/button>)/,(m,a,b)=>a+b+`<button onclick="jumpTo('toon',this)">만화</button>`);return h}}
+(function(){const st=document.createElement("style");st.textContent=CMX.css;document.head.appendChild(st)})();
 saveST();initSync();(function(){render();document.getElementById('app').classList.add('enter');const s=document.createElement('div');s.className='splash in';s.style.setProperty('--d','.7s');s.innerHTML=SPH;document.body.appendChild(s);setTimeout(()=>{s.classList.add('out');setTimeout(()=>s.remove(),360)},750)})();
 </script></body></html>
